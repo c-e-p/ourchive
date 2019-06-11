@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'api.apps.ApiConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -38,7 +39,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'api.apps.ApiConfig'
 ]
 
 MIDDLEWARE = [
@@ -78,11 +78,11 @@ WSGI_APPLICATION = 'ourchive_app.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'ourchivedb',
+        'NAME': 'ourchive_db',
         'USER': 'ourchive',
         'PASSWORD': 'ourchive',
         'HOST': 'localhost',
-        'PORT': '',
+        'PORT': '5433',
     }
 }
 
