@@ -3,13 +3,16 @@ from django.contrib.auth.models import User, Group
 from rest_framework import viewsets
 from api.serializers import UserSerializer, GroupSerializer, WorkSerializer
 from api.models import Work
-from rest_framework import generics
+from rest_framework import generics, permissions
+from api.permissions import IsOwnerOrReadOnly
 
-class UserViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows users to be viewed or edited.
-    """
-    queryset = User.objects.all().order_by('-date_joined')
+class UserList(generics.ListAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+
+class UserDetail(generics.RetrieveAPIView):
+    queryset = User.objects.all()
     serializer_class = UserSerializer
 
 
@@ -23,7 +26,8 @@ class GroupViewSet(viewsets.ModelViewSet):
 class WorkList(generics.ListCreateAPIView):
     queryset = Work.objects.all()
     serializer_class = WorkSerializer
-
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly,
+                      IsOwnerOrReadOnly]
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
@@ -31,3 +35,5 @@ class WorkList(generics.ListCreateAPIView):
 class WorkDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Work.objects.all()
     serializer_class = WorkSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly,
+                      IsOwnerOrReadOnly]
