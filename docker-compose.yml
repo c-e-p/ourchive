@@ -12,7 +12,7 @@ services:
       - '5432:5432'
 
   elasticsearch:
-    image: elasticsearch:6.4.2
+    image: elasticsearch:7.1.1
     volumes:
       - './elasticsearch:/var/lib/elasticsearch/data'
     hostname: elasticsearch
