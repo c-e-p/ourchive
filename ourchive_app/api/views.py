@@ -20,9 +20,14 @@ class GroupViewSet(viewsets.ModelViewSet):
     queryset = Group.objects.all()
     serializer_class = GroupSerializer
 
-class WorkViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows works to be viewed or edited.
-    """
+class WorkList(generics.ListCreateAPIView):
+    queryset = Work.objects.all()
+    serializer_class = WorkSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+
+class WorkDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Work.objects.all()
     serializer_class = WorkSerializer

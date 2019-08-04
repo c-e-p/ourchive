@@ -8,18 +8,17 @@ class Work(models.Model):
 
     __tablename__ = 'works'
 
-    id = models.IntegerField(primary_key=True)
     uid = models.UUIDField(default=uuid.uuid4, editable=False)
     title = models.CharField(max_length=200)
-    work_summary = models.TextField()
-    work_notes = models.TextField()
-    is_complete = models.IntegerField()
-    process_status = models.IntegerField()
-    word_count = models.IntegerField()
-    cover_url = models.CharField(max_length=600)
-    cover_alt_text = models.CharField(max_length=600)
-    epub_id = models.CharField(max_length=600)
-    zip_id = models.CharField(max_length=600)
+    work_summary = models.TextField(null=True)
+    work_notes = models.TextField(null=True)
+    is_complete = models.BooleanField(default=False)
+    process_status = models.IntegerField(null=True)
+    word_count = models.IntegerField(default=0)
+    cover_url = models.CharField(max_length=600, null=True)
+    cover_alt_text = models.CharField(max_length=600, null=True)
+    epub_id = models.CharField(max_length=600, null=True)
+    zip_id = models.CharField(max_length=600, null=True)
     created_on = models.DateTimeField(auto_now_add=True)
     updated_on = models.DateTimeField(auto_now=True)
     anon_comments_permitted = models.BooleanField(default=True)
@@ -30,7 +29,7 @@ class Work(models.Model):
         on_delete=models.CASCADE,
     )
 
-    work_type = models.ForeignKey('WorkType', on_delete=models.CASCADE,)
+    work_type = models.ForeignKey('WorkType', on_delete=models.CASCADE,null=True)
 
     tags = models.ManyToManyField('Tag')
 
