@@ -6,6 +6,18 @@ from api.models import Work, Tag, Chapter
 from rest_framework import generics, permissions
 from api.permissions import IsOwnerOrReadOnly
 from rest_framework.response import Response
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.reverse import reverse
+
+
+@api_view(['GET'])
+@permission_classes((permissions.AllowAny,))
+def api_root(request, format=None):
+    return Response({
+        'users': reverse('user-list', request=request, format=format),
+        'works': reverse('work-list', request=request, format=format),
+        'chapters': reverse('chapter-list', request=request, format=format),
+    })
 
 class UserList(generics.ListAPIView):
     queryset = User.objects.all()
@@ -18,9 +30,6 @@ class UserDetail(generics.RetrieveAPIView):
 
 
 class GroupViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows groups to be viewed or edited.
-    """
     queryset = Group.objects.all()
     serializer_class = GroupSerializer
 
@@ -53,10 +62,14 @@ class TagDetail(generics.RetrieveUpdateDestroyAPIView):
                       IsOwnerOrReadOnly]
 
 class ChapterList(generics.ListCreateAPIView):
-    queryset = Chapter.objects.all()
     serializer_class = ChapterSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly,
                       IsOwnerOrReadOnly]
+    def get_queryset(self):
+        return Chapter.objects.all()
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
 
 class ChapterDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Chapter.objects.all()
@@ -72,5 +85,5 @@ class WorkChapters(generics.ListCreateAPIView):
 
     def get(self, request, *args, **kwargs):
         work = self.get_object()
-        return Response(work.chapter_set.all())
+        return Response(work.chapters.all())
     

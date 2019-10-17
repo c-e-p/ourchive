@@ -19,7 +19,10 @@ class TagSerializer(serializers.ModelSerializer):
         model = Tag
         fields = '__all__'
 
-class ChapterSerializer(serializers.ModelSerializer):
+class ChapterSerializer(serializers.HyperlinkedModelSerializer):
+    work = serializers.HyperlinkedRelatedField(view_name='work-detail', queryset=Work.objects.all())
+    user = serializers.HyperlinkedRelatedField(view_name='user-detail', format='html', read_only=True)
+    id = serializers.HyperlinkedIdentityField(view_name='chapter-detail', read_only=True)
     class Meta:
         model = Chapter
         fields = '__all__'
@@ -28,11 +31,9 @@ class ChapterSerializer(serializers.ModelSerializer):
 class WorkSerializer(serializers.HyperlinkedModelSerializer):
     tags = TagSerializer(many=True, required=False)
     user = serializers.HyperlinkedRelatedField(view_name='user-detail', format='html', read_only=True)
-    chapter_set = serializers.HyperlinkedRelatedField(many=True, view_name='chapter-detail', queryset=Chapter.objects.all())
+    chapters = serializers.HyperlinkedRelatedField(view_name='chapter-detail', format='html', read_only=True, many=True)
     id = serializers.HyperlinkedIdentityField(view_name='work-detail', read_only=True)
     class Meta:
         model = Work
-        fields = ['id', 'user', 'uid', 'title', 'work_summary', 'work_notes', 'is_complete', 'process_status', 'word_count',
-        	'cover_url', 'cover_alt_text', 'epub_id', 'zip_id', 'created_on', 'updated_on', 'anon_comments_permitted',
-        	'comments_permitted', 'tags', 'chapter_set']
+        fields = '__all__'
 

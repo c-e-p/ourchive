@@ -7,13 +7,16 @@ from rest_framework.routers import DefaultRouter
 
 
 urlpatterns = [
-    path('works/', views.WorkList.as_view()),
+	path('', views.api_root),
+    path('works/', views.WorkList.as_view(), name='work-list'),
     path('works/<int:pk>/', views.WorkDetail.as_view(), name='work-detail'),
-    path('users/', views.UserList.as_view()),
+    path('chapters/', views.ChapterList.as_view(), name='chapter-list'),
+    path('chapters/<int:pk>/', views.ChapterDetail.as_view(), name='chapter-detail'),
+    path('users/', views.UserList.as_view(), name='user-list'),
 	path('users/<int:pk>/',
         views.UserDetail.as_view(),
         name='user-detail'),
-	path('works/<int:pk>/chapters/', views.WorkChapters.as_view(), name='chapter-detail'),
+	path('works/<int:work_id>/chapters/<int:pk>', views.WorkChapters.as_view(), name='work-chapters'),
 ]
 
 

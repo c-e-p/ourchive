@@ -40,7 +40,6 @@ class WorkType(models.Model):
 
     __tablename__ = 'work_types'
 
-    id = models.IntegerField(primary_key=True)
     type_name = models.CharField(max_length=200)
 
     def __init__(self, type_name):
@@ -53,7 +52,6 @@ class Chapter(models.Model):
 
     __tablename__ = 'chapters'
 
-    id = models.IntegerField(primary_key=True)
     created_on = models.DateTimeField(auto_now_add=True)
     updated_on = models.DateTimeField(auto_now=True)
     title = models.CharField(max_length=200)
@@ -68,7 +66,13 @@ class Chapter(models.Model):
     summary = models.TextField(null=True)
 
     work = models.ForeignKey(
-        'Work',
+        'work',
+        on_delete=models.CASCADE,
+         related_name='chapters'
+    )
+
+    user = models.ForeignKey(
+        User,
         on_delete=models.CASCADE,
     )
 
@@ -79,7 +83,6 @@ class Comment(models.Model):
 
     __tablename__ = 'comments'
 
-    id = models.IntegerField(primary_key=True)
     text = models.TextField()
 
     user = models.ForeignKey(
@@ -109,7 +112,6 @@ class Tag(models.Model):
 
     __tablename__ = 'tags'
 
-    id = models.IntegerField(primary_key=True)
     text = models.CharField(max_length=120)
     
     tag_type = models.ForeignKey(
@@ -124,7 +126,6 @@ class TagType(models.Model):
 
     __tablename__ = 'tag_types'
 
-    id = models.IntegerField(primary_key=True)
     label = models.CharField(max_length=200)
 
     def __init__(self, label=None):
@@ -137,7 +138,6 @@ class Bookmark(models.Model):
 
     __tablename__ = 'bookmarks'
 
-    id = models.IntegerField(primary_key=True)
     curator_title = models.CharField(max_length=200)
     rating = models.IntegerField()
     description = models.TextField()
@@ -168,7 +168,6 @@ class BookmarkLink(models.Model):
 
     __tablename__ = 'bookmark_links'
 
-    id = models.IntegerField(primary_key=True)
     link = models.CharField(max_length=200)
     text = models.CharField(max_length=200)
 
@@ -187,7 +186,6 @@ class Message(models.Model):
 
     __tablename__ = 'messages'
 
-    id = models.IntegerField(primary_key=True)
     message_subject = models.CharField(max_length=200)
     message_content = models.TextField()
     message_read = models.BooleanField(default=False)
@@ -213,7 +211,6 @@ class Notification(models.Model):
 
     __tablename__ = 'notifications'
 
-    id = models.IntegerField(primary_key=True)
     content = models.CharField(max_length=200)
     created_on = models.DateTimeField(auto_now_add=True)
     route = models.CharField(max_length=200)
@@ -231,7 +228,6 @@ class Notification(models.Model):
 class NotificationType(models.Model):
     __tablename__ = 'notification_types'
 
-    id = models.IntegerField(primary_key=True)
     type_label = models.CharField(max_length=200)
     send_email = models.BooleanField(default=False)
 
