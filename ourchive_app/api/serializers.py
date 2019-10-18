@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User, Group
 from rest_framework import serializers
-from api.models import Work, Tag, Chapter, TagType, WorkType
+from api.models import Work, Tag, Chapter, TagType, WorkType, Bookmark
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     work_set = serializers.HyperlinkedRelatedField(many=True, view_name='work-detail', read_only=True)
@@ -42,31 +42,64 @@ class ChapterSerializer(serializers.HyperlinkedModelSerializer):
 class WorkSerializer(serializers.HyperlinkedModelSerializer):
     tags = TagSerializer(many=True, required=False)
     user = serializers.HyperlinkedRelatedField(view_name='user-detail', format='html', read_only=True)
-    chapters = serializers.HyperlinkedRelatedField(view_name='chapter-detail', format='html', read_only=True, many=True)
+    chapters = ChapterSerializer(many=True)
     id = serializers.HyperlinkedIdentityField(view_name='work-detail', read_only=True)
     class Meta:
         model = Work
         fields = '__all__'
 
     def update(self, work, validated_data):
-        tags = validated_data.pop('tags')
-        tag_id = tags[0]['text']
-        tag_type = tags[0]['tag_type']
-        tag, created = Tag.objects.get_or_create(text=tag_id, tag_type=tag_type)
-        work.tags.add(tag)
-        work.save()
+        if 'tags' in validated_data:
+            tags = validated_data.pop('tags')
+            for item in tags:
+                tag_id = item['text']
+                tag_type = item['tag_type']
+                tag, created = Tag.objects.get_or_create(text=tag_id, tag_type=tag_type)
+                work.tags.add(tag)
+            work.save()
         Work.objects.update(**validated_data)        
         return work
 
     def create(self, validated_data):
-        tag = None
+        work = Work.objects.create(**validated_data)
         if 'tags' in validated_data:
             tags = validated_data.pop('tags')
-            tag_id = tags[0]['text']
-            tag_type = tags[0]['tag_type']
-            tag, created = Tag.objects.get_or_create(text=tag_id, tag_type=tag_type)
-        work = Work.objects.create(**validated_data)
-        if tag is not None:
-            work.tags.add(tag)
+            for item in tags:
+                tag_id = item['text']
+                tag_type = item['tag_type']
+                tag, created = Tag.objects.get_or_create(text=tag_id, tag_type=tag_type)
+                work.tags.add(tag)
         work.save()
         return work
+
+class BookmarkSerializer(serializers.HyperlinkedModelSerializer):
+    work = serializers.HyperlinkedRelatedField(view_name='work-detail', queryset=Work.objects.all())
+    user = serializers.HyperlinkedRelatedField(view_name='user-detail', format='html', read_only=True)
+    id = serializers.HyperlinkedIdentityField(view_name='bookmark-detail', read_only=True)
+    tags = TagSerializer(many=True, required=False)
+    class Meta:
+        model = Bookmark
+        fields = '__all__'
+    def update(self, bookmark, validated_data):
+        if 'tags' in validated_data:
+            tags = validated_data.pop('tags')
+            for item in tags:
+                tag_id = item['text']
+                tag_type = item['tag_type']
+                tag, created = Tag.objects.get_or_create(text=tag_id, tag_type=tag_type)
+                bookmark.tags.add(tag)
+            bookmark.save()
+        Bookmark.objects.update(**validated_data)        
+        return bookmark
+
+    def create(self, validated_data):
+        bookmark = Bookmark.objects.create(**validated_data)
+        if 'tags' in validated_data:
+            tags = validated_data.pop('tags')
+            for item in tags:
+                tag_id = item['text']
+                tag_type = item['tag_type']
+                tag, created = Tag.objects.get_or_create(text=tag_id, tag_type=tag_type)
+                bookmark.tags.add(tag)
+        bookmark.save()
+        return bookmark

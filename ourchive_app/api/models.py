@@ -134,7 +134,7 @@ class Bookmark(models.Model):
 
     curator_title = models.CharField(max_length=200)
     rating = models.IntegerField()
-    description = models.TextField()
+    description = models.TextField(null=True, blank=True)
     created_on = models.DateTimeField(auto_now_add=True)
     updated_on = models.DateTimeField(auto_now=True)
     anon_comments_permitted = models.BooleanField(default=False)
