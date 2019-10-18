@@ -1,8 +1,8 @@
 from django.shortcuts import render
 from django.contrib.auth.models import User, Group
 from rest_framework import viewsets
-from api.serializers import UserSerializer, GroupSerializer, WorkSerializer, TagSerializer, ChapterSerializer
-from api.models import Work, Tag, Chapter
+from api.serializers import UserSerializer, GroupSerializer, WorkSerializer, TagSerializer, ChapterSerializer, TagTypeSerializer
+from api.models import Work, Tag, Chapter, TagType
 from rest_framework import generics, permissions
 from api.permissions import IsOwnerOrReadOnly
 from rest_framework.response import Response
@@ -17,6 +17,8 @@ def api_root(request, format=None):
         'users': reverse('user-list', request=request, format=format),
         'works': reverse('work-list', request=request, format=format),
         'chapters': reverse('chapter-list', request=request, format=format),
+        'tagtypes': reverse('tag-type-list', request=request, format=format),
+        'tags': reverse('tag-list', request=request, format=format),
     })
 
 class UserList(generics.ListAPIView):
@@ -48,18 +50,25 @@ class WorkDetail(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly,
                       IsOwnerOrReadOnly]
 
+class TagTypeDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = TagType.objects.all()
+    serializer_class = TagTypeSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+class TagTypeList(generics.ListCreateAPIView):
+    queryset = TagType.objects.all()
+    serializer_class = TagTypeSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
 class TagList(generics.ListCreateAPIView):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly,
-                      IsOwnerOrReadOnly]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
 class TagDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly,
-                      IsOwnerOrReadOnly]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
 class ChapterList(generics.ListCreateAPIView):
     serializer_class = ChapterSerializer

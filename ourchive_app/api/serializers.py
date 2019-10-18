@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User, Group
 from rest_framework import serializers
-from api.models import Work, Tag, Chapter
+from api.models import Work, Tag, Chapter, TagType
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     work_set = serializers.HyperlinkedRelatedField(many=True, view_name='work-detail', read_only=True)
@@ -14,7 +14,13 @@ class GroupSerializer(serializers.HyperlinkedModelSerializer):
         model = Group
         fields = ('url', 'name')
 
-class TagSerializer(serializers.ModelSerializer):
+class TagTypeSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = TagType
+        fields = '__all__'
+
+class TagSerializer(serializers.HyperlinkedModelSerializer):
+    tag_type = serializers.HyperlinkedRelatedField(view_name='tagtype-detail', queryset=TagType.objects.all())
     class Meta:
         model = Tag
         fields = '__all__'
@@ -37,3 +43,25 @@ class WorkSerializer(serializers.HyperlinkedModelSerializer):
         model = Work
         fields = '__all__'
 
+    def update(self, work, validated_data):
+        tags = validated_data.pop('tags')
+        tag_id = tags[0]['text']
+        tag_type = tags[0]['tag_type']
+        tag, created = Tag.objects.get_or_create(text=tag_id, tag_type=tag_type)
+        work.tags.add(tag)
+        work.save()
+        Work.objects.update(**validated_data)        
+        return work
+
+    def create(self, validated_data):
+        tag = None
+        if 'tags' in validated_data:
+            tags = validated_data.pop('tags')
+            tag_id = tags[0]['text']
+            tag_type = tags[0]['tag_type']
+            tag, created = Tag.objects.get_or_create(text=tag_id, tag_type=tag_type)
+        work = Work.objects.create(**validated_data)
+        if tag is not None:
+            work.tags.add(tag)
+        work.save()
+        return work

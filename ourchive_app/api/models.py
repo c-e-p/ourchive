@@ -10,15 +10,15 @@ class Work(models.Model):
 
     uid = models.UUIDField(default=uuid.uuid4, editable=False)
     title = models.CharField(max_length=200)
-    work_summary = models.TextField(null=True)
-    work_notes = models.TextField(null=True)
+    work_summary = models.TextField(null=True, blank=True)
+    work_notes = models.TextField(null=True, blank=True)
     is_complete = models.BooleanField(default=False)
     process_status = models.IntegerField(null=True)
     word_count = models.IntegerField(default=0)
-    cover_url = models.CharField(max_length=600, null=True)
-    cover_alt_text = models.CharField(max_length=600, null=True)
-    epub_id = models.CharField(max_length=600, null=True)
-    zip_id = models.CharField(max_length=600, null=True)
+    cover_url = models.CharField(max_length=600, null=True, blank=True)
+    cover_alt_text = models.CharField(max_length=600, null=True, blank=True)
+    epub_id = models.CharField(max_length=600, null=True, blank=True)
+    zip_id = models.CharField(max_length=600, null=True, blank=True)
     created_on = models.DateTimeField(auto_now_add=True)
     updated_on = models.DateTimeField(auto_now=True)
     anon_comments_permitted = models.BooleanField(default=True)
@@ -127,9 +127,6 @@ class TagType(models.Model):
     __tablename__ = 'tag_types'
 
     label = models.CharField(max_length=200)
-
-    def __init__(self, label=None):
-        self.label = label
 
     def __repr__(self):
         return '<TagType: {}>'.format(self.id)
