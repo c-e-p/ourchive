@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User, Group
 from rest_framework import serializers
-from api.models import Work, Tag, Chapter, TagType
+from api.models import Work, Tag, Chapter, TagType, WorkType
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     work_set = serializers.HyperlinkedRelatedField(many=True, view_name='work-detail', read_only=True)
@@ -17,6 +17,11 @@ class GroupSerializer(serializers.HyperlinkedModelSerializer):
 class TagTypeSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = TagType
+        fields = '__all__'
+
+class WorkTypeSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = WorkType
         fields = '__all__'
 
 class TagSerializer(serializers.HyperlinkedModelSerializer):

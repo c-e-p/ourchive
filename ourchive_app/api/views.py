@@ -1,8 +1,8 @@
 from django.shortcuts import render
 from django.contrib.auth.models import User, Group
 from rest_framework import viewsets
-from api.serializers import UserSerializer, GroupSerializer, WorkSerializer, TagSerializer, ChapterSerializer, TagTypeSerializer
-from api.models import Work, Tag, Chapter, TagType
+from api.serializers import UserSerializer, GroupSerializer, WorkSerializer, TagSerializer, ChapterSerializer, TagTypeSerializer, WorkTypeSerializer
+from api.models import Work, Tag, Chapter, TagType, WorkType
 from rest_framework import generics, permissions
 from api.permissions import IsOwnerOrReadOnly
 from rest_framework.response import Response
@@ -19,6 +19,7 @@ def api_root(request, format=None):
         'chapters': reverse('chapter-list', request=request, format=format),
         'tagtypes': reverse('tag-type-list', request=request, format=format),
         'tags': reverse('tag-list', request=request, format=format),
+        'worktypes': reverse('work-type-list', request=request, format=format),
     })
 
 class UserList(generics.ListAPIView):
@@ -49,6 +50,16 @@ class WorkDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = WorkSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly,
                       IsOwnerOrReadOnly]
+
+class WorkTypeDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = WorkType.objects.all()
+    serializer_class = WorkTypeSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+class WorkTypeList(generics.ListCreateAPIView):
+    queryset = WorkType.objects.all()
+    serializer_class = WorkTypeSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
 class TagTypeDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = TagType.objects.all()

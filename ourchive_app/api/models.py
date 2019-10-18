@@ -42,9 +42,6 @@ class WorkType(models.Model):
 
     type_name = models.CharField(max_length=200)
 
-    def __init__(self, type_name):
-        self.type_name = type_name
-
     def __repr__(self):
         return '<WorkType: {}>'.format(self.id)
 

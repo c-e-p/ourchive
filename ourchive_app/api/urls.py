@@ -15,6 +15,8 @@ urlpatterns = [
     path('users/', views.UserList.as_view(), name='user-list'),
     path('tagtypes/', views.TagTypeList.as_view(), name='tag-type-list'),
     path('tagtypes/<int:pk>/', views.TagTypeDetail.as_view(), name='tagtype-detail'),
+    path('worktypes/', views.WorkTypeList.as_view(), name='work-type-list'),
+    path('worktypes/<int:pk>/', views.WorkTypeDetail.as_view(), name='worktype-detail'),
     path('tags/', views.TagList.as_view(), name='tag-list'),
     path('tags/<int:pk>/', views.TagDetail.as_view(), name='tag-detail'),
 	path('users/<int:pk>/',
