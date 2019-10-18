@@ -21,6 +21,8 @@ urlpatterns = [
     path('tags/<int:pk>/', views.TagDetail.as_view(), name='tag-detail'),
     path('bookmarks/', views.BookmarkList.as_view(), name='bookmark-list'),
     path('bookmarks/<int:pk>/', views.BookmarkDetail.as_view(), name='bookmark-detail'),
+    path('comments/', views.CommentList.as_view(), name='comment-list'),
+    path('comments/<int:pk>/', views.CommentDetail.as_view(), name='comment-detail'),
 	path('users/<int:pk>/',
         views.UserDetail.as_view(),
         name='user-detail'),

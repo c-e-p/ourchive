@@ -1,8 +1,8 @@
 from django.shortcuts import render
 from django.contrib.auth.models import User, Group
 from rest_framework import viewsets
-from api.serializers import UserSerializer, GroupSerializer, WorkSerializer, TagSerializer, ChapterSerializer, TagTypeSerializer, WorkTypeSerializer, BookmarkSerializer
-from api.models import Work, Tag, Chapter, TagType, WorkType, Bookmark
+from api.serializers import UserSerializer, GroupSerializer, WorkSerializer, TagSerializer, ChapterSerializer, TagTypeSerializer, WorkTypeSerializer, BookmarkSerializer, CommentSerializer
+from api.models import Work, Tag, Chapter, TagType, WorkType, Bookmark, Comment
 from rest_framework import generics, permissions
 from api.permissions import IsOwnerOrReadOnly
 from rest_framework.response import Response
@@ -21,6 +21,7 @@ def api_root(request, format=None):
         'tags': reverse('tag-list', request=request, format=format),
         'worktypes': reverse('work-type-list', request=request, format=format),
         'bookmarks': reverse('bookmark-list', request=request, format=format),
+        'comments': reverse('comment-list', request=request, format=format),
     })
 
 class UserList(generics.ListAPIView):
@@ -111,6 +112,22 @@ class BookmarkList(generics.ListCreateAPIView):
 class BookmarkDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Bookmark.objects.all()
     serializer_class = BookmarkSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly,
+                      IsOwnerOrReadOnly]
+
+class CommentList(generics.ListCreateAPIView):
+    serializer_class = CommentSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly,
+                      IsOwnerOrReadOnly]
+    def get_queryset(self):
+        return Comment.objects.all()
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+class CommentDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly,
                       IsOwnerOrReadOnly]
 

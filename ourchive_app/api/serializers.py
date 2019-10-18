@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User, Group
 from rest_framework import serializers
-from api.models import Work, Tag, Chapter, TagType, WorkType, Bookmark
+from api.models import Work, Tag, Chapter, TagType, WorkType, Bookmark, Comment
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     work_set = serializers.HyperlinkedRelatedField(many=True, view_name='work-detail', read_only=True)
@@ -30,10 +30,17 @@ class TagSerializer(serializers.HyperlinkedModelSerializer):
         model = Tag
         fields = '__all__'
 
+class CommentSerializer(serializers.HyperlinkedModelSerializer):
+    user = serializers.HyperlinkedRelatedField(view_name='user-detail', format='html', read_only=True)
+    class Meta:
+        model = Comment
+        fields = '__all__'
+
 class ChapterSerializer(serializers.HyperlinkedModelSerializer):
     work = serializers.HyperlinkedRelatedField(view_name='work-detail', queryset=Work.objects.all())
     user = serializers.HyperlinkedRelatedField(view_name='user-detail', format='html', read_only=True)
     id = serializers.HyperlinkedIdentityField(view_name='chapter-detail', read_only=True)
+    comments = CommentSerializer(many=True)
     class Meta:
         model = Chapter
         fields = '__all__'
@@ -103,3 +110,4 @@ class BookmarkSerializer(serializers.HyperlinkedModelSerializer):
                 bookmark.tags.add(tag)
         bookmark.save()
         return bookmark
+

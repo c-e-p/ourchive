@@ -91,16 +91,19 @@ class Comment(models.Model):
         'Chapter',
         on_delete=models.CASCADE,
         null=True,
+        blank=True,
+        related_name='comments'
     )
 
     bookmark = models.ForeignKey(
         'Bookmark',
         on_delete=models.CASCADE,
         null=True,
+        blank=True
     )
 
 
-    comments = models.ManyToManyField('self')
+    comments = models.ManyToManyField('self', blank=True)
 
     def __repr__(self):
         return '<Comment: {}>'.format(self.id)
