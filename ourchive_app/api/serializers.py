@@ -110,7 +110,7 @@ class ChapterSerializer(serializers.HyperlinkedModelSerializer):
         return chapter.first()
 
     def create(self, validated_data):
-        validated_data['word_count'] = 0 if not chapter.text else len(chapter.text.split())
+        validated_data['word_count'] = 0 if not validated_data['text'] else len(validated_data['text'].split())
         chapter = Chapter.objects.create(**validated_data)
         return chapter
 
