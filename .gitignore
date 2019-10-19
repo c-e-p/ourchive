@@ -14,3 +14,4 @@ Pipfile.lock
 server/flask_app/uploads/*
 *.epub
 *.jpg
+.vscode
