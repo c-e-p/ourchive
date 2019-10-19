@@ -14,7 +14,9 @@ class Work(models.Model):
     work_notes = models.TextField(null=True, blank=True)
     is_complete = models.BooleanField(default=False)
     process_status = models.IntegerField(null=True)
-    word_count = models.IntegerField(default=0)
+    word_count = models.IntegerField(default=0, blank=True)
+    audio_length = models.IntegerField(default=0, blank=True)
+    chapter_count = models.IntegerField(default=0, blank=True)
     cover_url = models.CharField(max_length=600, null=True, blank=True)
     cover_alt_text = models.CharField(max_length=600, null=True, blank=True)
     epub_id = models.CharField(max_length=600, null=True, blank=True)
@@ -36,6 +38,9 @@ class Work(models.Model):
     def __repr__(self):
         return '<Work: {}>'.format(self.id)
 
+    def __str__(self):
+        return self.title
+
 class WorkType(models.Model):
 
     __tablename__ = 'work_types'
@@ -44,6 +49,9 @@ class WorkType(models.Model):
 
     def __repr__(self):
         return '<WorkType: {}>'.format(self.id)
+
+    def __str__(self):
+        return self.type_name
 
 class Chapter(models.Model):
 
@@ -76,6 +84,9 @@ class Chapter(models.Model):
     def __repr__(self):
         return '<Chapter: {}>'.format(self.id)
 
+    def __str__(self):
+        return self.title
+
 class Comment(models.Model):
 
     __tablename__ = 'comments'
@@ -88,7 +99,7 @@ class Comment(models.Model):
     )
 
     parent_comment = models.ForeignKey(
-        'comment',
+        'Comment',
         on_delete=models.CASCADE,
          related_name='replies',
          null=True,
@@ -126,21 +137,28 @@ class Tag(models.Model):
 
     def __repr__(self):
         return '<Tag: {}>'.format(self.id)
+    def __str__(self):
+        return self.text
 
 class TagType(models.Model):
 
     __tablename__ = 'tag_types'
 
     label = models.CharField(max_length=200)
+    admin_administrated = models.BooleanField(default=False)
+    required = models.BooleanField(default=False)
 
     def __repr__(self):
         return '<TagType: {}>'.format(self.id)
+
+    def __str__(self):
+        return self.label
 
 class Bookmark(models.Model):
 
     __tablename__ = 'bookmarks'
 
-    curator_title = models.CharField(max_length=200)
+    title = models.CharField(max_length=200)
     rating = models.IntegerField()
     description = models.TextField(null=True, blank=True)
     created_on = models.DateTimeField(auto_now_add=True)
@@ -162,9 +180,12 @@ class Bookmark(models.Model):
 
     tags = models.ManyToManyField('Tag')
 
+    def __str__(self):
+        return self.title
 
-def __repr__(self):
-    return '<Bookmark: {}>'.format(self.id)
+
+    def __repr__(self):
+        return '<Bookmark: {}>'.format(self.id)
 
 class BookmarkLink(models.Model):
 
@@ -188,9 +209,9 @@ class Message(models.Model):
 
     __tablename__ = 'messages'
 
-    message_subject = models.CharField(max_length=200)
-    message_content = models.TextField()
-    message_read = models.BooleanField(default=False)
+    subject = models.CharField(max_length=200)
+    content = models.TextField()
+    read = models.BooleanField(default=False)
 
     to_user = models.ForeignKey(
         User,
@@ -208,6 +229,9 @@ class Message(models.Model):
 
     def __repr__(self):
     	return '<Message: {}>'.format(self.id)
+
+    def __str__(self):
+        return self.subject
 
 class Notification(models.Model):
 
@@ -232,4 +256,24 @@ class NotificationType(models.Model):
     type_label = models.CharField(max_length=200)
     send_email = models.BooleanField(default=False)
 
+    def __repr__(self):
+        return '<NotificationType: {}>'.format(self.id)
 
+    def __str__(self):
+        return self.type_label
+
+
+class OurchiveSetting(models.Model):
+
+    __tablename__ = 'ourchive_settings'
+
+    
+    name = models.CharField(max_length=200)
+    value = models.CharField(max_length=200)
+    grouping = models.CharField(max_length=200)
+
+    def __repr__(self):
+        return '<OurchiveSettings: {}>'.format(self.id)
+
+    def __str__(self):
+        return self.name

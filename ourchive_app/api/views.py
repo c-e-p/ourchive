@@ -1,10 +1,10 @@
 from django.shortcuts import render
 from django.contrib.auth.models import User, Group
 from rest_framework import viewsets
-from api.serializers import UserSerializer, GroupSerializer, WorkSerializer, TagSerializer, ChapterSerializer, TagTypeSerializer, WorkTypeSerializer, BookmarkSerializer, CommentSerializer, MessageSerializer, NotificationSerializer, NotificationTypeSerializer
-from api.models import Work, Tag, Chapter, TagType, WorkType, Bookmark, Comment, Message, Notification, NotificationType
+from api.serializers import UserSerializer, GroupSerializer, WorkSerializer, TagSerializer, ChapterSerializer, TagTypeSerializer, WorkTypeSerializer, BookmarkSerializer, CommentSerializer, MessageSerializer, NotificationSerializer, NotificationTypeSerializer, OurchiveSettingSerializer
+from api.models import Work, Tag, Chapter, TagType, WorkType, Bookmark, Comment, Message, Notification, NotificationType, OurchiveSetting
 from rest_framework import generics, permissions
-from api.permissions import IsOwnerOrReadOnly, MessagePermissions, IsOwner
+from api.permissions import IsOwnerOrReadOnly, MessagePermissions, IsOwner, IsAdminOrReadOnly
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.reverse import reverse
@@ -25,6 +25,7 @@ def api_root(request, format=None):
         'messages': reverse('message-list', request=request, format=format),
         'notifications': reverse('notification-list', request=request, format=format),
         'notificationtypes': reverse('notification-type-list', request=request, format=format),
+        'settings': reverse('ourchive-setting-list', request=request, format=format),
     })
 
 class UserList(generics.ListAPIView):
@@ -44,8 +45,7 @@ class GroupViewSet(viewsets.ModelViewSet):
 class WorkList(generics.ListCreateAPIView):
     queryset = Work.objects.get_queryset().order_by('id')
     serializer_class = WorkSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly,
-                      IsOwnerOrReadOnly]
+    permission_classes = [IsOwnerOrReadOnly]
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
@@ -53,28 +53,27 @@ class WorkList(generics.ListCreateAPIView):
 class WorkDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Work.objects.get_queryset().order_by('id')
     serializer_class = WorkSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly,
-                      IsOwnerOrReadOnly]
+    permission_classes = [IsOwnerOrReadOnly]
 
 class WorkTypeDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = WorkType.objects.get_queryset().order_by('id')
     serializer_class = WorkTypeSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAdminOrReadOnly]
 
 class WorkTypeList(generics.ListCreateAPIView):
     queryset = WorkType.objects.get_queryset().order_by('id')
     serializer_class = WorkTypeSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAdminOrReadOnly]
 
 class TagTypeDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = TagType.objects.get_queryset().order_by('id')
     serializer_class = TagTypeSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAdminOrReadOnly]
 
 class TagTypeList(generics.ListCreateAPIView):
     queryset = TagType.objects.get_queryset().order_by('id')
     serializer_class = TagTypeSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAdminOrReadOnly]
 
 class TagList(generics.ListCreateAPIView):
     queryset = Tag.objects.get_queryset().order_by('id')
@@ -88,8 +87,7 @@ class TagDetail(generics.RetrieveUpdateDestroyAPIView):
 
 class ChapterList(generics.ListCreateAPIView):
     serializer_class = ChapterSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly,
-                      IsOwnerOrReadOnly]
+    permission_classes = [IsOwnerOrReadOnly]
     def get_queryset(self):
         return Chapter.objects.get_queryset().order_by('id')
 
@@ -99,13 +97,11 @@ class ChapterList(generics.ListCreateAPIView):
 class ChapterDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Chapter.objects.get_queryset().order_by('id')
     serializer_class = ChapterSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly,
-                      IsOwnerOrReadOnly]
+    permission_classes = [IsOwnerOrReadOnly]
 
 class BookmarkList(generics.ListCreateAPIView):
     serializer_class = BookmarkSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly,
-                      IsOwnerOrReadOnly]
+    permission_classes = [IsOwnerOrReadOnly]
     def get_queryset(self):
         return Bookmark.objects.get_queryset().order_by('id')
 
@@ -115,13 +111,11 @@ class BookmarkList(generics.ListCreateAPIView):
 class BookmarkDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Bookmark.objects.get_queryset().order_by('id')
     serializer_class = BookmarkSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly,
-                      IsOwnerOrReadOnly]
+    permission_classes = [IsOwnerOrReadOnly]
 
 class CommentList(generics.ListCreateAPIView):
     serializer_class = CommentSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly,
-                      IsOwnerOrReadOnly]
+    permission_classes = [IsOwnerOrReadOnly]
     def get_queryset(self):
         return Comment.objects.get_queryset().order_by('id')
 
@@ -131,8 +125,7 @@ class CommentList(generics.ListCreateAPIView):
 class CommentDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Comment.objects.get_queryset().order_by('id')
     serializer_class = CommentSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly,
-                      IsOwnerOrReadOnly]
+    permission_classes = [IsOwnerOrReadOnly]
 
 class MessageList(generics.ListCreateAPIView):
     serializer_class = MessageSerializer
@@ -168,13 +161,13 @@ class NotificationDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = NotificationSerializer
     permission_classes = [IsOwner, permissions.IsAdminUser]
 
-class WorkChapters(generics.ListCreateAPIView):
-    queryset = Work.objects.get_queryset().order_by('id')
-    serializer_class = ChapterSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly,
-                      IsOwnerOrReadOnly]
+class OurchiveSettingList(generics.ListCreateAPIView):
+    queryset = OurchiveSetting.objects.get_queryset().order_by('id')
+    serializer_class = OurchiveSettingSerializer
+    permission_classes = [IsAdminOrReadOnly]
 
-    def get(self, request, *args, **kwargs):
-        work = self.get_object()
-        return Response(work.chapters.get_queryset().order_by('id'))
+class OurchiveSettingDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = OurchiveSetting.objects.get_queryset().order_by('id')
+    serializer_class = OurchiveSettingSerializer
+    permission_classes = [IsAdminOrReadOnly]
     
