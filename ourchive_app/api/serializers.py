@@ -120,6 +120,8 @@ class WorkSerializer(serializers.HyperlinkedModelSerializer):
     user = serializers.HyperlinkedRelatedField(view_name='user-detail', format='html', read_only=True)
     chapters = ChapterSerializer(many=True, required=False, read_only=True)
     id = serializers.HyperlinkedIdentityField(view_name='work-detail', read_only=True)
+    word_count = serializers.IntegerField(read_only=True)
+    audio_length = serializers.IntegerField(read_only=True)
     class Meta:
         model = Work
         fields = '__all__'
@@ -129,8 +131,11 @@ class WorkSerializer(serializers.HyperlinkedModelSerializer):
         audio_length = 0
         word_count = 0
         for chapter in work.chapters.all():
-            audio_length += chapter.audio_length
-            word_count += chapter.word_count
+            print(chapter)
+            if chapter.audio_length:
+                audio_length += chapter.audio_length
+            if chapter.word_count:
+                word_count += chapter.word_count
         work.word_count = word_count
         work.audio_length = audio_length
         work.save()
