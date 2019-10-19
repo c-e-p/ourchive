@@ -90,7 +90,7 @@ class Comment(models.Model):
     )
 
     parent_comment = models.ForeignKey(
-        'comment',
+        'Comment',
         on_delete=models.CASCADE,
          related_name='replies',
          null=True,

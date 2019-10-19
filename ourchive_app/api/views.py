@@ -44,8 +44,7 @@ class GroupViewSet(viewsets.ModelViewSet):
 class WorkList(generics.ListCreateAPIView):
     queryset = Work.objects.get_queryset().order_by('id')
     serializer_class = WorkSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly,
-                      IsOwnerOrReadOnly]
+    permission_classes = [IsOwnerOrReadOnly]
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
@@ -53,18 +52,17 @@ class WorkList(generics.ListCreateAPIView):
 class WorkDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Work.objects.get_queryset().order_by('id')
     serializer_class = WorkSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly,
-                      IsOwnerOrReadOnly]
+    permission_classes = [IsOwnerOrReadOnly]
 
 class WorkTypeDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = WorkType.objects.get_queryset().order_by('id')
     serializer_class = WorkTypeSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAdminOrReadOnly]
 
 class WorkTypeList(generics.ListCreateAPIView):
     queryset = WorkType.objects.get_queryset().order_by('id')
     serializer_class = WorkTypeSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAdminOrReadOnly]
 
 class TagTypeDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = TagType.objects.get_queryset().order_by('id')
@@ -74,12 +72,12 @@ class TagTypeDetail(generics.RetrieveUpdateDestroyAPIView):
 class TagTypeList(generics.ListCreateAPIView):
     queryset = TagType.objects.get_queryset().order_by('id')
     serializer_class = TagTypeSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAdminOrReadOnly]
 
 class TagList(generics.ListCreateAPIView):
     queryset = Tag.objects.get_queryset().order_by('id')
     serializer_class = TagSerializer
-    permission_classes = [IsAdminOrReadOnly]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
 class TagDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Tag.objects.get_queryset().order_by('id')
@@ -88,8 +86,7 @@ class TagDetail(generics.RetrieveUpdateDestroyAPIView):
 
 class ChapterList(generics.ListCreateAPIView):
     serializer_class = ChapterSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly,
-                      IsOwnerOrReadOnly]
+    permission_classes = [IsOwnerOrReadOnly]
     def get_queryset(self):
         return Chapter.objects.get_queryset().order_by('id')
 
@@ -99,13 +96,11 @@ class ChapterList(generics.ListCreateAPIView):
 class ChapterDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Chapter.objects.get_queryset().order_by('id')
     serializer_class = ChapterSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly,
-                      IsOwnerOrReadOnly]
+    permission_classes = [IsOwnerOrReadOnly]
 
 class BookmarkList(generics.ListCreateAPIView):
     serializer_class = BookmarkSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly,
-                      IsOwnerOrReadOnly]
+    permission_classes = [IsOwnerOrReadOnly]
     def get_queryset(self):
         return Bookmark.objects.get_queryset().order_by('id')
 
@@ -115,13 +110,11 @@ class BookmarkList(generics.ListCreateAPIView):
 class BookmarkDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Bookmark.objects.get_queryset().order_by('id')
     serializer_class = BookmarkSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly,
-                      IsOwnerOrReadOnly]
+    permission_classes = [IsOwnerOrReadOnly]
 
 class CommentList(generics.ListCreateAPIView):
     serializer_class = CommentSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly,
-                      IsOwnerOrReadOnly]
+    permission_classes = [IsOwnerOrReadOnly]
     def get_queryset(self):
         return Comment.objects.get_queryset().order_by('id')
 
@@ -131,8 +124,7 @@ class CommentList(generics.ListCreateAPIView):
 class CommentDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Comment.objects.get_queryset().order_by('id')
     serializer_class = CommentSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly,
-                      IsOwnerOrReadOnly]
+    permission_classes = [IsOwnerOrReadOnly]
 
 class MessageList(generics.ListCreateAPIView):
     serializer_class = MessageSerializer
@@ -171,8 +163,7 @@ class NotificationDetail(generics.RetrieveUpdateDestroyAPIView):
 class WorkChapters(generics.ListCreateAPIView):
     queryset = Work.objects.get_queryset().order_by('id')
     serializer_class = ChapterSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly,
-                      IsOwnerOrReadOnly]
+    permission_classes = [IsOwnerOrReadOnly]
 
     def get(self, request, *args, **kwargs):
         work = self.get_object()
