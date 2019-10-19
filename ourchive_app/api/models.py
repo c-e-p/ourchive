@@ -236,6 +236,12 @@ class NotificationType(models.Model):
     type_label = models.CharField(max_length=200)
     send_email = models.BooleanField(default=False)
 
+    def __repr__(self):
+        return '<NotificationType: {}>'.format(self.type_label)
+
+    def __str__(self):
+        return self.type_label
+
 
 class OurchiveSetting(models.Model):
 
@@ -247,4 +253,7 @@ class OurchiveSetting(models.Model):
     grouping = models.CharField(max_length=200)
 
     def __repr__(self):
-        return '<OurchiveSettings: {}>'.format(self.id)
+        return '<OurchiveSettings: {}>'.format(self.name)
+
+    def __str__(self):
+        return self.name
