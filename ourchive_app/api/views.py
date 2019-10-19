@@ -1,10 +1,10 @@
 from django.shortcuts import render
 from django.contrib.auth.models import User, Group
 from rest_framework import viewsets
-from api.serializers import UserSerializer, GroupSerializer, WorkSerializer, TagSerializer, ChapterSerializer, TagTypeSerializer, WorkTypeSerializer, BookmarkSerializer, CommentSerializer
-from api.models import Work, Tag, Chapter, TagType, WorkType, Bookmark, Comment
+from api.serializers import UserSerializer, GroupSerializer, WorkSerializer, TagSerializer, ChapterSerializer, TagTypeSerializer, WorkTypeSerializer, BookmarkSerializer, CommentSerializer, MessageSerializer, NotificationSerializer, NotificationTypeSerializer
+from api.models import Work, Tag, Chapter, TagType, WorkType, Bookmark, Comment, Message, Notification, NotificationType
 from rest_framework import generics, permissions
-from api.permissions import IsOwnerOrReadOnly
+from api.permissions import IsOwnerOrReadOnly, MessagePermissions, IsOwner
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.reverse import reverse
@@ -22,6 +22,9 @@ def api_root(request, format=None):
         'worktypes': reverse('work-type-list', request=request, format=format),
         'bookmarks': reverse('bookmark-list', request=request, format=format),
         'comments': reverse('comment-list', request=request, format=format),
+        'messages': reverse('message-list', request=request, format=format),
+        'notifications': reverse('notification-list', request=request, format=format),
+        'notificationtypes': reverse('notification-type-list', request=request, format=format),
     })
 
 class UserList(generics.ListAPIView):
@@ -130,6 +133,40 @@ class CommentDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = CommentSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly,
                       IsOwnerOrReadOnly]
+
+class MessageList(generics.ListCreateAPIView):
+    serializer_class = MessageSerializer
+    permission_classes = [MessagePermissions]
+    def get_queryset(self):
+        return Message.objects.get_queryset().order_by('id')
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+class MessageDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Message.objects.get_queryset().order_by('id')
+    serializer_class = MessageSerializer
+    permission_classes = [MessagePermissions]
+
+class NotificationTypeDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = NotificationType.objects.get_queryset().order_by('id')
+    serializer_class = NotificationTypeSerializer
+    permission_classes = [permissions.IsAdminUser]
+
+class NotificationTypeList(generics.ListCreateAPIView):
+    queryset = NotificationType.objects.get_queryset().order_by('id')
+    serializer_class = NotificationTypeSerializer
+    permission_classes = [permissions.IsAdminUser]
+
+class NotificationList(generics.ListCreateAPIView):
+    queryset = Notification.objects.get_queryset().order_by('id')
+    serializer_class = NotificationSerializer
+    permission_classes = [IsOwner, permissions.IsAdminUser]
+
+class NotificationDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Notification.objects.get_queryset().order_by('id')
+    serializer_class = NotificationSerializer
+    permission_classes = [IsOwner, permissions.IsAdminUser]
 
 class WorkChapters(generics.ListCreateAPIView):
     queryset = Work.objects.get_queryset().order_by('id')

@@ -14,3 +14,11 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
 
         # Write permissions are only allowed to the owner of the snippet.
         return obj.user == request.user
+
+class MessagePermissions(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        return obj.to_user == request.user or obj.from_user == request.user
+
+class IsOwner(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        return obj.user == request.user

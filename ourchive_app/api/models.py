@@ -87,6 +87,14 @@ class Comment(models.Model):
         on_delete=models.CASCADE,
     )
 
+    parent_comment = models.ForeignKey(
+        'comment',
+        on_delete=models.CASCADE,
+         related_name='replies',
+         null=True,
+         blank=True
+    )
+
     chapter = models.ForeignKey(
         'Chapter',
         on_delete=models.CASCADE,
@@ -101,9 +109,6 @@ class Comment(models.Model):
         null=True,
         blank=True
     )
-
-
-    comments = models.ManyToManyField('self', blank=True)
 
     def __repr__(self):
         return '<Comment: {}>'.format(self.id)
@@ -210,7 +215,6 @@ class Notification(models.Model):
 
     content = models.CharField(max_length=200)
     created_on = models.DateTimeField(auto_now_add=True)
-    route = models.CharField(max_length=200)
 
     user = models.ForeignKey(
         User,
@@ -227,9 +231,5 @@ class NotificationType(models.Model):
 
     type_label = models.CharField(max_length=200)
     send_email = models.BooleanField(default=False)
-
-    def __init__(self, type_label, send_email):
-        self.type_label = type_label
-        self.send_email = send_email
 
 

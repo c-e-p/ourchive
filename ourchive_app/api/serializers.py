@@ -1,9 +1,10 @@
 from django.contrib.auth.models import User, Group
 from rest_framework import serializers
-from api.models import Work, Tag, Chapter, TagType, WorkType, Bookmark, Comment
+from api.models import Work, Tag, Chapter, TagType, WorkType, Bookmark, Comment, Message, NotificationType, Notification
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     work_set = serializers.HyperlinkedRelatedField(many=True, view_name='work-detail', read_only=True)
+    messages = serializers.HyperlinkedRelatedField(many=True, view_name='message-detail', read_only=True)
     class Meta:
         model = User
         fields = ['id', 'url', 'username', 'email', 'groups', 'work_set']
@@ -25,15 +26,42 @@ class WorkTypeSerializer(serializers.HyperlinkedModelSerializer):
         fields = '__all__'
 
 class TagSerializer(serializers.HyperlinkedModelSerializer):
-    tag_type = serializers.HyperlinkedRelatedField(view_name='tagtype-detail', queryset=TagType.objects.all())
+    tag_type = serializers.HyperlinkedRelatedField(view_name='tagtype-detail', queryset=NotificationType.objects.all())
     class Meta:
         model = Tag
         fields = '__all__'
 
-class CommentSerializer(serializers.HyperlinkedModelSerializer):
+class NotificationTypeSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = NotificationType
+        fields = '__all__'
+
+class NotificationSerializer(serializers.HyperlinkedModelSerializer):
+    notification_type = serializers.HyperlinkedRelatedField(view_name='notificationtype-detail', queryset=NotificationType.objects.all())
+    class Meta:
+        model = Notification
+        fields = '__all__'
+
+class ReplySerializer(serializers.HyperlinkedModelSerializer):
     user = serializers.HyperlinkedRelatedField(view_name='user-detail', format='html', read_only=True)
     class Meta:
         model = Comment
+        fields = '__all__'
+
+class CommentSerializer(serializers.HyperlinkedModelSerializer):
+    user = serializers.HyperlinkedRelatedField(view_name='user-detail', format='html', read_only=True)
+    parent_comment = serializers.PrimaryKeyRelatedField(queryset=Comment.objects.all())
+    replies = ReplySerializer(many=True, required=False)
+    class Meta:
+        model = Comment
+        fields = '__all__'
+
+class MessageSerializer(serializers.HyperlinkedModelSerializer):
+    to_user = serializers.HyperlinkedRelatedField(view_name='user-detail', format='html', read_only=False, queryset=User.objects.all())
+    from_user = serializers.HyperlinkedRelatedField(view_name='user-detail', format='html', read_only=True)
+    user = serializers.HyperlinkedRelatedField(view_name='user-detail', format='html', read_only=True)
+    class Meta:
+        model = Message
         fields = '__all__'
 
 class ChapterSerializer(serializers.HyperlinkedModelSerializer):
