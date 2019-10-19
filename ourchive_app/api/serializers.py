@@ -26,7 +26,7 @@ class WorkTypeSerializer(serializers.HyperlinkedModelSerializer):
         fields = '__all__'
 
 class TagSerializer(serializers.HyperlinkedModelSerializer):
-    tag_type = serializers.HyperlinkedRelatedField(view_name='tagtype-detail', queryset=NotificationType.objects.all())
+    tag_type = serializers.HyperlinkedRelatedField(view_name='tagtype-detail', queryset=TagType.objects.all())
     class Meta:
         model = Tag
         fields = '__all__'
@@ -75,7 +75,6 @@ class ReplySerializer(serializers.HyperlinkedModelSerializer):
 
 class CommentSerializer(serializers.HyperlinkedModelSerializer):
     user = serializers.HyperlinkedRelatedField(view_name='user-detail', format='html', read_only=True)
-    parent_comment = serializers.PrimaryKeyRelatedField(queryset=Comment.objects.all())
     replies = ReplySerializer(many=True, required=False)
     class Meta:
         model = Comment
@@ -102,35 +101,43 @@ class ChapterSerializer(serializers.HyperlinkedModelSerializer):
 class WorkSerializer(serializers.HyperlinkedModelSerializer):
     tags = TagSerializer(many=True, required=False)
     user = serializers.HyperlinkedRelatedField(view_name='user-detail', format='html', read_only=True)
-    chapters = ChapterSerializer(many=True)
+    chapters = ChapterSerializer(many=True, required=False, read_only=True)
     id = serializers.HyperlinkedIdentityField(view_name='work-detail', read_only=True)
     class Meta:
         model = Work
         fields = '__all__'
 
+    def process_tags(self, work, validated_data, tags):
+        required_tag_types = list(TagType.objects.filter(required=True))
+        has_any_required = len(required_tag_types) > 0
+        for item in tags:
+            tag_id = item['text']
+            tag_type = item['tag_type']
+            if tag_type in required_tag_types:
+                if tag_id is None or tag_id == '':
+                    # todo: error
+                    return None
+                else:
+                    required_tag_types.pop()
+            tag, created = Tag.objects.get_or_create(text=tag_id, tag_type=tag_type)
+            work.tags.add(tag)
+        if has_any_required and len(required_tag_types) > 0:
+            #todo: error
+            return None
+        work.save()
+        return work
+
     def update(self, work, validated_data):
-        if 'tags' in validated_data:
-            tags = validated_data.pop('tags')
-            for item in tags:
-                tag_id = item['text']
-                tag_type = item['tag_type']
-                tag, created = Tag.objects.get_or_create(text=tag_id, tag_type=tag_type)
-                work.tags.add(tag)
-            work.save()
+        work = self.process_tags(work, validated_data, validated_data.pop('tags'))
         Work.objects.update(**validated_data)        
         return work
 
     def create(self, validated_data):
         work = Work.objects.create(**validated_data)
-        if 'tags' in validated_data:
-            tags = validated_data.pop('tags')
-            for item in tags:
-                tag_id = item['text']
-                tag_type = item['tag_type']
-                tag, created = Tag.objects.get_or_create(text=tag_id, tag_type=tag_type)
-                work.tags.add(tag)
-        work.save()
+        work = self.process_tags(work, validated_data, validated_data.pop('tags'))        
         return work
+
+    
 
 class BookmarkSerializer(serializers.HyperlinkedModelSerializer):
     work = serializers.HyperlinkedRelatedField(view_name='work-detail', queryset=Work.objects.all())
