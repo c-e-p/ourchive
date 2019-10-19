@@ -8,6 +8,7 @@ sudo: enabled
 # safelist
 branches:
   only:
+  - travis_build
   - development
   - master
 addons:
@@ -16,7 +17,7 @@ addons:
       - sshpass
 language: python
 python:
- - "3.5.2"
+ - "3.6+"
 install: 
  - pip install -r requirements.txt
  - npm install -g webpack; npm install -g webpack-cli; npm install
