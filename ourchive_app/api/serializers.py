@@ -104,7 +104,7 @@ class ChapterSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class WorkSerializer(serializers.HyperlinkedModelSerializer):
-    tags = TagSerializer(many=True, required=False)
+    tags = TagSerializer(many=True, required=True)
     user = serializers.HyperlinkedRelatedField(view_name='user-detail', format='html', read_only=True)
     chapters = ChapterSerializer(many=True, required=False, read_only=True)
     id = serializers.HyperlinkedIdentityField(view_name='work-detail', read_only=True)
@@ -138,8 +138,9 @@ class WorkSerializer(serializers.HyperlinkedModelSerializer):
         return work
 
     def create(self, validated_data):
+        tags = validated_data.pop('tags')
         work = Work.objects.create(**validated_data)
-        work = self.process_tags(work, validated_data, validated_data.pop('tags'))        
+        work = self.process_tags(work, validated_data, tags)        
         return work
 
     
