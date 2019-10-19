@@ -22,13 +22,15 @@ python:
 install: 
  - pip install -r requirements.txt
  - npm install -g webpack; npm install -g webpack-cli; npm install
-script: sh run_travis.sh
+script: pytest
+
+#sh run_travis.sh
 services:
  - postgresql
 after_success:
-    - mkdir ourchive
-    - mv * ourchive
-    - tar -czf package.tgz ourchive
-    - export SSHPASS=$DEPLOY_PASS
-    - sshpass -e scp -o StrictHostKeyChecking=no package.tgz $DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_PATH
-    - sshpass -e ssh -o StrictHostKeyChecking=no $DEPLOY_USER@$DEPLOY_HOST $DEPLOY_PATH/deploy.sh
+#    - mkdir ourchive
+#    - mv * ourchive
+#    - tar -czf package.tgz ourchive
+#    - export SSHPASS=$DEPLOY_PASS
+#    - sshpass -e scp -o StrictHostKeyChecking=no package.tgz $DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_PATH
+#    - sshpass -e ssh -o StrictHostKeyChecking=no $DEPLOY_USER@$DEPLOY_HOST $DEPLOY_PATH/deploy.sh
