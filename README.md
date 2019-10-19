@@ -16,6 +16,18 @@ Ourchive is a configurable, multi-media archive application. It grew out of a ne
 <a name="installation"></a>
 ## installation
 
+### Stack
+
+Ourchive runs on django. The following stack is recommended:
+
+Host: Debian Linux
+Database: Postgres
+Task scheduler: Django Background Tasks
+Search: Postgres OR Elastic (configurable provider)
+File Upload: Django OR Tus (configurable provider)
+
+### Dependencies
+
 <a name="contributor-guidelines"></a>
 ## contributor guidelines
 
