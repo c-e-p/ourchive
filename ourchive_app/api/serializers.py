@@ -112,6 +112,18 @@ class WorkSerializer(serializers.HyperlinkedModelSerializer):
         model = Work
         fields = '__all__'
 
+    def update_metadata(self, work):
+        work.chapter_count = len(work.chapters.all())
+        audio_length = 0
+        word_count = 0
+        for chapter in work.chapters.all():
+            audio_length += chapter.audio_length
+            word_count += chapter.word_count
+        work.word_count = word_count
+        work.audio_length = audio_length
+        work.save()
+        return work
+
     def process_tags(self, work, validated_data, tags):
         required_tag_types = list(TagType.objects.filter(required=True))
         has_any_required = len(required_tag_types) > 0
@@ -134,13 +146,15 @@ class WorkSerializer(serializers.HyperlinkedModelSerializer):
 
     def update(self, work, validated_data):
         work = self.process_tags(work, validated_data, validated_data.pop('tags'))
+        work = self.update_metadata(work)
         Work.objects.update(**validated_data)        
-        return work
+        return Work.objects.filter(id=work.id).first()
 
     def create(self, validated_data):
         tags = validated_data.pop('tags')
         work = Work.objects.create(**validated_data)
-        work = self.process_tags(work, validated_data, tags)        
+        work = self.process_tags(work, validated_data, tags)   
+        work = self.update_metadata(work)     
         return work
 
     
