@@ -1,8 +1,8 @@
 from django.shortcuts import render
 from django.contrib.auth.models import User, Group
 from rest_framework import viewsets
-from api.serializers import UserSerializer, GroupSerializer, WorkSerializer, TagSerializer, ChapterSerializer, TagTypeSerializer, WorkTypeSerializer, BookmarkSerializer, CommentSerializer, MessageSerializer, NotificationSerializer, NotificationTypeSerializer
-from api.models import Work, Tag, Chapter, TagType, WorkType, Bookmark, Comment, Message, Notification, NotificationType
+from api.serializers import UserSerializer, GroupSerializer, WorkSerializer, TagSerializer, ChapterSerializer, TagTypeSerializer, WorkTypeSerializer, BookmarkSerializer, CommentSerializer, MessageSerializer, NotificationSerializer, NotificationTypeSerializer, OurchiveSettingSerializer
+from api.models import Work, Tag, Chapter, TagType, WorkType, Bookmark, Comment, Message, Notification, NotificationType, OurchiveSetting
 from rest_framework import generics, permissions
 from api.permissions import IsOwnerOrReadOnly, MessagePermissions, IsOwner, IsAdminOrReadOnly
 from rest_framework.response import Response
@@ -25,6 +25,7 @@ def api_root(request, format=None):
         'messages': reverse('message-list', request=request, format=format),
         'notifications': reverse('notification-list', request=request, format=format),
         'notificationtypes': reverse('notification-type-list', request=request, format=format),
+        'settings': reverse('ourchive-setting-list', request=request, format=format),
     })
 
 class UserList(generics.ListAPIView):
@@ -160,12 +161,13 @@ class NotificationDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = NotificationSerializer
     permission_classes = [IsOwner, permissions.IsAdminUser]
 
-class WorkChapters(generics.ListCreateAPIView):
-    queryset = Work.objects.get_queryset().order_by('id')
-    serializer_class = ChapterSerializer
-    permission_classes = [IsOwnerOrReadOnly]
+class OurchiveSettingList(generics.ListCreateAPIView):
+    queryset = OurchiveSetting.objects.get_queryset().order_by('id')
+    serializer_class = OurchiveSettingSerializer
+    permission_classes = [IsAdminOrReadOnly]
 
-    def get(self, request, *args, **kwargs):
-        work = self.get_object()
-        return Response(work.chapters.get_queryset().order_by('id'))
+class OurchiveSettingDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = OurchiveSetting.objects.get_queryset().order_by('id')
+    serializer_class = OurchiveSettingSerializer
+    permission_classes = [IsAdminOrReadOnly]
     

@@ -29,10 +29,11 @@ urlpatterns = [
     path('notifications/<int:pk>/', views.NotificationDetail.as_view(), name='notification-detail'),
     path('notificationtypes/', views.NotificationTypeList.as_view(), name='notification-type-list'),
     path('notificationtypes/<int:pk>/', views.NotificationTypeDetail.as_view(), name='notificationtype-detail'),
+    path('settings/', views.OurchiveSettingList.as_view(), name='ourchive-setting-list'),
+    path('settings/<int:pk>/', views.OurchiveSettingDetail.as_view(), name='ourchivesetting-detail'),
 	path('users/<int:pk>/',
         views.UserDetail.as_view(),
         name='user-detail'),
-	path('works/<int:work_id>/chapters/<int:pk>', views.WorkChapters.as_view(), name='work-chapters'),
 ]
 
 

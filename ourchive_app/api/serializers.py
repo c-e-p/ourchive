@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User, Group
 from rest_framework import serializers
-from api.models import Work, Tag, Chapter, TagType, WorkType, Bookmark, Comment, Message, NotificationType, Notification
+from api.models import Work, Tag, Chapter, TagType, WorkType, Bookmark, Comment, Message, NotificationType, Notification, OurchiveSetting
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     work_set = serializers.HyperlinkedRelatedField(many=True, view_name='work-detail', read_only=True)
@@ -59,6 +59,11 @@ class TagSerializer(serializers.HyperlinkedModelSerializer):
 class NotificationTypeSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = NotificationType
+        fields = '__all__'
+
+class OurchiveSettingSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = OurchiveSetting
         fields = '__all__'
 
 class NotificationSerializer(serializers.HyperlinkedModelSerializer):
