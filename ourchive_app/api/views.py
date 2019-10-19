@@ -4,7 +4,7 @@ from rest_framework import viewsets
 from api.serializers import UserSerializer, GroupSerializer, WorkSerializer, TagSerializer, ChapterSerializer, TagTypeSerializer, WorkTypeSerializer, BookmarkSerializer, CommentSerializer, MessageSerializer, NotificationSerializer, NotificationTypeSerializer
 from api.models import Work, Tag, Chapter, TagType, WorkType, Bookmark, Comment, Message, Notification, NotificationType
 from rest_framework import generics, permissions
-from api.permissions import IsOwnerOrReadOnly, MessagePermissions, IsOwner
+from api.permissions import IsOwnerOrReadOnly, MessagePermissions, IsOwner, IsAdminOrReadOnly
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.reverse import reverse
@@ -69,7 +69,7 @@ class WorkTypeList(generics.ListCreateAPIView):
 class TagTypeDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = TagType.objects.get_queryset().order_by('id')
     serializer_class = TagTypeSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAdminOrReadOnly]
 
 class TagTypeList(generics.ListCreateAPIView):
     queryset = TagType.objects.get_queryset().order_by('id')
@@ -79,7 +79,7 @@ class TagTypeList(generics.ListCreateAPIView):
 class TagList(generics.ListCreateAPIView):
     queryset = Tag.objects.get_queryset().order_by('id')
     serializer_class = TagSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAdminOrReadOnly]
 
 class TagDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Tag.objects.get_queryset().order_by('id')

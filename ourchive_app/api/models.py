@@ -15,6 +15,8 @@ class Work(models.Model):
     is_complete = models.BooleanField(default=False)
     process_status = models.IntegerField(null=True)
     word_count = models.IntegerField(default=0)
+    audio_length = models.IntegerField(default=0)
+    chapter_count = models.IntegerField(default=0)
     cover_url = models.CharField(max_length=600, null=True, blank=True)
     cover_alt_text = models.CharField(max_length=600, null=True, blank=True)
     epub_id = models.CharField(max_length=600, null=True, blank=True)
@@ -132,6 +134,8 @@ class TagType(models.Model):
     __tablename__ = 'tag_types'
 
     label = models.CharField(max_length=200)
+    admin_administrated = models.BooleanField(default=False)
+    required = models.BooleanField(default=False)
 
     def __repr__(self):
         return '<TagType: {}>'.format(self.id)

@@ -31,6 +31,31 @@ class TagSerializer(serializers.HyperlinkedModelSerializer):
         model = Tag
         fields = '__all__'
 
+    def update(self, tag, validated_data):
+        tag_type = TagType.objects.get(validated_data['tag_type'])
+        if (tag_type.admin_administrated):
+            user = serializers.CurrentUserDefault()
+            if (user.is_superuser):
+                tag = Tag.objects.create(**validated_data)
+                return tag
+            else:
+                return None
+        else:
+            Tag.objects.update(**validated_data)        
+            return tag 
+
+    def create(self, validated_data):
+        tag_type = TagType.objects.get(validated_data['tag_type'])
+        if (tag_type.admin_administrated):
+            user = serializers.CurrentUserDefault()
+            if (user.is_superuser):
+                tag = Tag.objects.create(**validated_data)
+                return tag
+            else:
+                return None
+        tag = Tag.objects.create(**validated_data)
+        return tag
+
 class NotificationTypeSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = NotificationType
