@@ -1,0 +1,7 @@
+<div>
+	<p class="uk-text-lead"><a class="uk-link-reset" href="">{{ chapter.title }}</a></p>
+	{% if chapter.text is not None %}<p>{{ chapter.text }}</p>{% endif %}
+	{% if chapter.image_url is not None %}<p><img src="{{ chapter.image_url }}" alt="{{ chapter.image_alt_text }}"/></p>{% endif %}
+	{% if chapter.audio_url is not None %}<p><audio src="{{ chapter.audio_url }}" controls></audio></p>{% endif %}
+	<hr/>
+</div>

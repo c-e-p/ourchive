@@ -10,8 +10,8 @@ class Work(models.Model):
 
     uid = models.UUIDField(default=uuid.uuid4, editable=False)
     title = models.CharField(max_length=200)
-    work_summary = models.TextField(null=True, blank=True)
-    work_notes = models.TextField(null=True, blank=True)
+    summary = models.TextField(null=True, blank=True)
+    notes = models.TextField(null=True, blank=True)
     is_complete = models.BooleanField(default=False)
     process_status = models.IntegerField(null=True)
     cover_url = models.CharField(max_length=600, null=True, blank=True)
@@ -84,6 +84,8 @@ class Chapter(models.Model):
 
     def __str__(self):
         return self.title
+    class Meta:
+        ordering = ['number']
 
 class Comment(models.Model):
 

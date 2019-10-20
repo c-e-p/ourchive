@@ -118,7 +118,6 @@ class ChapterSerializer(serializers.HyperlinkedModelSerializer):
 class WorkSerializer(serializers.HyperlinkedModelSerializer):
     tags = TagSerializer(many=True, required=True)
     user = serializers.HyperlinkedRelatedField(view_name='user-detail', format='html', read_only=True)
-    chapters = ChapterSerializer(many=True, required=False, read_only=True)
     id = serializers.HyperlinkedIdentityField(view_name='work-detail', read_only=True)
     word_count = serializers.IntegerField(read_only=True)
     audio_length = serializers.IntegerField(read_only=True)
