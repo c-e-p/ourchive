@@ -4,7 +4,6 @@ from api.models import Work, Tag, Chapter, TagType, WorkType, Bookmark, Comment,
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     work_set = serializers.HyperlinkedRelatedField(many=True, view_name='work-detail', read_only=True)
-    messages = serializers.HyperlinkedRelatedField(many=True, view_name='message-detail', read_only=True)
     class Meta:
         model = User
         fields = ['id', 'url', 'username', 'email', 'groups', 'work_set']
