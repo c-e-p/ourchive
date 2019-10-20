@@ -21,6 +21,7 @@ class TagTypeSerializer(serializers.HyperlinkedModelSerializer):
         fields = '__all__'
 
 class WorkTypeSerializer(serializers.HyperlinkedModelSerializer):
+    id = serializers.IntegerField()
     class Meta:
         model = WorkType
         fields = '__all__'
@@ -177,7 +178,7 @@ class BookmarkSerializer(serializers.HyperlinkedModelSerializer):
                 bookmark.tags.add(tag)
             bookmark.save()
         Bookmark.objects.filter(id=bookmark.id).update(**validated_data)        
-        return bookmark
+        return Bookmark.objects.filter(id=bookmark.id).first()
 
     def create(self, validated_data):
         bookmark = Bookmark.objects.create(**validated_data)

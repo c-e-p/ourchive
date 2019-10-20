@@ -7,6 +7,7 @@ from api import views
 
 urlpatterns = [
     path('api/', include('api.urls')),
+    path('', include('frontend.urls')),
     path('admin/', admin.site.urls),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 ]

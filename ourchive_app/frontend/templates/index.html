@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	{% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{% static 'frontend/css/uikit.min.css' %}" />
+    <script src="{% static 'frontend/js/uikit.min.js' %}"></script>
+    <script src="{% static 'frontend/js/uikit-icons.min.js' %}"></script>
+    <title>Hello World</title>
+</head>
+<body>
+	<nav class="uk-navbar-container" uk-navbar>
+	    <div class="uk-navbar-center">
+	        <ul class="uk-navbar-nav">
+	            <li class="uk-active"><a href="/">Home</a></li>
+	            <li class="uk-parent">
+	            	<a href="/works">Works</a>
+	            	<div class="uk-navbar-dropdown">
+	                    <ul class="uk-nav uk-navbar-dropdown-nav">
+	                    	{% for item in work_types %}
+		                        <li><a href="/works/type/{{ item.id }}">{{ item.type_name }}</a></li>
+	                        {% endfor %}
+	                    </ul>
+	                </div>
+	            </li>
+	            <li><a href="/bookmarks">Bookmarks</a></li>
+	        </ul>
+	    </div>
+	</nav>
+	<div class="uk-container">		
+		<div class="uk-child-width-expand@s uk-text-center" uk-grid>
+			<div class="uk-padding">
+				<h1>Hello!</h1>
+	    		<p>{{ message }}</p>
+	    	</div>
+		</div>
+	</div>
+
+    
+</body>
+</html>
