@@ -41,8 +41,8 @@ def work(request, pk):
 	return render(request, 'work.html', {'work_types': work_types['results'], 
 		'work': work,
 		'chapter': chapter['results'][0],
-		'next_chapter': settings.ALLOWED_HOSTS[0] + '/works/'+str(pk)+'?offset='+str(chapter_offset + 1),
-		'previous_chapter': settings.ALLOWED_HOSTS[0] + '/works/'+str(pk)+'?offset='+str(chapter_offset - 1) })
+		'next_chapter': settings.ALLOWED_HOSTS[0] + '/works/'+str(pk)+'?offset='+str(chapter_offset + 1) if chapter['next'] else None,
+		'previous_chapter': settings.ALLOWED_HOSTS[0] + '/works/'+str(pk)+'?offset='+str(chapter_offset - 1)  if chapter['previous'] else None,})
 
 def bookmarks(request):
 	response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/worktypes')
