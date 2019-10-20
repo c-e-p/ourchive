@@ -12,6 +12,7 @@ urlpatterns = [
     path('works/<int:pk>/', views.WorkDetail.as_view(), name='work-detail'),
     path('chapters/', views.ChapterList.as_view(), name='chapter-list'),
     path('chapters/<int:pk>/', views.ChapterDetail.as_view(), name='chapter-detail'),
+    path('works/<int:work_id>/chapters/', views.WorkChapterDetail.as_view(), name='work-chapter-detail'),
     path('users/', views.UserList.as_view(), name='user-list'),
     path('tagtypes/', views.TagTypeList.as_view(), name='tag-type-list'),
     path('tagtypes/<int:pk>/', views.TagTypeDetail.as_view(), name='tagtype-detail'),

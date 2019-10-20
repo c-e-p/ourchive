@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	{% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{% static 'frontend/css/uikit.min.css' %}" />
+    <script src="{% static 'frontend/js/uikit.min.js' %}"></script>
+    <script src="{% static 'frontend/js/uikit-icons.min.js' %}"></script>
+    <title>Ourchive</title>
+</head>
+<body>
+	<nav class="uk-navbar-container" uk-navbar>
+	    <div class="uk-navbar-left">
+	    	<a class="uk-navbar-toggle uk-hidden@s" uk-toggle="target: #sidenav"  uk-navbar-toggle-icon></a>
+	        <ul class="uk-navbar-nav uk-visible@s">
+	            <li class="uk-active"><a href="/">Home</a></li>
+	            <li class="uk-parent">
+	            	<a href="/works">Works</a>
+	            	<div class="uk-navbar-dropdown">
+	                    <ul class="uk-nav uk-navbar-dropdown-nav">
+	                    	{% for item in work_types %}
+		                        <li><a href="/works/type/{{ item.id }}">{{ item.type_name }}</a></li>
+	                        {% endfor %}
+	                    </ul>
+	                </div>
+	            </li>
+	            <li><a href="/bookmarks">Bookmarks</a></li>
+	            <li><a href="/search">Search</a></li>
+	        </ul>
+	    </div>
+	</nav>
+	<div id="sidenav" uk-offcanvas="flip: true" class="uk-offcanvas">
+		<div class="uk-offcanvas-bar">
+			<ul class="uk-nav">
+				<li class="uk-active"><a href="/">Home</a></li>
+	            <li class="uk-parent">
+	            	<a href="/works">Works</a>
+	            	<div class="uk-navbar-dropdown">
+	                    <ul class="uk-nav uk-navbar-dropdown-nav">
+	                    	{% for item in work_types %}
+		                        <li><a href="/works/type/{{ item.id }}">{{ item.type_name }}</a></li>
+	                        {% endfor %}
+	                    </ul>
+	                </div>
+	            </li>
+	            <li><a href="/bookmarks">Bookmarks</a></li>
+	            <li><a href="/search">Search</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="uk-container">		
+		<div class="uk-child-width-expand@s" uk-grid>
+			<div class="uk-padding">
+				{% block content %}
+				<div class="uk-child-width-1@m uk-child-width-1@s uk-text-center" uk-grid>
+				    <div>
+				        <h1 class="uk-heading-medium">{{ heading_message }}</h1>
+				  		<span>{{ long_message }}</span>
+				    </div>
+				    <div>
+						<form class="uk-search uk-search-large">
+							<a href="" uk-search-icon></a>
+							<input class="uk-search-input" type="search" placeholder="Search...">
+						</form>
+				    </div>
+				</div>			  
+				{% endblock %}				
+	    	</div>
+		</div>
+	</div>
+</body>
+<footer>
+	<hr>
+	<span class="uk-text-meta uk-padding">Ourchive is created & maintained by <a href="https://github.com/klreeher">@klreeher</a> and <a href="https://github.com/c-e-p">@c-e-p</a>.</p>
+</footer>
+</html>

@@ -1,13 +1,14 @@
 from django.shortcuts import render
 from django.contrib.auth.models import User, Group
-from rest_framework import viewsets
+from rest_framework import viewsets, generics
 from api.serializers import UserSerializer, GroupSerializer, WorkSerializer, TagSerializer, ChapterSerializer, TagTypeSerializer, WorkTypeSerializer, BookmarkSerializer, CommentSerializer, MessageSerializer, NotificationSerializer, NotificationTypeSerializer, OurchiveSettingSerializer
 from api.models import Work, Tag, Chapter, TagType, WorkType, Bookmark, Comment, Message, Notification, NotificationType, OurchiveSetting
 from rest_framework import generics, permissions
-from api.permissions import IsOwnerOrReadOnly, MessagePermissions, IsOwner, IsAdminOrReadOnly
+from api.permissions import IsOwnerOrReadOnly, MessagePermissions, IsOwner, IsAdminOrReadOnly, IsUser
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.reverse import reverse
+from rest_framework.views import APIView
 
 
 @api_view(['GET'])
@@ -28,14 +29,16 @@ def api_root(request, format=None):
         'settings': reverse('ourchive-setting-list', request=request, format=format),
     })
 
-class UserList(generics.ListAPIView):
+class UserList(generics.ListCreateAPIView):
     queryset = User.objects.get_queryset().order_by('id')
     serializer_class = UserSerializer
+    permission_classes = [IsUser]
 
 
-class UserDetail(generics.RetrieveAPIView):
+class UserDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = User.objects.get_queryset().order_by('id')
     serializer_class = UserSerializer
+    permission_classes = [IsUser]
 
 
 class GroupViewSet(viewsets.ModelViewSet):
@@ -48,7 +51,6 @@ class WorkList(generics.ListCreateAPIView):
     permission_classes = [IsOwnerOrReadOnly]
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
-
 
 class WorkDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Work.objects.get_queryset().order_by('id')
@@ -98,6 +100,15 @@ class ChapterDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Chapter.objects.get_queryset().order_by('id')
     serializer_class = ChapterSerializer
     permission_classes = [IsOwnerOrReadOnly]
+
+class WorkChapterDetail(generics.ListCreateAPIView):
+    serializer_class = ChapterSerializer
+    permission_classes = [IsOwnerOrReadOnly]
+    def get_queryset(self):
+        return Chapter.objects.filter(work__id=self.kwargs['work_id']).order_by('id')
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
 
 class BookmarkList(generics.ListCreateAPIView):
     serializer_class = BookmarkSerializer

@@ -4,7 +4,6 @@ from api.models import Work, Tag, Chapter, TagType, WorkType, Bookmark, Comment,
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     work_set = serializers.HyperlinkedRelatedField(many=True, view_name='work-detail', read_only=True)
-    messages = serializers.HyperlinkedRelatedField(many=True, view_name='message-detail', read_only=True)
     class Meta:
         model = User
         fields = ['id', 'url', 'username', 'email', 'groups', 'work_set']
@@ -21,6 +20,7 @@ class TagTypeSerializer(serializers.HyperlinkedModelSerializer):
         fields = '__all__'
 
 class WorkTypeSerializer(serializers.HyperlinkedModelSerializer):
+    id = serializers.IntegerField()
     class Meta:
         model = WorkType
         fields = '__all__'
@@ -98,16 +98,29 @@ class ChapterSerializer(serializers.HyperlinkedModelSerializer):
     user = serializers.HyperlinkedRelatedField(view_name='user-detail', format='html', read_only=True)
     id = serializers.HyperlinkedIdentityField(view_name='chapter-detail', read_only=True)
     comments = CommentSerializer(many=True, required=False)
+    word_count = serializers.IntegerField(read_only=True)
     class Meta:
         model = Chapter
         fields = '__all__'
+
+    def update(self, chapter, validated_data):
+        validated_data['word_count'] = 0 if not validated_data['text'] else len(validated_data['text'].split())
+        chapter = Chapter.objects.filter(id=chapter.id)
+        chapter.update(**validated_data)        
+        return chapter.first()
+
+    def create(self, validated_data):
+        validated_data['word_count'] = 0 if not validated_data['text'] else len(validated_data['text'].split())
+        chapter = Chapter.objects.create(**validated_data)
+        return chapter
 
 
 class WorkSerializer(serializers.HyperlinkedModelSerializer):
     tags = TagSerializer(many=True, required=True)
     user = serializers.HyperlinkedRelatedField(view_name='user-detail', format='html', read_only=True)
-    chapters = ChapterSerializer(many=True, required=False, read_only=True)
     id = serializers.HyperlinkedIdentityField(view_name='work-detail', read_only=True)
+    word_count = serializers.IntegerField(read_only=True)
+    audio_length = serializers.IntegerField(read_only=True)
     class Meta:
         model = Work
         fields = '__all__'
@@ -134,13 +147,13 @@ class WorkSerializer(serializers.HyperlinkedModelSerializer):
 
     def update(self, work, validated_data):
         work = self.process_tags(work, validated_data, validated_data.pop('tags'))
-        Work.objects.update(**validated_data)        
-        return work
+        Work.objects.filter(id=work.id).update(**validated_data)        
+        return Work.objects.filter(id=work.id).first()
 
     def create(self, validated_data):
         tags = validated_data.pop('tags')
         work = Work.objects.create(**validated_data)
-        work = self.process_tags(work, validated_data, tags)        
+        work = self.process_tags(work, validated_data, tags)   
         return work
 
     
@@ -162,8 +175,8 @@ class BookmarkSerializer(serializers.HyperlinkedModelSerializer):
                 tag, created = Tag.objects.get_or_create(text=tag_id, tag_type=tag_type)
                 bookmark.tags.add(tag)
             bookmark.save()
-        Bookmark.objects.update(**validated_data)        
-        return bookmark
+        Bookmark.objects.filter(id=bookmark.id).update(**validated_data)        
+        return Bookmark.objects.filter(id=bookmark.id).first()
 
     def create(self, validated_data):
         bookmark = Bookmark.objects.create(**validated_data)
