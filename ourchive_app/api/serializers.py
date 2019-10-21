@@ -34,7 +34,7 @@ class TagSerializer(serializers.HyperlinkedModelSerializer):
         fields = '__all__'
 
     def update(self, tag, validated_data):
-        tag_type = TagType.objects.get(validated_data['tag_type'])
+        tag_type = TagType.objects.get(validated_data['tag_type_id'])
         if (tag_type.admin_administrated):
             user = serializers.CurrentUserDefault()
             if (user.is_superuser):

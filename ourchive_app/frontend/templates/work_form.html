@@ -19,7 +19,7 @@
                 final.value = final.value.replace(/,\s*$/, "");
                 section.removeChild(section.lastChild);
                 var wrapper= document.createElement('div');
-                wrapper.innerHTML= '<input type="hidden" id="tags_'+final.value+'_'+type+'" name="tags_'+final.value+'_'+type+'" value="'+final.value+'">';
+                wrapper.innerHTML= '<input type="hidden" id="tags_'+final.value+'_'+type+'" name="tags_'+final.value+'_'+type+'" value="{\'url\': \'\', \'tag_type\': \''+type+'\', \'tag_type_id\': \'\', \'text\': \''+final.value+'\'}">';
                 var div= wrapper.firstChild;
                 section.appendChild(div);
                 wrapper.innerHTML = '<span style="margin-left: 5px;" class="uk-badge" id="tags_'+final.value+'_'+type+'_txt">'+final.value+' <span uk-icon="close" onclick="removetag(\''+final.value+'\', \''+type+'\')" id="tags_'+final.value+'_'+type+'_delete"></span></span>  ';
@@ -121,7 +121,7 @@
                         <input type="hidden" id="tags_{{ single_tag.text }}_{{ type }}" name="tags_{{ single_tag.text }}_{{ type }}" value="{{ single_tag }}">
                         <span class="uk-badge" id="tags_{{ single_tag.text }}_{{ type }}_txt">{{ single_tag.text }} <span uk-icon="close" onclick="removetag('{{single_tag.text}}', '{{type}}')" id="tags_{{ single_tag.text }}_{{ type }}_delete"></span></span>
                     {% endfor %}
-                    <input style="margin-left: 5px;" class="uk-input uk-form-width-small uk-form-small" type="text" name="{{ type }}_new_tag" id="{{ type }}_new_tag" onkeyup="tagCheck(event, '{{type}}')"></div>
+                    <input style="margin-left: 5px;" class="uk-input uk-form-width-small uk-form-small uk-form-blank" type="text" name="{{ type }}_new_tag" id="{{ type }}_new_tag" onkeyup="tagCheck(event, '{{type}}')"></div>
                 </div>
             </div>
         </div>

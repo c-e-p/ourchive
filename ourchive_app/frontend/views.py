@@ -7,19 +7,13 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 
 def index(request):
-	response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/worktypes')
-	work_types = response.json()
-	print(request.user)
 	return render(request, 'index.html', {
-	    'work_types': work_types['results'],
 	    'heading_message': 'Welcome to Ourchive',
 	    'long_message': 'Ourchive is a configurable, extensible, multimedia archive, meant to serve as a modern alternative to PHP-based archives. You can search for existing works, create your own, or create curated collections of works you\'ve enjoyed. Have fun with it!'
 	})
 
 def search(request):
-	response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/worktypes')
-	work_types = response.json()
-	return render(request, 'search.html', {'work_types': work_types['results']})
+	return render(request, 'search.html', {})
 
 @require_http_methods(["GET"])
 def works(request):
@@ -52,23 +46,27 @@ def group_tags(tag_types, tags):
 	return result
 
 def edit_work(request, id):
-	response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/worktypes')
-	work_types = response.json()
-	response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/tagtypes')
-	tag_types = response.json()
-	if request.user.is_authenticated:
-		response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/works/'+str(id))
-		work = response.json()
-		if work['user_id'] != request.user.id:			
-			messages.add_message(request, messages.ERROR, 'You are not authorized to edit this work.')	
-			return redirect('/')
-		tags = group_tags(tag_types['results'], work['tags'])
-		return render(request, 'work_form.html', {'work_types': work_types['results'],
-			'work': work, 
-			'tags': tags})
+	if request.method == 'POST':
+		messages.add_message(request, messages.ERROR, 'An error occurred while updating the work.')	
+		return redirect('/works/'+id)
 	else:
-		messages.add_message(request, messages.ERROR, 'You must log in to post a new work.')	
-		return redirect('/login')
+		response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/worktypes')
+		work_types = response.json()
+		response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/tagtypes')
+		tag_types = response.json()
+		if request.user.is_authenticated:
+			response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/works/'+str(id))
+			work = response.json()
+			if work['user_id'] != request.user.id:			
+				messages.add_message(request, messages.ERROR, 'You are not authorized to edit this work.')	
+				return redirect('/')
+			tags = group_tags(tag_types['results'], work['tags'])
+			return render(request, 'work_form.html', {'work_types': work_types['results'],
+				'work': work, 
+				'tags': tags})
+		else:
+			messages.add_message(request, messages.ERROR, 'You must log in to post a new work.')	
+			return redirect('/login')
 
 def log_in(request):
 	if request.method == 'POST':
@@ -81,9 +79,7 @@ def log_in(request):
 			messages.add_message(request, messages.ERROR, 'Login unsuccessful. Please try again.')
 			return redirect('/login')
 	else:
-		response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/worktypes')
-		work_types = response.json()
-		return render(request, 'login.html', {'work_types': work_types['results']})
+		return render(request, 'login.html', {})
 
 def register(request):
 	if request.method == 'POST':
@@ -95,9 +91,7 @@ def register(request):
 			messages.add_message(request, messages.ERROR, 'Registration unsuccessful. Please try again.')
 			return redirect('/login')
 	else:
-		response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/worktypes')
-		work_types = response.json()
-		return render(request, 'register.html', {'work_types': work_types['results']})
+		return render(request, 'register.html', {})
 
 def log_out(request):
 	logout(request)
@@ -124,11 +118,7 @@ def work(request, pk):
 		'previous_chapter': settings.ALLOWED_HOSTS[0] + '/works/'+str(pk)+'?offset='+str(chapter_offset - 1)  if chapter['previous'] else None,})
 
 def bookmarks(request):
-	response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/worktypes')
-	work_types = response.json()
-	return render(request, 'bookmarks.html', {'work_types': work_types['results']})
+	return render(request, 'bookmarks.html', {})
 
 def bookmark(request, pk):
-	response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/worktypes')
-	work_types = response.json()
-	return render(request, 'bookmark.html', {'work_types': work_types['results']})
+	return render(request, 'bookmark.html', {})
