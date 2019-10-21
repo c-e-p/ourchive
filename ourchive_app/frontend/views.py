@@ -1,6 +1,7 @@
 from django.shortcuts import render
 import requests
 from django.conf import settings
+from django.views.decorators.http import require_http_methods
 
 def index(request):
 	response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/worktypes')
@@ -16,6 +17,7 @@ def search(request):
 	work_types = response.json()
 	return render(request, 'search.html', {'work_types': work_types['results']})
 
+@require_http_methods(["GET"])
 def works(request):
 	response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/worktypes')
 	work_types = response.json()
@@ -27,6 +29,13 @@ def works_by_type(request, type_id):
 	# todo: get works by type
 	return render(request, 'works.html', {'work_types': work_types['results']})
 
+def new_work(request):
+	return render(request, 'works.html', {'work_types': work_types['results']})
+
+def edit_work(request, id):
+	return render(request, 'works.html', {'work_types': work_types['results']})
+
+@require_http_methods(["GET"])
 def work(request, pk):
 	chapter_offset = int(request.GET.get('offset', 0))
 	response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/worktypes')
