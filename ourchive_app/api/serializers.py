@@ -26,7 +26,9 @@ class WorkTypeSerializer(serializers.HyperlinkedModelSerializer):
         fields = '__all__'
 
 class TagSerializer(serializers.HyperlinkedModelSerializer):
-    tag_type = serializers.HyperlinkedRelatedField(view_name='tagtype-detail', queryset=TagType.objects.all())
+    tag_type = serializers.StringRelatedField()
+    tag_type_id = serializers.HyperlinkedRelatedField(view_name='tagtype-detail', format='html', read_only=False, queryset=TagType.objects.all())
+
     class Meta:
         model = Tag
         fields = '__all__'
@@ -45,7 +47,7 @@ class TagSerializer(serializers.HyperlinkedModelSerializer):
             return tag 
 
     def create(self, validated_data):
-        tag_type = TagType.objects.get(validated_data['tag_type'])
+        tag_type = TagType.objects.get(validated_data['tag_type_id'])
         if (tag_type.admin_administrated):
             user = serializers.CurrentUserDefault()
             if (user.is_superuser):
@@ -118,6 +120,7 @@ class ChapterSerializer(serializers.HyperlinkedModelSerializer):
 class WorkSerializer(serializers.HyperlinkedModelSerializer):
     tags = TagSerializer(many=True, required=True)
     user = serializers.HyperlinkedRelatedField(view_name='user-detail', format='html', read_only=True)
+    user_id = serializers.IntegerField()
     id = serializers.HyperlinkedIdentityField(view_name='work-detail', read_only=True)
     word_count = serializers.IntegerField(read_only=True)
     audio_length = serializers.IntegerField(read_only=True)
@@ -129,8 +132,9 @@ class WorkSerializer(serializers.HyperlinkedModelSerializer):
         required_tag_types = list(TagType.objects.filter(required=True))
         has_any_required = len(required_tag_types) > 0
         for item in tags:
+            print(item)
             tag_id = item['text']
-            tag_type = item['tag_type']
+            tag_type = item['tag_type_id']
             if tag_type in required_tag_types:
                 if tag_id is None or tag_id == '':
                     # todo: error
@@ -171,7 +175,7 @@ class BookmarkSerializer(serializers.HyperlinkedModelSerializer):
             tags = validated_data.pop('tags')
             for item in tags:
                 tag_id = item['text']
-                tag_type = item['tag_type']
+                tag_type = item['tag_type_id']
                 tag, created = Tag.objects.get_or_create(text=tag_id, tag_type=tag_type)
                 bookmark.tags.add(tag)
             bookmark.save()
@@ -184,7 +188,7 @@ class BookmarkSerializer(serializers.HyperlinkedModelSerializer):
             tags = validated_data.pop('tags')
             for item in tags:
                 tag_id = item['text']
-                tag_type = item['tag_type']
+                tag_type = item['tag_type_id']
                 tag, created = Tag.objects.get_or_create(text=tag_id, tag_type=tag_type)
                 bookmark.tags.add(tag)
         bookmark.save()

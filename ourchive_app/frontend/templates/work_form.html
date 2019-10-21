@@ -1,15 +1,133 @@
 {% extends 'index.html' %}
 {% block content %}	
 <div class="uk-child-width-1@m uk-child-width-1@s uk-text-left" uk-grid>
-tags
-title
-summary
-notes
-complete
-cover
-cover alt text
-allow comments
-allow anon comments
-work type
+<form class="uk-form-horizontal"  method="post">
+    <script>
+        function removetag(tag, type) {
+            document.getElementById("tags_"+tag+"_"+type).remove();
+            document.getElementById("tags_"+tag+"_"+type+"_txt").remove();
+        }
+
+        function addtag(tag, type) {
+            alert(document.getElementById(type+"_tags").innerHTML);
+        }
+
+        function tagCheck (e, type) {
+            if (e.keyCode == 188 || e.keyCode == 13) {
+                var section = document.getElementById(type+"_tags");
+                var final = section.lastChild;
+                final.value = final.value.replace(/,\s*$/, "");
+                section.removeChild(section.lastChild);
+                var wrapper= document.createElement('div');
+                wrapper.innerHTML= '<input type="hidden" id="tags_'+final.value+'_'+type+'" name="tags_'+final.value+'_'+type+'" value="'+final.value+'">';
+                var div= wrapper.firstChild;
+                section.appendChild(div);
+                wrapper.innerHTML = '<span style="margin-left: 5px;" class="uk-badge" id="tags_'+final.value+'_'+type+'_txt">'+final.value+' <span uk-icon="close" onclick="removetag(\''+final.value+'\', \''+type+'\')" id="tags_'+final.value+'_'+type+'_delete"></span></span>  ';
+                div = wrapper.firstChild;
+                section.appendChild(div);
+                final.value = '';
+                section.appendChild(final);
+                section.lastChild.focus();
+            }
+        }
+        
+    </script>
+    {% csrf_token %}
+    <fieldset class="uk-fieldset">
+        <div class="uk-margin">
+            <label class="uk-form-label" for="form-horizontal-text">Work Type</label>
+            <div class="uk-form-controls">
+                <select class="uk-select uk-form-width-small" name="work_type">
+                    {% for item in work_types %}
+                        <option>{{ item.type_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="uk-margin">
+            <label class="uk-form-label" for="form-horizontal-text">Title</label>
+            <div class="uk-form-controls">
+                <div class="uk-inline">
+                    <input class="uk-input uk-form-width-large" type="text" name="title" value="{{ work.title }}">
+                </div>
+            </div>
+            
+        </div>
+
+        <div class="uk-margin">
+            <label class="uk-form-label" for="form-horizontal-text">Summary</label>
+            <div class="uk-form-controls">
+                <div class="uk-inline">
+                    <textarea class="uk-textarea uk-form-width-large" rows="5" placeholder="Summary" name="summary" value="{{ work.summary }}"></textarea>
+                </div>
+            </div>
+            
+        </div>
+
+        <div class="uk-margin">
+            <label class="uk-form-label" for="form-horizontal-text">Notes</label>
+            <div class="uk-form-controls">
+                <div class="uk-inline">
+                    <textarea class="uk-textarea uk-form-width-large" rows="5" placeholder="Work notes" name="notes" value="{{ work.notes }}"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="uk-margin">
+            <label class="uk-form-label" for="form-horizontal-text">Complete?</label>
+            <div class="uk-form-controls">
+                <div class="uk-inline">
+                    <label><input class="uk-checkbox" type="checkbox" name="complete" value="{{ work.is_complete }}"> </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="uk-margin">
+            <label class="uk-form-label" for="form-horizontal-text">Cover</label>
+            <div class="uk-form-controls">
+                <div class="uk-inline">
+                    <input class="uk-input uk-form-width-large" type="text" name="cover" value="{{ work.cover_url }}">
+                </div>
+            </div>
+        </div>
+
+        <div class="uk-margin">
+            <label class="uk-form-label" for="form-horizontal-text">Cover Alt Text</label>
+            <div class="uk-form-controls">
+                <div class="uk-inline">
+                    <input class="uk-input uk-form-width-large" type="text" name="cover_alt_text" value="{{ work.cover_alt_text }}">
+                </div>
+            </div>
+        </div>
+
+        <div class="uk-margin">
+            <label class="uk-form-label" for="form-horizontal-text">Allow Comments?</label>
+            <div class="uk-form-controls">
+                <div class="uk-inline uk-margin uk-grid-small uk-child-width-auto uk-grid">
+                    <label><input class="uk-radio" type="radio" name="radio" {% if work.anon_comments_permitted and work.comments_permitted %} checked {% endif %}> All</label>
+                    <label><input class="uk-radio" type="radio" name="radio" {% if work.anon_comments_permitted == False and work.comments_permitted %} checked {% endif %}> Registered users only</label>
+                    <label><input class="uk-radio" type="radio" name="radio" {% if not work.anon_comments_permitted and not work.comments_permitted %} checked {% endif %}> None</label>
+                </div>
+            </div>
+        </div>
+        {% for type, tag in tags.items %}
+        <div class="uk-margin">
+            <label class="uk-form-label" for="form-horizontal-text">{{ type }}</label>
+            <div class="uk-form-controls">                
+                <div class="uk-inline">
+                    <div id="{{ type }}_tags">
+                    {% for single_tag in tag %}
+                        <input type="hidden" id="tags_{{ single_tag.text }}_{{ type }}" name="tags_{{ single_tag.text }}_{{ type }}" value="{{ single_tag }}">
+                        <span class="uk-badge" id="tags_{{ single_tag.text }}_{{ type }}_txt">{{ single_tag.text }} <span uk-icon="close" onclick="removetag('{{single_tag.text}}', '{{type}}')" id="tags_{{ single_tag.text }}_{{ type }}_delete"></span></span>
+                    {% endfor %}
+                    <input style="margin-left: 5px;" class="uk-input uk-form-width-small uk-form-small" type="text" name="{{ type }}_new_tag" id="{{ type }}_new_tag" onkeyup="tagCheck(event, '{{type}}')"></div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        
+    </fieldset>
+</form>
 </div>
 {% endblock %}

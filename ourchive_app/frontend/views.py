@@ -34,12 +34,41 @@ def works_by_type(request, type_id):
 	return render(request, 'works.html', {'work_types': work_types['results']})
 
 def new_work(request):
-	return render(request, 'works.html', {'work_types': work_types['results']})
+	response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/worktypes')
+	work_types = response.json()
+	if request.user.is_authenticated:
+		return render(request, 'work_form.html', {'work_types': work_types['results'],
+			'work': {}})
+	else:
+		messages.add_message(request, messages.ERROR, 'You must log in to post a new work.')	
+		return redirect('/login')
+
+def group_tags(tag_types, tags):
+	result = {}
+	for tag_type in tag_types:
+		result[tag_type['label']] = []
+	for tag in tags:
+		result[tag['tag_type']].append(tag)
+	return result
 
 def edit_work(request, id):
 	response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/worktypes')
 	work_types = response.json()
-	return render(request, 'work_form.html', {'work_types': work_types['results']})
+	response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/tagtypes')
+	tag_types = response.json()
+	if request.user.is_authenticated:
+		response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/works/'+str(id))
+		work = response.json()
+		if work['user_id'] != request.user.id:			
+			messages.add_message(request, messages.ERROR, 'You are not authorized to edit this work.')	
+			return redirect('/')
+		tags = group_tags(tag_types['results'], work['tags'])
+		return render(request, 'work_form.html', {'work_types': work_types['results'],
+			'work': work, 
+			'tags': tags})
+	else:
+		messages.add_message(request, messages.ERROR, 'You must log in to post a new work.')	
+		return redirect('/login')
 
 def log_in(request):
 	if request.method == 'POST':
