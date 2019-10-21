@@ -1,11 +1,15 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 import requests
 from django.conf import settings
 from django.views.decorators.http import require_http_methods
+from django.contrib.auth import authenticate, logout, login
+from django.contrib import messages
+from django.contrib.auth.models import User
 
 def index(request):
 	response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/worktypes')
 	work_types = response.json()
+	print(request.user)
 	return render(request, 'index.html', {
 	    'work_types': work_types['results'],
 	    'heading_message': 'Welcome to Ourchive',
@@ -33,7 +37,44 @@ def new_work(request):
 	return render(request, 'works.html', {'work_types': work_types['results']})
 
 def edit_work(request, id):
-	return render(request, 'works.html', {'work_types': work_types['results']})
+	response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/worktypes')
+	work_types = response.json()
+	return render(request, 'work_form.html', {'work_types': work_types['results']})
+
+def log_in(request):
+	if request.method == 'POST':
+		user = authenticate(username=request.POST.get('username'), password=request.POST.get('password'))
+		if user is not None:
+			login(request, user)
+			messages.add_message(request, messages.SUCCESS, 'Login successful.')		
+			return redirect('/')
+		else:
+			messages.add_message(request, messages.ERROR, 'Login unsuccessful. Please try again.')
+			return redirect('/login')
+	else:
+		response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/worktypes')
+		work_types = response.json()
+		return render(request, 'login.html', {'work_types': work_types['results']})
+
+def register(request):
+	if request.method == 'POST':
+		user = User.objects.create_user(username=request.POST.get('username'), email=request.POST.get('email'), password=request.POST.get('password'))
+		if user is not None:
+			messages.add_message(request, messages.SUCCESS, 'Registration successful!')		
+			return redirect('/')
+		else:
+			messages.add_message(request, messages.ERROR, 'Registration unsuccessful. Please try again.')
+			return redirect('/login')
+	else:
+		response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/worktypes')
+		work_types = response.json()
+		return render(request, 'register.html', {'work_types': work_types['results']})
+
+def log_out(request):
+	logout(request)
+	messages.add_message(request, messages.SUCCESS, 'Logout successful.')		
+	return redirect('/')
+
 
 @require_http_methods(["GET"])
 def work(request, pk):

@@ -10,6 +10,20 @@
     <title>Ourchive</title>
 </head>
 <body>
+	{% if messages %}
+		{% for message in messages %}
+			<script>
+				var status = '{{message.tags}}' === 'success' ? '{{message.tags}}' : 'danger';
+				UIkit.notification({
+				    message: '{{ message }}',
+				    status: status,
+				    pos: 'bottom-right',
+				    timeout: 2500
+				});
+			</script>
+		{% endfor %}
+	
+	{% endif %}
 	<nav class="uk-navbar-container" uk-navbar>
 	    <div class="uk-navbar-left">
 	    	<a class="uk-navbar-toggle uk-hidden@s" uk-toggle="target: #sidenav"  uk-navbar-toggle-icon></a>
@@ -29,6 +43,15 @@
 	            <li><a href="/search">Search</a></li>
 	        </ul>
 	    </div>
+	    <div class="uk-navbar-right">
+
+	        <ul class="uk-navbar-nav uk-visible@s">
+	            {% if not request.user.is_authenticated %}<li class="uk-active"><a href="/login">Login</a></li>{% endif %}
+	            {% if not request.user.is_authenticated %}<li class="uk-active"><a href="/register">Register</a></li>{% endif %}
+	            {% if request.user.is_authenticated %}<li class="uk-active"><a href="/logout">Logout</a></li>{% endif %}
+	        </ul>
+    </div>
+
 	</nav>
 	<div id="sidenav" uk-offcanvas="flip: true" class="uk-offcanvas">
 		<div class="uk-offcanvas-bar">
@@ -46,6 +69,9 @@
 	            </li>
 	            <li><a href="/bookmarks">Bookmarks</a></li>
 	            <li><a href="/search">Search</a></li>
+	            {% if not request.user.is_authenticated %}<li class="uk-active"><a href="/login">Login</a></li>{% endif %}
+	            {% if not request.user.is_authenticated %}<li class="uk-active"><a href="/register">Register</a></li>{% endif %}
+	            {% if request.user.is_authenticated %}<li class="uk-active"><a href="/logout">Logout</a></li>{% endif %}
 			</ul>
 		</div>
 	</div>
