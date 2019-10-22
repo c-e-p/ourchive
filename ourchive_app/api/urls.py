@@ -35,6 +35,8 @@ urlpatterns = [
 	path('users/<int:pk>/',
         views.UserDetail.as_view(),
         name='user-detail'),
+    path('users/<str:username>/', views.UserNameDetail.as_view(),
+        name='user-detail'),
 ]
 
 

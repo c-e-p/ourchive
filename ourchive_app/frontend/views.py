@@ -13,6 +13,12 @@ def index(request):
 	    'long_message': 'Ourchive is a configurable, extensible, multimedia archive, meant to serve as a modern alternative to PHP-based archives. You can search for existing works, create your own, or create curated collections of works you\'ve enjoyed. Have fun with it!'
 	})
 
+def user_name(request, username):
+	response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/users/'+username)
+	print(response)
+	user = response.json()
+	return render(request, 'user.html', {'user': user})
+
 def search(request):
 	return render(request, 'search.html', {})
 
@@ -67,6 +73,7 @@ def edit_work(request, id):
 		work_dict["comments_permitted"] = comments_permitted == "All" or comments_permitted == "Registered users only"
 		work_dict["anon_comments_permitted"] = comments_permitted == "All"
 		work_dict = work_dict.dict()
+		work_dict["user"] = str(request.user)
 		work_json = json.dumps(work_dict)
 		headers = {}
 		headers['X-CSRFToken'] = request.COOKIES['csrftoken']
@@ -77,6 +84,7 @@ def edit_work(request, id):
 		elif response.status_code == 403:
 			messages.add_message(request, messages.ERROR, 'You are not authorized to update this work.')	
 		else:
+			print(response.content)
 			messages.add_message(request, messages.ERROR, 'An error has occurred while updating this work. Please contact your administrator.')	
 		return redirect('/works/'+str(id))
 	else:
@@ -87,9 +95,6 @@ def edit_work(request, id):
 		if request.user.is_authenticated:
 			response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/works/'+str(id))
 			work = response.json()
-			if work['user_id'] != request.user.id:			
-				messages.add_message(request, messages.ERROR, 'You are not authorized to edit this work.')	
-				return redirect('/')
 			tags = group_tags(tag_types['results'], work['tags'])
 			return render(request, 'work_form.html', {'work_types': work_types['results'],
 				'work': work, 
@@ -136,6 +141,9 @@ def work(request, pk):
 	work_types = response.json()
 	response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/works/'+str(pk))
 	work = response.json()
+	response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/tagtypes')
+	tag_types = response.json()
+	tags = group_tags(tag_types['results'], work['tags'])
 	if chapter_offset == 0:
 		response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/works/'+str(pk)+'/chapters?limit=1')
 	else:
@@ -143,6 +151,9 @@ def work(request, pk):
 	chapter = response.json()
 	return render(request, 'work.html', {'work_types': work_types['results'], 
 		'work': work,
+		'id': pk,
+		'tags': tags,
+		'root': settings.ALLOWED_HOSTS[0],
 		'chapter': chapter['results'][0],
 		'next_chapter': settings.ALLOWED_HOSTS[0] + '/works/'+str(pk)+'?offset='+str(chapter_offset + 1) if chapter['next'] else None,
 		'previous_chapter': settings.ALLOWED_HOSTS[0] + '/works/'+str(pk)+'?offset='+str(chapter_offset - 1)  if chapter['previous'] else None,})
