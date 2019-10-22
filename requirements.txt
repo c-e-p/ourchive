@@ -4,3 +4,4 @@ django-filter
 django
 psycopg2
 requests
+django-background-tasks

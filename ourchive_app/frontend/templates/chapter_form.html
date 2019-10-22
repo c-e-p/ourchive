@@ -1,0 +1,8 @@
+{% extends 'index.html' %}
+{% block content %}	
+	{% load static %}
+	<link rel="stylesheet" href="{% static 'frontend/css/jodit.min.css' %}" />
+	<script src="{% static 'frontend/js/jodit.min.js' %}"></script>
+	<div id="editor"></div>
+	<script>var editor = new Jodit('#editor');</script>
+{% endblock %}

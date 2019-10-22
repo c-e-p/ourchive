@@ -34,7 +34,7 @@ class TagSerializer(serializers.HyperlinkedModelSerializer):
         fields = '__all__'
 
     def update(self, tag, validated_data):
-        tag_type = TagType.objects.get(validated_data['tag_type'])
+        tag_type = TagType.objects.get(validated_data['tag_type_id'])
         if (tag_type.admin_administrated):
             user = serializers.CurrentUserDefault()
             if (user.is_superuser):
@@ -99,7 +99,7 @@ class ChapterSerializer(serializers.HyperlinkedModelSerializer):
     work = serializers.HyperlinkedRelatedField(view_name='work-detail', queryset=Work.objects.all())
     user = serializers.HyperlinkedRelatedField(view_name='user-detail', format='html', read_only=True)
     id = serializers.HyperlinkedIdentityField(view_name='chapter-detail', read_only=True)
-    comments = CommentSerializer(many=True, required=False)
+    comments = CommentSerializer(many=True, required=False, read_only=True)
     word_count = serializers.IntegerField(read_only=True)
     class Meta:
         model = Chapter
@@ -119,8 +119,7 @@ class ChapterSerializer(serializers.HyperlinkedModelSerializer):
 
 class WorkSerializer(serializers.HyperlinkedModelSerializer):
     tags = TagSerializer(many=True, required=True)
-    user = serializers.HyperlinkedRelatedField(view_name='user-detail', format='html', read_only=True)
-    user_id = serializers.IntegerField()
+    user = serializers.SlugRelatedField(queryset=User.objects.all(), slug_field='username')
     id = serializers.HyperlinkedIdentityField(view_name='work-detail', read_only=True)
     word_count = serializers.IntegerField(read_only=True)
     audio_length = serializers.IntegerField(read_only=True)
@@ -132,7 +131,6 @@ class WorkSerializer(serializers.HyperlinkedModelSerializer):
         required_tag_types = list(TagType.objects.filter(required=True))
         has_any_required = len(required_tag_types) > 0
         for item in tags:
-            print(item)
             tag_id = item['text']
             tag_type = item['tag_type_id']
             if tag_type in required_tag_types:

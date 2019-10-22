@@ -1,7 +1,16 @@
 <div>
-	<p class="uk-text-lead"><a class="uk-link-reset" href="">{{ chapter.title }}</a></p>
-	{% if chapter.text is not None %}<p>{{ chapter.text }}</p>{% endif %}
+	<h2><a class="uk-link-reset" href="">Chapter {{ chapter.number }}: {{ chapter.title }}</a></h2>
+    <div class="uk-grid-column-small uk-grid-row-small uk-child-width-1-1@s" uk-grid>
+		<div><span class="uk-text-large">Summary</span></div>
+	    <div><span class="uk-text-medium">{{ chapter.summary }}</span></div>
+		<div><span class="uk-text-large">Notes</span></div>
+	    <div><span class="uk-text-medium">{{ chapter.notes }}</span></div>
+	</div>
+	
+    
+   	<hr/>	
 	{% if chapter.image_url is not None %}<p><img src="{{ chapter.image_url }}" alt="{{ chapter.image_alt_text }}"/></p>{% endif %}
 	{% if chapter.audio_url is not None %}<p><audio src="{{ chapter.audio_url }}" controls></audio></p>{% endif %}
+	{% if chapter.text is not None %}<p>{{ chapter.text }}</p>{% endif %}
 	<hr/>
 </div>

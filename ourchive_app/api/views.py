@@ -34,11 +34,16 @@ class UserList(generics.ListCreateAPIView):
     serializer_class = UserSerializer
     permission_classes = [IsUser]
 
-
 class UserDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = User.objects.get_queryset().order_by('id')
     serializer_class = UserSerializer
     permission_classes = [IsUser]
+
+class UserNameDetail(generics.ListAPIView):
+    serializer_class = UserSerializer
+    def get_queryset(self):
+        username = self.kwargs['username']
+        return User.objects.filter(username=username)
 
 
 class GroupViewSet(viewsets.ModelViewSet):
@@ -64,7 +69,7 @@ class WorkTypeDetail(generics.RetrieveUpdateDestroyAPIView):
 
 class WorkTypeList(generics.ListCreateAPIView):
     queryset = WorkType.objects.get_queryset().order_by('id')
-    serializer_class = WorkTypeSerializer
+    serializer_class = WorkTypeSerializer    
     permission_classes = [IsAdminOrReadOnly]
 
 class TagTypeDetail(generics.RetrieveUpdateDestroyAPIView):
@@ -100,6 +105,7 @@ class ChapterDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Chapter.objects.get_queryset().order_by('id')
     serializer_class = ChapterSerializer
     permission_classes = [IsOwnerOrReadOnly]
+    #todo in post - call super then update work medatata
 
 class WorkChapterDetail(generics.ListCreateAPIView):
     serializer_class = ChapterSerializer

@@ -2,10 +2,28 @@
 {% block content %}	
 <div class="uk-child-width-1@m uk-child-width-1@s uk-text-left" uk-grid>
 <article class="uk-article">
-    <h1 class="uk-article-title"><a class="uk-link-reset" href="">{{ work.title }}</a></h1>
+    <div class="uk-child-width-2-1" uk-grid>
+        <div class="uk-width-2-3">
+            <h1 class="uk-article-title" style="display: inline;"><a class="uk-link-reset" href="{{ root }}/works/{{ id }}">{{ work.title }}</a></h1> <span class="uk-text-large" style="padding-left: 10px;">by <a href="{{ root }}/username/{{ work.user }}">{{ work.user }}</a></span>
+        </div>
+        <div class="uk-text-right uk-width-1-3">
+            {% if work.user == request.user.username %}
+            <a href="#"><span uk-icon="icon: file-edit"></span> </a>
+            <a href="#"><span uk-icon="icon: trash"></span> </a>
+            {% endif %}
+        </div>
+    
     <p class="uk-text-lead">{{ work.summary }}</p>
     <hr/>
-
+    <dl class="uk-description-list uk-description-list-divider">
+    {% for type, tag in tags.items %} 
+        <dt>{{ type }}</dt>
+        <dd>
+        <span uk-icon="icon: tag"></span> {% for single_tag in tag %}<a href="{{single_tag.url}}" style="padding-left:5px;">{{ single_tag.text }}</a> {% endfor %}
+        </dd>
+    {% endfor %}
+    </dl>
+    <hr/>
     {% include "chapter.html" %}
     <!-- use iconnav for work edit icons -->
     <div class="uk-child-width-1@m uk-child-width-1@s uk-text-center" uk-grid>
@@ -14,8 +32,7 @@
             {% if previous_chapter is not None %}<li><a href="{{ previous_chapter }}"><span class="uk-margin-small-right" uk-pagination-previous></span> Previous</a></li>{% endif %}
             {% if next_chapter is not None %}<li class="uk-margin-auto-left"><a href="{{ next_chapter }}">Next <span class="uk-margin-small-left" uk-pagination-next></span></a></li>{% endif %}
         </ul>
-        </div>
-        
+        </div>        
     </div>
 
     <div class="uk-grid-small uk-child-width-auto" uk-grid>
