@@ -1,4 +1,4 @@
-from background_task import background
+#from background_task import background
 from django.conf import settings
 
 def handle_uploaded_file(f, name):
