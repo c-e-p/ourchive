@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'frontend'
+    'frontend',
+    'background_task',
 ]
 
 MIDDLEWARE = [
@@ -53,6 +54,8 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'ourchive_app.urls'
+
+MEDIA_ROOT = '/home/imp/projects/ourchive/ourchive_app/files'
 
 TEMPLATES = [
     {

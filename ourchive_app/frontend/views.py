@@ -6,6 +6,8 @@ from django.contrib.auth import authenticate, logout, login
 from django.contrib import messages
 from django.contrib.auth.models import User
 import json
+from . import file_helpers
+import threading
 
 def index(request):
 	return render(request, 'index.html', {
@@ -51,6 +53,12 @@ def group_tags(tag_types, tags):
 	for tag in tags:
 		result[tag['tag_type']].append(tag)
 	return result
+
+def edit_chapter(request, id):
+	if request.method == 'POST':
+		return redirect('/')
+	else:
+		return render(request, 'chapter_form.html', {})
 
 def edit_work(request, id):
 	if request.method == 'POST':
@@ -109,7 +117,7 @@ def log_in(request):
 		if user is not None:
 			login(request, user)
 			messages.add_message(request, messages.SUCCESS, 'Login successful.')		
-			return redirect('/')
+			return redirect(request.META['HTTP_REFERER'])
 		else:
 			messages.add_message(request, messages.ERROR, 'Login unsuccessful. Please try again.')
 			return redirect('/login')
@@ -131,7 +139,7 @@ def register(request):
 def log_out(request):
 	logout(request)
 	messages.add_message(request, messages.SUCCESS, 'Logout successful.')		
-	return redirect('/')
+	return redirect(request.META['HTTP_REFERER'])
 
 
 @require_http_methods(["GET"])
@@ -163,3 +171,9 @@ def bookmarks(request):
 
 def bookmark(request, pk):
 	return render(request, 'bookmark.html', {})
+
+def upload_file(request):
+	if request.method == 'POST':
+		file_helpers.handle_uploaded_file(request.FILES['files[]'], request.FILES['files[]'].name)
+		return redirect('/')
+	return render(request, 'upload.html')

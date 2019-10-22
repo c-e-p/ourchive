@@ -99,7 +99,7 @@ class ChapterSerializer(serializers.HyperlinkedModelSerializer):
     work = serializers.HyperlinkedRelatedField(view_name='work-detail', queryset=Work.objects.all())
     user = serializers.HyperlinkedRelatedField(view_name='user-detail', format='html', read_only=True)
     id = serializers.HyperlinkedIdentityField(view_name='chapter-detail', read_only=True)
-    comments = CommentSerializer(many=True, required=False)
+    comments = CommentSerializer(many=True, required=False, read_only=True)
     word_count = serializers.IntegerField(read_only=True)
     class Meta:
         model = Chapter

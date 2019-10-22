@@ -14,5 +14,7 @@ urlpatterns = [
     path('login/', views.log_in),
     path('register/', views.register),
     path('logout/', views.log_out),
-    path('username/<str:username>', views.user_name)
+    path('username/<str:username>', views.user_name),
+    path('chapters/<int:id>/edit', views.edit_chapter),
+    path('upload-test', views.upload_file)
 ]
