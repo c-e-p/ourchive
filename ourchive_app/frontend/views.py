@@ -174,6 +174,11 @@ def bookmark(request, pk):
 
 def upload_file(request):
 	if request.method == 'POST':
+		# todo
+		# send fic uuid + chapter id
+		# directory structure: media/uuid/chapter_id/files
+		# save file, return location
+		# location client-side in audio_url variable
 		file_helpers.handle_uploaded_file(request.FILES['files[]'], request.FILES['files[]'].name)
 		return redirect('/')
 	return render(request, 'upload.html')
