@@ -64,7 +64,7 @@ class WorkTypeDetail(generics.RetrieveUpdateDestroyAPIView):
 
 class WorkTypeList(generics.ListCreateAPIView):
     queryset = WorkType.objects.get_queryset().order_by('id')
-    serializer_class = WorkTypeSerializer
+    serializer_class = WorkTypeSerializer    
     permission_classes = [IsAdminOrReadOnly]
 
 class TagTypeDetail(generics.RetrieveUpdateDestroyAPIView):

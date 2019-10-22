@@ -5,6 +5,7 @@ from django.views.decorators.http import require_http_methods
 from django.contrib.auth import authenticate, logout, login
 from django.contrib import messages
 from django.contrib.auth.models import User
+import json
 
 def index(request):
 	return render(request, 'index.html', {
@@ -47,10 +48,39 @@ def group_tags(tag_types, tags):
 
 def edit_work(request, id):
 	if request.method == 'POST':
-		messages.add_message(request, messages.ERROR, 'An error occurred while updating the work.')	
-		return redirect('/works/'+id)
+		work_dict = request.POST.copy()
+		tags = []
+		tag_types = {}
+		result = requests.get(settings.ALLOWED_HOSTS[0] + '/api/tagtypes', cookies=request.COOKIES).json()['results']
+		for item in result:
+			tag_types[item['label']] = item
+		for item in request.POST:
+			dict_item = request.POST[item].replace('\'', '"')
+			if 'tag_type_id' in request.POST[item]:					
+				json_item = json.loads(dict_item)
+				if not json_item['tag_type_id']:
+					json_item['tag_type_id'] = tag_types[json_item['tag_type']]['url']
+				tags.append(json_item)
+				work_dict.pop(item)
+		work_dict["tags"] = tags
+		comments_permitted = work_dict["comments_permitted"]
+		work_dict["comments_permitted"] = comments_permitted == "All" or comments_permitted == "Registered users only"
+		work_dict["anon_comments_permitted"] = comments_permitted == "All"
+		work_dict = work_dict.dict()
+		work_json = json.dumps(work_dict)
+		headers = {}
+		headers['X-CSRFToken'] = request.COOKIES['csrftoken']
+		headers['content-type'] = 'application/json'
+		response = requests.put(settings.ALLOWED_HOSTS[0] + '/api/works/' + str(id) +'/', data=work_json, cookies=request.COOKIES, headers=headers)
+		if response.status_code == 200:
+			messages.add_message(request, messages.SUCCESS, 'Work updated.')	
+		elif response.status_code == 403:
+			messages.add_message(request, messages.ERROR, 'You are not authorized to update this work.')	
+		else:
+			messages.add_message(request, messages.ERROR, 'An error has occurred while updating this work. Please contact your administrator.')	
+		return redirect('/works/'+str(id))
 	else:
-		response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/worktypes')
+		response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/worktypes', cookies=request.COOKIES)
 		work_types = response.json()
 		response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/tagtypes')
 		tag_types = response.json()

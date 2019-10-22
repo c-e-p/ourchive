@@ -120,7 +120,7 @@ class ChapterSerializer(serializers.HyperlinkedModelSerializer):
 class WorkSerializer(serializers.HyperlinkedModelSerializer):
     tags = TagSerializer(many=True, required=True)
     user = serializers.HyperlinkedRelatedField(view_name='user-detail', format='html', read_only=True)
-    user_id = serializers.IntegerField()
+    user_id = serializers.IntegerField(required=False)
     id = serializers.HyperlinkedIdentityField(view_name='work-detail', read_only=True)
     word_count = serializers.IntegerField(read_only=True)
     audio_length = serializers.IntegerField(read_only=True)
@@ -132,7 +132,6 @@ class WorkSerializer(serializers.HyperlinkedModelSerializer):
         required_tag_types = list(TagType.objects.filter(required=True))
         has_any_required = len(required_tag_types) > 0
         for item in tags:
-            print(item)
             tag_id = item['text']
             tag_type = item['tag_type_id']
             if tag_type in required_tag_types:
