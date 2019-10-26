@@ -26,6 +26,18 @@ Task scheduler: Django Background Tasks
 Search: Postgres OR Elastic (configurable provider)
 File Upload: Django OR Tus (configurable provider)
 
+### Docker Container Development
+
+we have a [Dockerfile](Dockerfile), and a [docker-compose.yml](docker-compose.yml) that creates a container with a db service (currently hardcoded to postgres) and a web service that runs the django app. 
+
+1. in the repo root, build the image
+    `docker build .`
+2. in the repo root, run the docker compose
+    `docker-compose up` (or `docker-compose up -d` to run detached)
+3. navigate to your `localhost:8000` on your local machine and you should see the webapp running!!!
+
+> note: if on windows, you may find that you need to use `http://host.docker.internal:8000/` instead. If you are having issues, check your hosts file and make sure your docker install hasn't screwed up the hosts file with a bunch of duplicative garbage.
+
 ### Dependencies
 
 <a name="contributor-guidelines"></a>

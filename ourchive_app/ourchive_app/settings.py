@@ -25,7 +25,7 @@ SECRET_KEY = ')ug-d&%)o2ff=r^8&j6%8tsr82kh)1+n9pwi6_d(vhwinvfzar'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["http://127.0.0.1:8000", "127.0.0.1"]
+ALLOWED_HOSTS = ["http://127.0.0.1:8000", "127.0.0.1", "host.docker.internal"]
 
 
 # Application definition
@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'frontend',
-    'background_task',
+    #'background_task',
 ]
 
 MIDDLEWARE = [
@@ -82,11 +82,18 @@ WSGI_APPLICATION = 'ourchive_app.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'postgres',
+        'USER': 'postgres',
+        'HOST': 'db', # set in docker-compose.yml
+        'PORT': '5432' # default postgres port
+    },
+    'local': {
+        'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'ourchive_db',
         'USER': 'ourchive',
         'PASSWORD': 'ourchive',
         'HOST': 'localhost',
-        'PORT': '5433',
+        'PORT': '5432',
     }
 }
 
