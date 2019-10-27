@@ -8,6 +8,7 @@ from django.contrib.auth.models import User
 import json
 from . import file_helpers
 import threading
+from django.http import HttpResponse
 
 def index(request):
 	return render(request, 'index.html', {
@@ -56,9 +57,19 @@ def group_tags(tag_types, tags):
 
 def edit_chapter(request, id):
 	if request.method == 'POST':
-		return redirect('/')
+		if 'files[]' in request.FILES:
+			file_helpers.handle_uploaded_file(request.FILES['files[]'], request.FILES['files[]'].name)
+			return HttpResponse(request.FILES['files[]'].name)
+		else:
+			return redirect('/')
 	else:
-		return render(request, 'chapter_form.html', {})
+		if request.user.is_authenticated:
+			response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/chapters/'+str(id))
+			chapter = response.json()
+			return render(request, 'chapter_form.html', {'chapter': chapter})
+		else:
+			messages.add_message(request, messages.ERROR, 'You must log in to perform this action.')	
+			return redirect('/login')
 
 def edit_work(request, id):
 	if request.method == 'POST':
@@ -108,7 +119,7 @@ def edit_work(request, id):
 				'work': work, 
 				'tags': tags})
 		else:
-			messages.add_message(request, messages.ERROR, 'You must log in to post a new work.')	
+			messages.add_message(request, messages.ERROR, 'You must log in to perform this action.')	
 			return redirect('/login')
 
 def log_in(request):

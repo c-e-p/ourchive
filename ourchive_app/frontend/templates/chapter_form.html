@@ -1,8 +1,262 @@
 {% extends 'index.html' %}
 {% block content %}	
-	{% load static %}
-	<link rel="stylesheet" href="{% static 'frontend/css/jodit.min.css' %}" />
-	<script src="{% static 'frontend/js/jodit.min.js' %}"></script>
-	<div id="editor"></div>
-	<script>var editor = new Jodit('#editor');</script>
+{% load static %}
+<link rel="stylesheet" href="{% static 'frontend/css/jodit.min.css' %}" />
+<script src="{% static 'frontend/js/jodit.min.js' %}"></script>
+<div class="uk-child-width-1@m uk-child-width-1@s uk-text-left" uk-grid>
+	<form class="uk-form-horizontal"  method="post" id="chapterForm" onsubmit="return getJoditValue()">
+		{% csrf_token %}
+		<fieldset class="uk-fieldset">
+		<div class="uk-margin">
+            <label class="uk-form-label" for="form-horizontal-text">Title</label>
+            <div class="uk-form-controls">
+                <div class="uk-inline">
+                    <input class="uk-input uk-form-width-large" type="text" name="title" value="{{ chapter.title }}">
+                </div>
+            </div>
+            
+        </div>
+
+        <div class="uk-margin">
+            <label class="uk-form-label" for="form-horizontal-text">Summary</label>
+            <div class="uk-form-controls">
+                <div class="uk-inline">
+                    <textarea class="uk-textarea uk-form-width-large" rows="5" placeholder="Summary" name="summary">{{ chapter.summary }}</textarea>
+                </div>
+            </div>
+            
+        </div>
+
+       <div class="uk-margin">
+            <label class="uk-form-label" for="form-horizontal-text">Number</label>
+            <div class="uk-form-controls">
+                <div class="uk-inline">
+                    <input class="uk-input" type="number" name="number" min="1" value="{{ chapter.number }}">
+                </div>
+            </div>            
+        </div>
+
+        <div class="uk-margin">
+            <label class="uk-form-label" for="form-horizontal-text">Notes</label>
+            <div class="uk-form-controls">
+                <div class="uk-inline">
+                    <textarea class="uk-textarea uk-form-width-large" rows="5" placeholder="Chapter notes" name="notes">{{ chapter.notes }}</textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="uk-margin">
+            <label class="uk-form-label" for="form-horizontal-text">Chapter Image</label>
+            <div class="uk-form-controls">
+                <div class="uk-inline">
+                	<div class="js-upload-img uk-placeholder uk-text-center">
+                    <span uk-icon="icon: cloud-upload"></span>
+				    <div uk-form-custom="target: true">
+			            <input type="file">
+			            <input class="uk-input uk-form-width-medium" id="js-img-input" type="text" placeholder="Select file" disabled>
+			        </div>
+				    <progress id="js-progressbar-img" class="uk-progress" value="0" max="100" hidden></progress>
+				    <script>
+					    var bar = document.getElementById('js-progressbar-img');
+
+					    UIkit.upload('.js-upload-img', {
+
+					        url: '',
+					        multiple: false,
+
+					        beforeSend: function () {
+					            function getCookie(name) {
+					                var cookieValue = null;
+					                if (document.cookie && document.cookie !== '') {
+					                    var cookies = document.cookie.split(';');
+					                    cookies.forEach(function (value) { 
+					                        var cookie = value.trim();
+					                        // Does this cookie string begin with the name we want?
+					                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+					                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+					                            return;
+					                        }
+					                    });
+					                }
+					                return cookieValue;
+					            }
+					            var csrftoken = getCookie('csrftoken');
+					            arguments[0]['headers']['X-CSRFToken'] = csrftoken;
+					            console.log('beforeSend', arguments);
+					        },
+					        beforeAll: function () {
+					            console.log('beforeAll', arguments);
+					        },
+					        load: function () {
+					            console.log('load', arguments);
+					        },
+					        error: function () {
+					            console.log('error', arguments);
+					        },
+					        complete: function () {
+					            console.log('complete', arguments);
+					        },
+
+					        loadStart: function (e) {
+					            console.log('loadStart', arguments);
+
+					            bar.removeAttribute('hidden');
+					            bar.max = e.total;
+					            bar.value = e.loaded;
+					        },
+
+					        progress: function (e) {
+					            console.log('progress', arguments);
+
+					            bar.max = e.total;
+					            bar.value = e.loaded;
+					        },
+
+					        loadEnd: function (e) {
+					            console.log('loadEnd', arguments);
+
+					            bar.max = e.total;
+					            bar.value = e.loaded;
+					        },
+
+					        completeAll: function () {
+					            console.log('completeAll', arguments);
+
+					            setTimeout(function () {
+					                bar.setAttribute('hidden', 'hidden');
+					            }, 1000);
+
+					            document.getElementById('js-img-input').value = arguments[0]['response'];
+					        }
+
+					    });
+
+					</script>
+				</div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="uk-margin">
+            <label class="uk-form-label" for="form-horizontal-text">Chapter Audio</label>
+            <div class="uk-form-controls">
+                <div class="uk-inline">
+                	<div class="js-upload-audio uk-placeholder uk-text-center">
+                    <span uk-icon="icon: cloud-upload"></span>
+				    <div uk-form-custom="target: true">
+			            <input type="file">
+			            <input class="uk-input uk-form-width-medium" id="js-audio-input" type="text" placeholder="Select file" disabled>
+			        </div>
+
+				    <progress id="js-progressbar-audio" class="uk-progress" value="0" max="100" hidden></progress>
+				    <script>
+					    var bar = document.getElementById('js-progressbar-audio');
+					    UIkit.upload('.js-upload-audio', {
+
+					        url: '',
+					        multiple: false,
+
+					        beforeSend: function () {
+					            function getCookie(name) {
+					                var cookieValue = null;
+					                if (document.cookie && document.cookie !== '') {
+					                    var cookies = document.cookie.split(';');
+					                    cookies.forEach(function (value) { 
+					                        var cookie = value.trim();
+					                        // Does this cookie string begin with the name we want?
+					                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+					                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+					                            return;
+					                        }
+					                    });
+					                }
+					                return cookieValue;
+					            }
+					            var csrftoken = getCookie('csrftoken');
+					            arguments[0]['headers']['X-CSRFToken'] = csrftoken;
+					            console.log('beforeSend', arguments);
+
+					        },
+					        beforeAll: function () {
+					            console.log('beforeAll', arguments);
+					        },
+					        load: function () {
+					            console.log('load', arguments);
+					        },
+					        error: function () {
+					            console.log('error', arguments);
+					        },
+					        complete: function () {
+					            console.log('complete', arguments);
+					        },
+
+					        loadStart: function (e) {
+					            console.log('loadStart', arguments);
+
+					            bar.removeAttribute('hidden');
+					            bar.max = e.total;
+					            bar.value = e.loaded;
+					        },
+
+					        progress: function (e) {
+					            console.log('progress', arguments);
+
+					            bar.max = e.total;
+					            bar.value = e.loaded;
+					        },
+
+					        loadEnd: function (e) {
+					            console.log('loadEnd', arguments);
+
+					            bar.max = e.total;
+					            bar.value = e.loaded;
+					        },
+
+					        completeAll: function () {
+					            console.log('completeAll', arguments);
+
+					            setTimeout(function () {
+					                bar.setAttribute('hidden', 'hidden');
+					            }, 1000);
+
+					            document.getElementById('js-audio-input').value = arguments[0]['response'];
+					        }
+
+					    });
+
+					</script>
+				</div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="uk-margin">
+            <label class="uk-form-label" for="form-horizontal-text">Chapter Text</label>
+            <div class="uk-form-controls">
+                <div class="uk-inline">
+                	<input type="hidden" id="chapter_text" name="chapter_text" value="{{ chapter.text }}">
+                    <div id="editor"></div>
+                    <script>
+                    	var editor = new Jodit('#editor', {
+                    		height: 400
+                    	});
+                    	function getJoditValue() {
+				            console.log(editor);
+				            document.getElementById('chapter_text').value = editor.getEditorValue();
+				        }
+                	</script>
+                </div>
+            </div>
+        </div>
+		
+        <div class="uk-margin">
+            <div class="uk-align-right">
+                <input class="uk-button uk-button-default" type="submit" value="Submit"/>
+            </div>
+        </div>
+    </fieldset>
+	</form>
+</div>
 {% endblock %}
