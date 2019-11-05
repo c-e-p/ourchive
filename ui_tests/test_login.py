@@ -34,6 +34,9 @@ def test_can_login_valid_user(browser):
     loginPage.driver.save_screenshot(
         outputDir + '/{}-{}-{}.png'.format(test_can_login_valid_user.__name__, browser.name, 'post-login'))
 
+    loginPage.driver.close()
+
+
 @pytest.mark.parametrize("browser", BrowserType)
 def test_cannot_login_empty_user(browser):
     loginPage = LoginPage(browser)
@@ -55,6 +58,9 @@ def test_cannot_login_empty_user(browser):
     loginPage.driver.save_screenshot(
         outputDir + '/{}-{}-{}.png'.format(test_cannot_login_empty_user.__name__, browser.name, 'post-login'))
 
+    loginPage.driver.close()
+
+
 @pytest.mark.parametrize("browser", BrowserType)
 def test_cannot_login_invalid_user(browser):
     loginPage = LoginPage(browser)
@@ -75,3 +81,5 @@ def test_cannot_login_invalid_user(browser):
     assert is_element_present(loginPage.driver, *loginPage.locators['_VerifyFailure'])
     loginPage.driver.save_screenshot(
         outputDir + '/{}-{}-{}.png'.format(test_cannot_login_empty_user.__name__, browser.name, 'post-login'))
+
+    loginPage.driver.close()
