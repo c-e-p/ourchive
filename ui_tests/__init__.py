@@ -1,5 +1,5 @@
 import logging
-from enum import Enum
+from enum import Enum, auto
 from pathlib import Path
 import pytest
 
@@ -29,8 +29,8 @@ firefox = latest
 
 
 class BrowserType(Enum):
-    CHROME = 1
-    FIREFOX = 2
+    CHROME = auto()
+    FIREFOX = auto()
 
 
 """

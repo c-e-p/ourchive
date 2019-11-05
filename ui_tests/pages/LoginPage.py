@@ -6,9 +6,9 @@ from ui_tests import get_driver, BrowserType, is_element_present, baseURL, outpu
 
 class LoginPage:
 
-    def __init__(self, browser):
+    def __init__(self, driver):
         self.pageURL = baseURL + ''
-        self.driver = get_driver(browser)
+        self.driver = driver
 
         self.locators = {
             "_LoginLink": (By.XPATH, "//a[@href='/login']"),
