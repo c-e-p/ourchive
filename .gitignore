@@ -18,3 +18,4 @@ server/flask_app/uploads/*
 drivers
 assets
 *.html
+output
