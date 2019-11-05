@@ -20,11 +20,22 @@ class LoginPage:
             "_VerifyFailure" : (By.XPATH, "//div[text()='Login unsuccessful. Please try again.']")
         }
 
+    def is_on_page(self):
+        for key, value in self.locators.items():
+            if 'Verify' not in key:
+                elem = self.driver.find_element(*self.locators[key])
+                logging.info('{}: {}'.format(elem, elem.is_displayed()))
+                if elem.is_displayed():
+                    return True
+        return False
+
     def goto_page(self):
         self.driver.get(self.pageURL)
         login_link = self.driver.find_element(*self.locators['_LoginLink'])
         # logging.info(login_link.text)
         login_link.click()
+
+        assert self.is_on_page()
 
     def enter_login_creds(self, username, password):
         username_field = self.driver.find_element(*self.locators['_UsernameField'])

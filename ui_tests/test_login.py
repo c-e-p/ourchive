@@ -5,9 +5,6 @@ from ui_tests import get_driver, BrowserType, is_element_present, baseURL, outpu
 from ui_tests.pages.LoginPage import LoginPage
 
 
-#@pytest.mark.skip
-# @pytest.mark.parametrize("input", BrowerType)
-
 def test_unit_get_driver(selenium_driver):
     result = (selenium_driver)
     logging.info(result)
@@ -17,11 +14,6 @@ def test_unit_get_driver(selenium_driver):
 def test_can_login_valid_user(selenium_driver):
     loginPage = LoginPage(selenium_driver)
     loginPage.goto_page()
-
-    for key, value in loginPage.locators.items():
-        if 'Verify' not in key:
-            elem = loginPage.driver.find_element(*loginPage.locators[key])
-            logging.info('{}: {}'.format(elem, elem.is_displayed()))
 
     loginPage.enter_login_creds('bob@bob.com', 'Admin1234!')
 
@@ -41,10 +33,8 @@ def test_cannot_login_empty_user(selenium_driver):
     loginPage = LoginPage(selenium_driver)
     loginPage.goto_page()
 
-    for key, value in loginPage.locators.items():
-        if 'Verify' not in key:
-            elem = loginPage.driver.find_element(*loginPage.locators[key])
-            logging.info('{}: {}'.format(elem, elem.is_displayed()))
+
+    assert loginPage.is_on_page()
 
     loginPage.enter_login_creds('', '')
 
@@ -59,15 +49,11 @@ def test_cannot_login_empty_user(selenium_driver):
 
    
 
-
 def test_cannot_login_invalid_user(selenium_driver):
     loginPage = LoginPage(selenium_driver)
     loginPage.goto_page()
 
-    for key, value in loginPage.locators.items():
-        if 'Verify' not in key:
-            elem = loginPage.driver.find_element(*loginPage.locators[key])
-            logging.info('{}: {}'.format(elem, elem.is_displayed()))
+    assert loginPage.is_on_page()
 
     loginPage.enter_login_creds('boogetyboo', 'No1LuvSUN3RDS')
 
