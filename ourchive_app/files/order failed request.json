@@ -1,0 +1,92 @@
+{
+  "request": {
+    "companyNumber": 1,
+    "operatorInit": "web",
+    "operatorPassword": "",
+    "tInputccdata": {
+      "t-inputccdata": []
+    },
+    "tInputheaderdata": {
+      "t-inputheaderdata": [
+        {
+          "taxamount": 15.26000,
+          "authorizationamount": 0.0,
+          "customerid": "0001000005024928",
+          "warehouseid": "MAD",
+          "ponumber": "1432",
+          "carriercode": "OT",
+          "reqshipdate": "2019/10/25",
+          "shiptonumber": "",
+          "webtransactiontype": "LSF",
+          "ordertype": "O"
+        }
+      ]
+    },
+    "tInputlinedata": {
+      "t-inputlinedata": [
+        {
+          "itemnumber": "ICPN95ESN0401410A",
+          "orderqty": 1.00000,
+          "unitofmeasure": "",
+          "warehouseid": "MAD",
+          "lineitemtype": "I",
+          "itemdesc1": "N95ESN0401410A 95% NG 40M NOX 1STG ECM FURNACE",
+          "actualsellprice": 663.00000,
+          "cost": 0.0,
+          "extendedweight": 0.0,
+          "listprice": "0.00000",
+          "itemid": 0,
+          "seqno": 1
+        },
+        {
+          "itemnumber": "ICPEND4X24L14A",
+          "orderqty": 1.00000,
+          "unitofmeasure": "",
+          "warehouseid": "MAD",
+          "lineitemtype": "I",
+          "itemdesc1": "Comfortmaker® END4X24L14A Performance® Type N Cased Evaporator Coil, 2 ton, 24000 Btu/hr Cooling, 900 cfm, Environmentally Sound R-410A, Import",
+          "actualsellprice": 210.00000,
+          "cost": 0.0,
+          "extendedweight": 0.0,
+          "listprice": "0.00000",
+          "itemid": 0,
+          "seqno": 2
+        },
+        {
+          "itemnumber": "ICPN4A318AKF",
+          "orderqty": 1.00000,
+          "unitofmeasure": "",
+          "warehouseid": "MAD",
+          "lineitemtype": "I",
+          "itemdesc1": "Comfortmaker® N4A318AKF Performance® N4A3 1-Stage Central Air Conditioner, 18000 Btu/hr Cooling, 208/230 VAC, 60 Hz, 1 ph, 10.9 EER, 13 SEER, Import",
+          "actualsellprice": 571.00000,
+          "cost": 0.0,
+          "extendedweight": 0.0,
+          "listprice": "0.00000",
+          "itemid": 0,
+          "seqno": 3
+        }
+      ]
+    },
+    "tInputheaderextradata": {
+      "t-inputheaderextradata": [
+        {
+          "fieldname": "termstype",
+          "fieldvalue": "02",
+          "seqno": 1
+        },
+        {
+          "fieldname": "iondata",
+          "fieldvalue": "WEB001395",
+          "seqno": 2
+        }
+      ]
+    },
+    "tInputlineextradata": {
+      "t-inputlineextradata": []
+    },
+    "tInfieldvalue": {
+      "t-infieldvalue": []
+    }
+  }
+}

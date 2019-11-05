@@ -53,7 +53,7 @@
                     <span uk-icon="icon: cloud-upload"></span>
 				    <div uk-form-custom="target: true">
 			            <input type="file">
-			            <input class="uk-input uk-form-width-medium" id="js-img-input" type="text" placeholder="Select file" disabled>
+			            <input class="uk-input uk-form-width-medium" id="js-img-input" type="text" placeholder="Select file" name="image_url">
 			        </div>
 				    <progress id="js-progressbar-img" class="uk-progress" value="0" max="100" hidden></progress>
 				    <script>
@@ -139,6 +139,15 @@
         </div>
 
         <div class="uk-margin">
+            <label class="uk-form-label" for="form-horizontal-text">Image Alt Text</label>
+            <div class="uk-form-controls">
+                <div class="uk-inline">
+                    <textarea class="uk-textarea uk-form-width-large" rows="2" placeholder="Image alt text" name="image_alt_text" maxlength="600">{{ chapter.image_alt_text }}</textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="uk-margin">
             <label class="uk-form-label" for="form-horizontal-text">Chapter Audio</label>
             <div class="uk-form-controls">
                 <div class="uk-inline">
@@ -146,7 +155,7 @@
                     <span uk-icon="icon: cloud-upload"></span>
 				    <div uk-form-custom="target: true">
 			            <input type="file">
-			            <input class="uk-input uk-form-width-medium" id="js-audio-input" type="text" placeholder="Select file" disabled>
+			            <input class="uk-input uk-form-width-medium" id="js-audio-input" type="text" placeholder="Select file" name="audio_url">
 			        </div>
 
 				    <progress id="js-progressbar-audio" class="uk-progress" value="0" max="100" hidden></progress>
@@ -233,10 +242,19 @@
         </div>
 
         <div class="uk-margin">
+            <label class="uk-form-label" for="form-horizontal-text">Audio Description</label>
+            <div class="uk-form-controls">
+                <div class="uk-inline">
+                    <textarea class="uk-textarea uk-form-width-large" rows="2" placeholder="Audio description" name="audio_description" maxlength="600">{{ chapter.audio_description }}</textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="uk-margin">
             <label class="uk-form-label" for="form-horizontal-text">Chapter Text</label>
             <div class="uk-form-controls">
                 <div class="uk-inline">
-                	<input type="hidden" id="chapter_text" name="chapter_text" value="{{ chapter.text }}">
+                	<input type="hidden" id="chapter_text" name="text" value="{{ chapter.text }}">
                     <div id="editor"></div>
                     <script>
                     	var editor = new Jodit('#editor', {

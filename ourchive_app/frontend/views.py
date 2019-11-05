@@ -61,6 +61,7 @@ def edit_chapter(request, id):
 			file_helpers.handle_uploaded_file(request.FILES['files[]'], request.FILES['files[]'].name)
 			return HttpResponse(request.FILES['files[]'].name)
 		else:
+			print(request.POST)
 			return redirect('/')
 	else:
 		if request.user.is_authenticated:
@@ -128,12 +129,12 @@ def log_in(request):
 		if user is not None:
 			login(request, user)
 			messages.add_message(request, messages.SUCCESS, 'Login successful.')		
-			return redirect(request.META['HTTP_REFERER'])
+			return redirect(request.POST.get('referrer'))
 		else:
 			messages.add_message(request, messages.ERROR, 'Login unsuccessful. Please try again.')
 			return redirect('/login')
 	else:
-		return render(request, 'login.html', {})
+		return render(request, 'login.html', {'referrer': request.META['HTTP_REFERER']})
 
 def register(request):
 	if request.method == 'POST':
