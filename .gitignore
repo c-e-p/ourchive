@@ -1,6 +1,6 @@
 uploads/*
 audio/*
-files/*
+ourchive_app/files/*
 venv/*
 ourchive-env/*
 tus-data/*
