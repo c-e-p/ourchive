@@ -12,7 +12,7 @@ def test_unit_get_driver(input):
     logging.info(result)
     assert (result is not None)
 
-
+@pytest.mark.skip("no valid user set up yet")
 @pytest.mark.parametrize("browser", BrowserType)
 def test_can_login_valid_user(browser):
     loginPage = LoginPage(browser)
