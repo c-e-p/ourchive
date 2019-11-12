@@ -26,15 +26,14 @@ class WorkTypeSerializer(serializers.HyperlinkedModelSerializer):
         fields = '__all__'
 
 class TagSerializer(serializers.HyperlinkedModelSerializer):
-    tag_type = serializers.StringRelatedField()
-    tag_type_id = serializers.HyperlinkedRelatedField(view_name='tagtype-detail', format='html', read_only=False, queryset=TagType.objects.all())
+    tag_type = serializers.SlugRelatedField(queryset=TagType.objects.all(), slug_field='label')
 
     class Meta:
         model = Tag
         fields = '__all__'
 
     def update(self, tag, validated_data):
-        tag_type = TagType.objects.get(validated_data['tag_type_id'])
+        tag_type = TagType.objects.get(label=validated_data['tag_type'])
         if (tag_type.admin_administrated):
             user = serializers.CurrentUserDefault()
             if (user.is_superuser):
@@ -47,7 +46,7 @@ class TagSerializer(serializers.HyperlinkedModelSerializer):
             return tag 
 
     def create(self, validated_data):
-        tag_type = TagType.objects.get(validated_data['tag_type_id'])
+        tag_type = TagType.objects.get(label=validated_data['tag_type'])
         if (tag_type.admin_administrated):
             user = serializers.CurrentUserDefault()
             if (user.is_superuser):
@@ -128,11 +127,12 @@ class WorkSerializer(serializers.HyperlinkedModelSerializer):
         fields = '__all__'
 
     def process_tags(self, work, validated_data, tags):
+        work.tags.clear()
         required_tag_types = list(TagType.objects.filter(required=True))
         has_any_required = len(required_tag_types) > 0
         for item in tags:
             tag_id = item['text']
-            tag_type = item['tag_type_id']
+            tag_type = item['tag_type']
             if tag_type in required_tag_types:
                 if tag_id is None or tag_id == '':
                     # todo: error

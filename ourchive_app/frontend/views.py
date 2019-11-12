@@ -82,10 +82,16 @@ def edit_work(request, id):
 			tag_types[item['label']] = item
 		for item in request.POST:
 			dict_item = request.POST[item].replace('\'', '"')
-			if 'tag_type_id' in request.POST[item]:					
+			if 'tag_type_id' in request.POST[item]:				
 				json_item = json.loads(dict_item)
-				if not json_item['tag_type_id']:
-					json_item['tag_type_id'] = tag_types[json_item['tag_type']]['url']
+				if not json_item['tag_type']:
+					json_item['tag_type'] = tag_types[json_item['tag_type']]['url']
+				tags.append(json_item)
+				work_dict.pop(item)
+			elif 'tag_type' in request.POST[item]:				
+				json_item = json.loads(dict_item)
+				if not json_item['tag_type']:
+					json_item['tag_type'] = tag_types[json_item['tag_type']]['url']
 				tags.append(json_item)
 				work_dict.pop(item)
 		work_dict["tags"] = tags
@@ -104,7 +110,6 @@ def edit_work(request, id):
 		elif response.status_code == 403:
 			messages.add_message(request, messages.ERROR, 'You are not authorized to update this work.')	
 		else:
-			print(response.content)
 			messages.add_message(request, messages.ERROR, 'An error has occurred while updating this work. Please contact your administrator.')	
 		return redirect('/works/'+str(id))
 	else:
