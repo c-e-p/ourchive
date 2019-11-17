@@ -61,14 +61,14 @@ class Chapter(models.Model):
     text = models.TextField(null=True)
     notes = models.TextField(null=True, blank=True)
     word_count = models.IntegerField(default=0)
-    audio_url = models.CharField(max_length=600, null=True)
-    audio_description = models.CharField(max_length=600, null=True)
-    audio_length = models.BigIntegerField(null=True)
-    image_url = models.CharField(max_length=600, null=True)
-    image_alt_text = models.CharField(max_length=600, null=True)
-    image_format = models.CharField(max_length=100, null=True)
-    image_size = models.CharField(max_length=100, null=True)
-    summary = models.TextField(null=True)
+    audio_url = models.CharField(max_length=600, null=True, blank=True)
+    audio_description = models.CharField(max_length=600, null=True, blank=True)
+    audio_length = models.BigIntegerField(null=True, blank=True)
+    image_url = models.CharField(max_length=600, null=True, blank=True)
+    image_alt_text = models.CharField(max_length=600, null=True, blank=True)
+    image_format = models.CharField(max_length=100, null=True, blank=True)
+    image_size = models.CharField(max_length=100, null=True, blank=True)
+    summary = models.TextField(null=True, blank=True)
 
     work = models.ForeignKey(
         'work',

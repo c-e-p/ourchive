@@ -61,12 +61,24 @@ def edit_chapter(request, id):
 			file_helpers.handle_uploaded_file(request.FILES['files[]'], request.FILES['files[]'].name)
 			return HttpResponse(request.FILES['files[]'].name)
 		else:
-			print(request.POST)
-			return redirect('/')
+			headers = {}
+			headers['X-CSRFToken'] = request.COOKIES['csrftoken']
+			headers['content-type'] = 'application/json'
+			response = requests.put(settings.ALLOWED_HOSTS[0] + '/api/chapters/' + str(id) +'/', data=json.dumps(request.POST), cookies=request.COOKIES, headers=headers)
+			if response.status_code == 200:
+				messages.add_message(request, messages.SUCCESS, 'Chapter updated.')	
+			elif response.status_code == 403:
+				messages.add_message(request, messages.ERROR, 'You are not authorized to update this chapter.')	
+			else:
+				print(response.status_code)
+				print(response.content)
+				messages.add_message(request, messages.ERROR, 'An error has occurred while updating this chapter. Please contact your administrator.')	
+			return redirect(request.POST.get('work').replace('api/', ''))
 	else:
-		if request.user.is_authenticated:
+		if request.user.is_authenticated:			
 			response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/chapters/'+str(id))
 			chapter = response.json()
+			print(chapter)
 			return render(request, 'chapter_form.html', {'chapter': chapter})
 		else:
 			messages.add_message(request, messages.ERROR, 'You must log in to perform this action.')	

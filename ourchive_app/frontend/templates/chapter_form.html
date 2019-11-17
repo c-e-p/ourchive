@@ -6,6 +6,7 @@
 <div class="uk-child-width-1@m uk-child-width-1@s uk-text-left" uk-grid>
 	<form class="uk-form-horizontal"  method="post" id="chapterForm" onsubmit="return getJoditValue()">
 		{% csrf_token %}
+		<input type="hidden" id="work" name="work" value="{{ chapter.work }}">
 		<fieldset class="uk-fieldset">
 		<div class="uk-margin">
             <label class="uk-form-label" for="form-horizontal-text">Title</label>
@@ -257,11 +258,12 @@
                 	<input type="hidden" id="chapter_text" name="text" value="{{ chapter.text }}">
                     <div id="editor"></div>
                     <script>
+                    	var text = document.getElementById('chapter_text');
                     	var editor = new Jodit('#editor', {
                     		height: 400
                     	});
+                    	editor.setEditorValue(text.value);
                     	function getJoditValue() {
-				            console.log(editor);
 				            document.getElementById('chapter_text').value = editor.getEditorValue();
 				        }
                 	</script>
