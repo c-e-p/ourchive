@@ -119,7 +119,8 @@ class ChapterSerializer(serializers.HyperlinkedModelSerializer):
 class WorkSerializer(serializers.HyperlinkedModelSerializer):
     tags = TagSerializer(many=True, required=True)
     user = serializers.SlugRelatedField(queryset=User.objects.all(), slug_field='username')
-    id = serializers.HyperlinkedIdentityField(view_name='work-detail', read_only=True)
+    work_id = serializers.HyperlinkedIdentityField(view_name='work-detail', read_only=True)
+    id = serializers.ReadOnlyField()
     word_count = serializers.IntegerField(read_only=True)
     audio_length = serializers.IntegerField(read_only=True)
     class Meta:
@@ -162,7 +163,7 @@ class WorkSerializer(serializers.HyperlinkedModelSerializer):
 
 class BookmarkSerializer(serializers.HyperlinkedModelSerializer):
     work = serializers.HyperlinkedRelatedField(view_name='work-detail', queryset=Work.objects.all())
-    user = serializers.HyperlinkedRelatedField(view_name='user-detail', format='html', read_only=True)
+    user = serializers.SlugRelatedField(queryset=User.objects.all(), slug_field='username')
     id = serializers.HyperlinkedIdentityField(view_name='bookmark-detail', read_only=True)
     tags = TagSerializer(many=True, required=False)
     class Meta:

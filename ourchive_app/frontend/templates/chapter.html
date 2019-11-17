@@ -15,11 +15,9 @@
 		<div><span class="uk-text-large">Notes</span></div>
 	    <div><span class="uk-text-medium">{{ chapter.notes }}</span></div>
 	</div>
-	
-    
    	<hr/>	
 	{% if chapter.image_url is not None %}<p><img src="{{ chapter.image_url }}" alt="{{ chapter.image_alt_text }}"/></p>{% endif %}
 	{% if chapter.audio_url is not None %}<p><audio src="{{ chapter.audio_url }}" controls></audio></p>{% endif %}
-	{% if chapter.text is not None %}<p>{% autoescape off %}{{ chapter.text }}{% endautoescape %}</p>{% endif %}
+	{% if chapter.text is not None %}<span class="uk-text-medium">{% autoescape off %}{{ chapter.text }}{% endautoescape %}</span>{% endif %}
 	<hr/>
 </div>

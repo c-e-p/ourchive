@@ -1,4 +1,41 @@
 {% extends 'index.html' %}
 {% block content %}	
-	single bookmark placeholder
+	<div class="uk-child-width-1@m uk-child-width-1@s uk-text-left" uk-grid>
+	<article class="uk-article">
+	    <div class="uk-child-width-2-1" uk-grid>
+	        <div class="uk-width-2-3">
+	            <h1 class="uk-article-title" style="display: inline;"><a class="uk-link-reset" href="{{ root }}/bookmarks/{{ id }}">{{ bookmark.title }}</a></h1> <span class="uk-text-large" style="padding-left: 10px;">by <a href="{{ root }}/username/{{ bookmark.user }}">{{ bookmark.user }}</a></span>
+	        </div>
+	        <div class="uk-text-right uk-width-1-3">
+	            {% if bookmark.user == request.user.username %}
+	            <a href="{{ root }}/bookmarks/{{ id }}/edit"><span uk-icon="icon: file-edit"></span> </a>
+	            <a href="{{ root }}/bookmarks/{{ id }}/delete"><span uk-icon="icon: trash"></span> </a>
+	            {% endif %}
+	        </div>
+	    <div class="uk-width-1">
+	    	<p class="uk-text-lead">{{ bookmark.description }}</p>
+	    </div>	    
+	    <hr/>
+	    <div class="uk-width-1">
+	    	<span class="uk-text-medium">Work link: <a class="uk-link-reset" href="{{ root }}/works/{{ work.id }}">{{ work.title }}</a></span>
+	    </div>
+	    <dl class="uk-description-list uk-description-list-divider">
+	    {% for type, tag in tags.items %} 
+	        <dt>{{ type }}</dt>
+	        <dd>
+	        <span uk-icon="icon: tag"></span> {% for single_tag in tag %}<a href="{{single_tag.url}}" style="padding-left:5px;">{{ single_tag.text }}</a> {% endfor %}
+	        </dd>
+	    {% endfor %}
+	    </dl>
+	    <hr/>
+	    <div class="uk-grid-small uk-child-width-auto" uk-grid>
+	        <div>
+	            <a class="uk-button uk-button-text" href="#">Read more</a>
+	        </div>
+	        <div>
+	            <a class="uk-button uk-button-text" href="#">5 Comments</a>
+	        </div>
+	    </div>
+	</article>
+	</div>
 {% endblock %}
