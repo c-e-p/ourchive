@@ -78,7 +78,6 @@ def edit_chapter(request, id):
 		if request.user.is_authenticated:			
 			response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/chapters/'+str(id))
 			chapter = response.json()
-			print(chapter)
 			return render(request, 'chapter_form.html', {'chapter': chapter})
 		else:
 			messages.add_message(request, messages.ERROR, 'You must log in to perform this action.')	
