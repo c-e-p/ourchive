@@ -179,21 +179,21 @@ def work(request, pk):
 	work = response.json()
 	response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/tagtypes')
 	tag_types = response.json()
-	tags = group_tags(tag_types['results'], work['tags'])
+	tags = group_tags(tag_types['results'], work['tags']) if 'tags' in work else {}
 	if chapter_offset == 0:
 		response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/works/'+str(pk)+'/chapters?limit=1')
 	else:
 		response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/works/'+str(pk)+'/chapters?limit=1&offset='+str(chapter_offset))
-	chapter = response.json()
-	chapter = chapter['results'][0] if 'results' in chapter['results'] else {}
+	response = response.json()
+	chapter = response['results'][0] if 'results' in response and len(response['results']) > 0 else {}
 	return render(request, 'work.html', {'work_types': work_types['results'], 
 		'work': work,
 		'id': pk,
 		'tags': tags,
 		'root': settings.ALLOWED_HOSTS[0],
 		'chapter': chapter,
-		'next_chapter': settings.ALLOWED_HOSTS[0] + '/works/'+str(pk)+'?offset='+str(chapter_offset + 1) if 'next' in chapter and chapter['next'] else None,
-		'previous_chapter': settings.ALLOWED_HOSTS[0] + '/works/'+str(pk)+'?offset='+str(chapter_offset - 1)  if 'previous' in chapter and chapter['previous'] else None,})
+		'next_chapter': settings.ALLOWED_HOSTS[0] + '/works/'+str(pk)+'?offset='+str(chapter_offset + 1) if 'next' in response and response['next'] else None,
+		'previous_chapter': settings.ALLOWED_HOSTS[0] + '/works/'+str(pk)+'?offset='+str(chapter_offset - 1)  if 'previous' in response and response['previous'] else None,})
 
 def bookmarks(request):	
 	return render(request, 'bookmarks.html', {})
