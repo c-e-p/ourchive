@@ -154,14 +154,21 @@ def log_in(request):
 
 def register(request):
 	if request.method == 'POST':
-		user = User.objects.create_user(username=request.POST.get('username'), email=request.POST.get('email'), password=request.POST.get('password'))
-		if user is not None:
+		headers = {}
+		headers['X-CSRFToken'] = request.COOKIES['csrftoken']
+		headers['content-type'] = 'application/json'
+		user_data = json.dumps(request.POST)
+		response = requests.post(settings.ALLOWED_HOSTS[0] + '/api/users/', data=user_data, cookies=request.COOKIES, headers=headers)
+		if response.status_code == 200:
 			messages.add_message(request, messages.SUCCESS, 'Registration successful!')		
+			return redirect('/')
+		elif response.status_code == 403:
+			messages.add_message(request, messages.ERROR, 'Registration is not permitted at this time. Please contact site admin.')				
 			return redirect('/')
 		else:
 			messages.add_message(request, messages.ERROR, 'Registration unsuccessful. Please try again.')
 			return redirect('/login')
-	else:
+	else:			
 		return render(request, 'register.html', {})
 
 def log_out(request):

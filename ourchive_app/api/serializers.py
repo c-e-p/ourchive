@@ -1,13 +1,23 @@
 from django.contrib.auth.models import User, Group
 from rest_framework import serializers
-from api.models import Work, Tag, Chapter, TagType, WorkType, Bookmark, Comment, Message, NotificationType, Notification, OurchiveSetting
+from api.models import Work, Tag, Chapter, TagType, WorkType, Bookmark, BookmarkCollection, Comment, Message, NotificationType, Notification, OurchiveSetting
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     work_set = serializers.HyperlinkedRelatedField(many=True, view_name='work-detail', read_only=True)
     class Meta:
         model = User
-        fields = ['id', 'url', 'username', 'email', 'groups', 'work_set']
+        fields = ('id', 'url', 'username', 'password', 'email', 'groups', 'work_set')
+        extra_kwargs = {'password': {'write_only': True}}
+    def create(self, validated_data):
+        user = User.objects.create(
+            username=validated_data['username'],
+            email=validated_data['email']
+        )
 
+        user.set_password(validated_data['password'])
+        user.save()
+
+        return user
 
 class GroupSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
@@ -164,6 +174,7 @@ class WorkSerializer(serializers.HyperlinkedModelSerializer):
 class BookmarkSerializer(serializers.HyperlinkedModelSerializer):
     work = serializers.HyperlinkedRelatedField(view_name='work-detail', queryset=Work.objects.all())
     user = serializers.SlugRelatedField(queryset=User.objects.all(), slug_field='username')
+    collection = serializers.HyperlinkedRelatedField(view_name='bookmarkcollection-detail', queryset=BookmarkCollection.objects.all())
     id = serializers.HyperlinkedIdentityField(view_name='bookmark-detail', read_only=True)
     tags = TagSerializer(many=True, required=False)
     class Meta:
@@ -183,6 +194,37 @@ class BookmarkSerializer(serializers.HyperlinkedModelSerializer):
 
     def create(self, validated_data):
         bookmark = Bookmark.objects.create(**validated_data)
+        if 'tags' in validated_data:
+            tags = validated_data.pop('tags')
+            for item in tags:
+                tag_id = item['text']
+                tag_type = item['tag_type_id']
+                tag, created = Tag.objects.get_or_create(text=tag_id, tag_type=tag_type)
+                bookmark.tags.add(tag)
+        bookmark.save()
+        return bookmark
+
+class BookmarkCollectionSerializer(serializers.HyperlinkedModelSerializer):
+    user = serializers.SlugRelatedField(queryset=User.objects.all(), slug_field='username')
+    id = serializers.HyperlinkedIdentityField(view_name='bookmarkcollection-detail', read_only=True)
+    tags = TagSerializer(many=True, required=False)
+    class Meta:
+        model = BookmarkCollection
+        fields = '__all__'
+    def update(self, bookmark, validated_data):
+        if 'tags' in validated_data:
+            tags = validated_data.pop('tags')
+            for item in tags:
+                tag_id = item['text']
+                tag_type = item['tag_type_id']
+                tag, created = Tag.objects.get_or_create(text=tag_id, tag_type=tag_type)
+                bookmark.tags.add(tag)
+            bookmark.save()
+        BookmarkCollection.objects.filter(id=bookmark.id).update(**validated_data)        
+        return BookmarkCollection.objects.filter(id=bookmark.id).first()
+
+    def create(self, validated_data):
+        bookmark = BookmarkCollection.objects.create(**validated_data)
         if 'tags' in validated_data:
             tags = validated_data.pop('tags')
             for item in tags:

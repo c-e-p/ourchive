@@ -158,7 +158,7 @@ class TagType(models.Model):
 
 class BookmarkCollection(models.Model):
 
-    __tablename__ = 'bookmarks'
+    __tablename__ = 'bookmark_collection'
 
     title = models.CharField(max_length=200)
     is_complete = models.BooleanField(default=False)
@@ -196,6 +196,7 @@ class Bookmark(models.Model):
     created_on = models.DateTimeField(auto_now_add=True)
     updated_on = models.DateTimeField(auto_now=True)
     
+    collection = models.ForeignKey(BookmarkCollection, on_delete=models.CASCADE, null=True, blank=True)
     
     user = models.ForeignKey(
         User,
