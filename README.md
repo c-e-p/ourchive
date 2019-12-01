@@ -26,6 +26,13 @@ Task scheduler: Django Background Tasks
 Search: Postgres OR Elastic (configurable provider)
 File Upload: Django OR Tus (configurable provider)
 
+Things to run:
+
+```python manage.py migrate```
+```python manage.py loaddata settings```
+
+Without loading data from the settings fixture, you may encounter errors when the system tries to pull default settings by name.
+
 ### Docker Container Development
 
 we have a [Dockerfile](Dockerfile), and a [docker-compose.yml](docker-compose.yml) that creates a container with a db service (currently hardcoded to postgres) and a web service that runs the django app. 
