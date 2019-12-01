@@ -80,20 +80,20 @@ WSGI_APPLICATION = 'ourchive_app.wsgi.application'
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
+     'docker': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'postgres',
         'USER': 'postgres',
         'HOST': 'db', # set in docker-compose.yml
         'PORT': '5432' # default postgres port
     },
-    'local': {
+    'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'ourchive_db',
         'USER': 'ourchive',
         'PASSWORD': 'ourchive',
         'HOST': 'localhost',
-        'PORT': '5432',
+        'PORT': '5433',
     }
 }
 

@@ -1,13 +1,23 @@
 from django.contrib.auth.models import User, Group
 from rest_framework import serializers
-from api.models import Work, Tag, Chapter, TagType, WorkType, Bookmark, Comment, Message, NotificationType, Notification, OurchiveSetting
+from api.models import Work, Tag, Chapter, TagType, WorkType, Bookmark, BookmarkCollection, Comment, Message, NotificationType, Notification, OurchiveSetting
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     work_set = serializers.HyperlinkedRelatedField(many=True, view_name='work-detail', read_only=True)
     class Meta:
         model = User
-        fields = ['id', 'url', 'username', 'email', 'groups', 'work_set']
+        fields = ('id', 'url', 'username', 'password', 'email', 'groups', 'work_set')
+        extra_kwargs = {'password': {'write_only': True}}
+    def create(self, validated_data):
+        user = User.objects.create(
+            username=validated_data['username'],
+            email=validated_data['email']
+        )
 
+        user.set_password(validated_data['password'])
+        user.save()
+
+        return user
 
 class GroupSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
@@ -26,15 +36,14 @@ class WorkTypeSerializer(serializers.HyperlinkedModelSerializer):
         fields = '__all__'
 
 class TagSerializer(serializers.HyperlinkedModelSerializer):
-    tag_type = serializers.StringRelatedField()
-    tag_type_id = serializers.HyperlinkedRelatedField(view_name='tagtype-detail', format='html', read_only=False, queryset=TagType.objects.all())
+    tag_type = serializers.SlugRelatedField(queryset=TagType.objects.all(), slug_field='label')
 
     class Meta:
         model = Tag
         fields = '__all__'
 
     def update(self, tag, validated_data):
-        tag_type = TagType.objects.get(validated_data['tag_type_id'])
+        tag_type = TagType.objects.get(label=validated_data['tag_type'])
         if (tag_type.admin_administrated):
             user = serializers.CurrentUserDefault()
             if (user.is_superuser):
@@ -47,7 +56,7 @@ class TagSerializer(serializers.HyperlinkedModelSerializer):
             return tag 
 
     def create(self, validated_data):
-        tag_type = TagType.objects.get(validated_data['tag_type_id'])
+        tag_type = TagType.objects.get(label=validated_data['tag_type'])
         if (tag_type.admin_administrated):
             user = serializers.CurrentUserDefault()
             if (user.is_superuser):
@@ -98,7 +107,7 @@ class MessageSerializer(serializers.HyperlinkedModelSerializer):
 class ChapterSerializer(serializers.HyperlinkedModelSerializer):
     work = serializers.HyperlinkedRelatedField(view_name='work-detail', queryset=Work.objects.all())
     user = serializers.HyperlinkedRelatedField(view_name='user-detail', format='html', read_only=True)
-    id = serializers.HyperlinkedIdentityField(view_name='chapter-detail', read_only=True)
+    id = serializers.IntegerField(read_only=True)
     comments = CommentSerializer(many=True, required=False, read_only=True)
     word_count = serializers.IntegerField(read_only=True)
     class Meta:
@@ -120,7 +129,8 @@ class ChapterSerializer(serializers.HyperlinkedModelSerializer):
 class WorkSerializer(serializers.HyperlinkedModelSerializer):
     tags = TagSerializer(many=True, required=True)
     user = serializers.SlugRelatedField(queryset=User.objects.all(), slug_field='username')
-    id = serializers.HyperlinkedIdentityField(view_name='work-detail', read_only=True)
+    work_id = serializers.HyperlinkedIdentityField(view_name='work-detail', read_only=True)
+    id = serializers.ReadOnlyField()
     word_count = serializers.IntegerField(read_only=True)
     audio_length = serializers.IntegerField(read_only=True)
     class Meta:
@@ -128,11 +138,12 @@ class WorkSerializer(serializers.HyperlinkedModelSerializer):
         fields = '__all__'
 
     def process_tags(self, work, validated_data, tags):
+        work.tags.clear()
         required_tag_types = list(TagType.objects.filter(required=True))
         has_any_required = len(required_tag_types) > 0
         for item in tags:
             tag_id = item['text']
-            tag_type = item['tag_type_id']
+            tag_type = item['tag_type']
             if tag_type in required_tag_types:
                 if tag_id is None or tag_id == '':
                     # todo: error
@@ -162,7 +173,8 @@ class WorkSerializer(serializers.HyperlinkedModelSerializer):
 
 class BookmarkSerializer(serializers.HyperlinkedModelSerializer):
     work = serializers.HyperlinkedRelatedField(view_name='work-detail', queryset=Work.objects.all())
-    user = serializers.HyperlinkedRelatedField(view_name='user-detail', format='html', read_only=True)
+    user = serializers.SlugRelatedField(queryset=User.objects.all(), slug_field='username')
+    collection = serializers.HyperlinkedRelatedField(view_name='bookmarkcollection-detail', queryset=BookmarkCollection.objects.all())
     id = serializers.HyperlinkedIdentityField(view_name='bookmark-detail', read_only=True)
     tags = TagSerializer(many=True, required=False)
     class Meta:
@@ -182,6 +194,37 @@ class BookmarkSerializer(serializers.HyperlinkedModelSerializer):
 
     def create(self, validated_data):
         bookmark = Bookmark.objects.create(**validated_data)
+        if 'tags' in validated_data:
+            tags = validated_data.pop('tags')
+            for item in tags:
+                tag_id = item['text']
+                tag_type = item['tag_type_id']
+                tag, created = Tag.objects.get_or_create(text=tag_id, tag_type=tag_type)
+                bookmark.tags.add(tag)
+        bookmark.save()
+        return bookmark
+
+class BookmarkCollectionSerializer(serializers.HyperlinkedModelSerializer):
+    user = serializers.SlugRelatedField(queryset=User.objects.all(), slug_field='username')
+    id = serializers.HyperlinkedIdentityField(view_name='bookmarkcollection-detail', read_only=True)
+    tags = TagSerializer(many=True, required=False)
+    class Meta:
+        model = BookmarkCollection
+        fields = '__all__'
+    def update(self, bookmark, validated_data):
+        if 'tags' in validated_data:
+            tags = validated_data.pop('tags')
+            for item in tags:
+                tag_id = item['text']
+                tag_type = item['tag_type_id']
+                tag, created = Tag.objects.get_or_create(text=tag_id, tag_type=tag_type)
+                bookmark.tags.add(tag)
+            bookmark.save()
+        BookmarkCollection.objects.filter(id=bookmark.id).update(**validated_data)        
+        return BookmarkCollection.objects.filter(id=bookmark.id).first()
+
+    def create(self, validated_data):
+        bookmark = BookmarkCollection.objects.create(**validated_data)
         if 'tags' in validated_data:
             tags = validated_data.pop('tags')
             for item in tags:

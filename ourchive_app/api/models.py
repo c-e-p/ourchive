@@ -61,13 +61,14 @@ class Chapter(models.Model):
     text = models.TextField(null=True)
     notes = models.TextField(null=True, blank=True)
     word_count = models.IntegerField(default=0)
-    audio_url = models.CharField(max_length=600, null=True)
-    audio_length = models.BigIntegerField(null=True)
-    image_url = models.CharField(max_length=600, null=True)
-    image_alt_text = models.CharField(max_length=600, null=True)
-    image_format = models.CharField(max_length=100, null=True)
-    image_size = models.CharField(max_length=100, null=True)
-    summary = models.TextField(null=True)
+    audio_url = models.CharField(max_length=600, null=True, blank=True)
+    audio_description = models.CharField(max_length=600, null=True, blank=True)
+    audio_length = models.BigIntegerField(null=True, blank=True)
+    image_url = models.CharField(max_length=600, null=True, blank=True)
+    image_alt_text = models.CharField(max_length=600, null=True, blank=True)
+    image_format = models.CharField(max_length=100, null=True, blank=True)
+    image_size = models.CharField(max_length=100, null=True, blank=True)
+    summary = models.TextField(null=True, blank=True)
 
     work = models.ForeignKey(
         'work',
@@ -155,6 +156,36 @@ class TagType(models.Model):
     def __str__(self):
         return self.label
 
+class BookmarkCollection(models.Model):
+
+    __tablename__ = 'bookmark_collection'
+
+    title = models.CharField(max_length=200)
+    is_complete = models.BooleanField(default=False)
+    cover_url = models.CharField(max_length=600, null=True, blank=True)
+    cover_alt_text = models.CharField(max_length=600, null=True, blank=True)
+    description = models.TextField(null=True, blank=True)
+    created_on = models.DateTimeField(auto_now_add=True)
+    updated_on = models.DateTimeField(auto_now=True)
+    anon_comments_permitted = models.BooleanField(default=False)
+    comments_permitted = models.BooleanField(default=False)
+    
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+    )
+
+    is_private = models.BooleanField(default=False)
+
+    tags = models.ManyToManyField('Tag')
+
+    def __str__(self):
+        return self.title
+
+
+    def __repr__(self):
+        return '<BookmarkCollection: {}>'.format(self.id)
+
 class Bookmark(models.Model):
 
     __tablename__ = 'bookmarks'
@@ -164,8 +195,8 @@ class Bookmark(models.Model):
     description = models.TextField(null=True, blank=True)
     created_on = models.DateTimeField(auto_now_add=True)
     updated_on = models.DateTimeField(auto_now=True)
-    anon_comments_permitted = models.BooleanField(default=False)
-    comments_permitted = models.BooleanField(default=False)
+    
+    collection = models.ForeignKey(BookmarkCollection, on_delete=models.CASCADE, null=True, blank=True)
     
     user = models.ForeignKey(
         User,

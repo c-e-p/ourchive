@@ -8,6 +8,7 @@ from django.contrib.auth.models import User
 import json
 from . import file_helpers
 import threading
+from django.http import HttpResponse
 
 def index(request):
 	return render(request, 'index.html', {
@@ -56,9 +57,31 @@ def group_tags(tag_types, tags):
 
 def edit_chapter(request, id):
 	if request.method == 'POST':
-		return redirect('/')
+		if 'files[]' in request.FILES:
+			file_helpers.handle_uploaded_file(request.FILES['files[]'], request.FILES['files[]'].name)
+			return HttpResponse(request.FILES['files[]'].name)
+		else:
+			headers = {}
+			headers['X-CSRFToken'] = request.COOKIES['csrftoken']
+			headers['content-type'] = 'application/json'
+			response = requests.put(settings.ALLOWED_HOSTS[0] + '/api/chapters/' + str(id) +'/', data=json.dumps(request.POST), cookies=request.COOKIES, headers=headers)
+			if response.status_code == 200:
+				messages.add_message(request, messages.SUCCESS, 'Chapter updated.')	
+			elif response.status_code == 403:
+				messages.add_message(request, messages.ERROR, 'You are not authorized to update this chapter.')	
+			else:
+				print(response.status_code)
+				print(response.content)
+				messages.add_message(request, messages.ERROR, 'An error has occurred while updating this chapter. Please contact your administrator.')	
+			return redirect(request.POST.get('work').replace('api/', ''))
 	else:
-		return render(request, 'chapter_form.html', {})
+		if request.user.is_authenticated:			
+			response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/chapters/'+str(id))
+			chapter = response.json()
+			return render(request, 'chapter_form.html', {'chapter': chapter})
+		else:
+			messages.add_message(request, messages.ERROR, 'You must log in to perform this action.')	
+			return redirect('/login')
 
 def edit_work(request, id):
 	if request.method == 'POST':
@@ -70,10 +93,16 @@ def edit_work(request, id):
 			tag_types[item['label']] = item
 		for item in request.POST:
 			dict_item = request.POST[item].replace('\'', '"')
-			if 'tag_type_id' in request.POST[item]:					
+			if 'tag_type_id' in request.POST[item]:				
 				json_item = json.loads(dict_item)
-				if not json_item['tag_type_id']:
-					json_item['tag_type_id'] = tag_types[json_item['tag_type']]['url']
+				if not json_item['tag_type']:
+					json_item['tag_type'] = tag_types[json_item['tag_type']]['url']
+				tags.append(json_item)
+				work_dict.pop(item)
+			elif 'tag_type' in request.POST[item]:				
+				json_item = json.loads(dict_item)
+				if not json_item['tag_type']:
+					json_item['tag_type'] = tag_types[json_item['tag_type']]['url']
 				tags.append(json_item)
 				work_dict.pop(item)
 		work_dict["tags"] = tags
@@ -92,7 +121,6 @@ def edit_work(request, id):
 		elif response.status_code == 403:
 			messages.add_message(request, messages.ERROR, 'You are not authorized to update this work.')	
 		else:
-			print(response.content)
 			messages.add_message(request, messages.ERROR, 'An error has occurred while updating this work. Please contact your administrator.')	
 		return redirect('/works/'+str(id))
 	else:
@@ -108,7 +136,7 @@ def edit_work(request, id):
 				'work': work, 
 				'tags': tags})
 		else:
-			messages.add_message(request, messages.ERROR, 'You must log in to post a new work.')	
+			messages.add_message(request, messages.ERROR, 'You must log in to perform this action.')	
 			return redirect('/login')
 
 def log_in(request):
@@ -117,23 +145,30 @@ def log_in(request):
 		if user is not None:
 			login(request, user)
 			messages.add_message(request, messages.SUCCESS, 'Login successful.')		
-			return redirect(request.META['HTTP_REFERER'])
+			return redirect(request.POST.get('referrer'))
 		else:
 			messages.add_message(request, messages.ERROR, 'Login unsuccessful. Please try again.')
 			return redirect('/login')
 	else:
-		return render(request, 'login.html', {})
+		return render(request, 'login.html', {'referrer': request.META['HTTP_REFERER']})
 
 def register(request):
 	if request.method == 'POST':
-		user = User.objects.create_user(username=request.POST.get('username'), email=request.POST.get('email'), password=request.POST.get('password'))
-		if user is not None:
+		headers = {}
+		headers['X-CSRFToken'] = request.COOKIES['csrftoken']
+		headers['content-type'] = 'application/json'
+		user_data = json.dumps(request.POST)
+		response = requests.post(settings.ALLOWED_HOSTS[0] + '/api/users/', data=user_data, cookies=request.COOKIES, headers=headers)
+		if response.status_code == 200:
 			messages.add_message(request, messages.SUCCESS, 'Registration successful!')		
+			return redirect('/')
+		elif response.status_code == 403:
+			messages.add_message(request, messages.ERROR, 'Registration is not permitted at this time. Please contact site admin.')				
 			return redirect('/')
 		else:
 			messages.add_message(request, messages.ERROR, 'Registration unsuccessful. Please try again.')
 			return redirect('/login')
-	else:
+	else:			
 		return render(request, 'register.html', {})
 
 def log_out(request):
@@ -151,29 +186,39 @@ def work(request, pk):
 	work = response.json()
 	response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/tagtypes')
 	tag_types = response.json()
-	tags = group_tags(tag_types['results'], work['tags'])
+	tags = group_tags(tag_types['results'], work['tags']) if 'tags' in work else {}
 	if chapter_offset == 0:
 		response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/works/'+str(pk)+'/chapters?limit=1')
 	else:
 		response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/works/'+str(pk)+'/chapters?limit=1&offset='+str(chapter_offset))
-	chapter = response.json()
+	response = response.json()
+	chapter = response['results'][0] if 'results' in response and len(response['results']) > 0 else {}
 	return render(request, 'work.html', {'work_types': work_types['results'], 
 		'work': work,
 		'id': pk,
 		'tags': tags,
 		'root': settings.ALLOWED_HOSTS[0],
-		'chapter': chapter['results'][0],
-		'next_chapter': settings.ALLOWED_HOSTS[0] + '/works/'+str(pk)+'?offset='+str(chapter_offset + 1) if chapter['next'] else None,
-		'previous_chapter': settings.ALLOWED_HOSTS[0] + '/works/'+str(pk)+'?offset='+str(chapter_offset - 1)  if chapter['previous'] else None,})
+		'chapter': chapter,
+		'next_chapter': settings.ALLOWED_HOSTS[0] + '/works/'+str(pk)+'?offset='+str(chapter_offset + 1) if 'next' in response and response['next'] else None,
+		'previous_chapter': settings.ALLOWED_HOSTS[0] + '/works/'+str(pk)+'?offset='+str(chapter_offset - 1)  if 'previous' in response and response['previous'] else None,})
 
-def bookmarks(request):
+def bookmarks(request):	
 	return render(request, 'bookmarks.html', {})
 
 def bookmark(request, pk):
-	return render(request, 'bookmark.html', {})
+	response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/bookmarks/'+str(pk))
+	bookmark = response.json()
+	response = requests.get(bookmark['work'])
+	work = response.json()
+	return render(request, 'bookmark.html', {'bookmark': bookmark, 'work': work})
 
 def upload_file(request):
 	if request.method == 'POST':
+		# todo
+		# send fic uuid + chapter id
+		# directory structure: media/uuid/chapter_id/files
+		# save file, return location
+		# location client-side in audio_url variable
 		file_helpers.handle_uploaded_file(request.FILES['files[]'], request.FILES['files[]'].name)
 		return redirect('/')
 	return render(request, 'upload.html')
