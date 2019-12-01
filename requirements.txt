@@ -5,3 +5,6 @@ django
 psycopg2
 requests
 django-background-tasks
+pytest
+selenium
+webdriver_manager

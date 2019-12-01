@@ -1,3 +1,4 @@
+.idea/*
 uploads/*
 audio/*
 ourchive_app/files/*
@@ -15,3 +16,10 @@ Pipfile.lock
 server/flask_app/uploads/*
 *.epub
 *.jpg
+*.log
+drivers
+assets
+*.html
+output
+.vscode
+.idea
