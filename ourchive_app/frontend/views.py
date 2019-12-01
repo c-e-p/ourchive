@@ -90,6 +90,7 @@ def edit_work(request, id):
 		work_dict = request.POST.copy()
 		tags = []
 		tag_types = {}
+		chapters = []
 		result = requests.get(settings.ALLOWED_HOSTS[0] + '/api/tagtypes', cookies=request.COOKIES).json()['results']
 		for item in result:
 			tag_types[item['label']] = item
@@ -107,6 +108,10 @@ def edit_work(request, id):
 					json_item['tag_type'] = tag_types[json_item['tag_type']]['url']
 				tags.append(json_item)
 				work_dict.pop(item)
+			elif 'chapters_' in item:
+				chapter_id = item[9:]
+				chapter_number = request.POST[item]
+				chapters.append({'id': chapter_id, 'number': chapter_number})
 		work_dict["tags"] = tags
 		comments_permitted = work_dict["comments_permitted"]
 		work_dict["comments_permitted"] = comments_permitted == "All" or comments_permitted == "Registered users only"
@@ -120,6 +125,8 @@ def edit_work(request, id):
 		if id > 0:
 			response = requests.put(settings.ALLOWED_HOSTS[0] + '/api/works/' + str(id) +'/', data=work_json, cookies=request.COOKIES, headers=headers)
 			if response.status_code == 200:
+				for chapter in chapters:
+					requests.put(settings.ALLOWED_HOSTS[0] + '/api/chapters/' + str(chapter['id']) +'/', data=json.dumps(chapter), cookies=request.COOKIES, headers=headers)
 				messages.add_message(request, messages.SUCCESS, 'Work updated.')	
 			elif response.status_code == 403:
 				messages.add_message(request, messages.ERROR, 'You are not authorized to update this work.')	

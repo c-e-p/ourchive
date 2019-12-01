@@ -102,17 +102,17 @@ class ChapterList(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
+
 class ChapterDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Chapter.objects.get_queryset().order_by('id')
     serializer_class = ChapterSerializer
     permission_classes = [IsOwnerOrReadOnly]
-    #todo in post - call super then update work medatata
 
 class WorkChapterDetail(generics.ListCreateAPIView):
     serializer_class = ChapterSerializer
     permission_classes = [IsOwnerOrReadOnly]
     def get_queryset(self):
-        return Chapter.objects.filter(work__id=self.kwargs['work_id']).order_by('id')
+        return Chapter.objects.filter(work__id=self.kwargs['work_id']).order_by('number')
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)

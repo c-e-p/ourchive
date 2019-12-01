@@ -105,7 +105,7 @@ class MessageSerializer(serializers.HyperlinkedModelSerializer):
         fields = '__all__'
 
 class ChapterSerializer(serializers.HyperlinkedModelSerializer):
-    work = serializers.HyperlinkedRelatedField(view_name='work-detail', queryset=Work.objects.all())
+    work = serializers.HyperlinkedRelatedField(view_name='work-detail', queryset=Work.objects.all(), required=False)
     user = serializers.HyperlinkedRelatedField(view_name='user-detail', format='html', read_only=True)
     id = serializers.IntegerField(read_only=True)
     comments = CommentSerializer(many=True, required=False, read_only=True)
@@ -113,9 +113,12 @@ class ChapterSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Chapter
         fields = '__all__'
+        many = True
+        partial=True
 
     def update(self, chapter, validated_data):
-        validated_data['word_count'] = 0 if not validated_data['text'] else len(validated_data['text'].split())
+        if 'text' in validated_data:
+            validated_data['word_count'] = 0 if not validated_data['text'] else len(validated_data['text'].split())
         chapter = Chapter.objects.filter(id=chapter.id)
         chapter.update(**validated_data)        
         return chapter.first()
