@@ -148,7 +148,41 @@
                 {% endfor %}
             </fieldset>
         </li>
-        <li>Chapter list goes here!</li>
+        <li>
+            <script>
+                var util = UIkit.util;
+
+                util.ready(function () {
+
+                    util.on(document.body, 'stop', function (e, sortable, el) {
+                        var list = document.getElementById("chapters_list").getElementsByTagName("li");
+                        var tracking = 1;
+                        for (let item of list) {
+                            var child = item.querySelector('.chapters_tracker')
+                            child.value = tracking;
+                            tracking += 1;
+                        }
+                    });
+                });
+            </script>
+            <ul class="uk-grid-small uk-child-width-1 uk-text-left" uk-sortable="handle: .uk-sortable-handle" uk-grid id="chapters_list">
+                {% for chapter in chapters %}
+                <li id="chapters_list_{{chapter.id}}">
+                    <div class="uk-card uk-card-hover uk-card-body uk-grid-small uk-child-width-1-4 uk-text-left" uk-grid>
+                        <div class="uk-sortable-handle">
+                            <span class="uk-margin-small-right" uk-icon="icon: table"></span>Chapter {{chapter.number}}: {{chapter.title}}
+                        </div>
+                        <div>Edit</div>
+                    </div>
+                    
+                    <input type="hidden" class="chapters_tracker" id="chapters_{{chapter.id}}" name="chapters_{{chapter.id}}" value="{{chapter.number}}">
+                </li>
+                {% endfor %}
+                <a href="#">New Chapter</a>
+            </ul>
+
+
+        </li>
     </ul>
     
 </form>

@@ -147,10 +147,13 @@ def edit_work(request, id):
 		if request.user.is_authenticated:
 			response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/works/'+str(id))
 			work = response.json()
+			response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/works/'+str(id) + '/chapters')
+			chapters = response.json()
 			tags = group_tags(tag_types['results'], work['tags'])
 			return render(request, 'work_form.html', {'work_types': work_types['results'],
 				'work': work, 
-				'tags': tags})
+				'tags': tags,
+				'chapters': chapters['results']})
 		else:
 			messages.add_message(request, messages.ERROR, 'You must log in to perform this action.')	
 			return redirect('/login')
