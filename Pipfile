@@ -8,7 +8,7 @@ verify_ssl = true
 [packages]
 djangorestframework = "*"
 django-filter = "*"
-psycopg2 = "*"
+psycopg2-binary = "*"
 requests = "*"
 django-background-tasks = "*"
 pytest = "*"

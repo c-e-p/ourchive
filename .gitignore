@@ -20,4 +20,5 @@ drivers
 assets
 *.html
 output
-.vscode/*
+.vscode
+.idea
