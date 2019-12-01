@@ -16,9 +16,3 @@
     name: Registration Permitted
     value: False
     grouping: General
-- model: api.ourchivesetting
-  pk: 4
-  fields:
-    name: Testy Boye
-    value: okie doke
-    grouping: General
