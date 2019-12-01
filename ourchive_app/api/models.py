@@ -56,7 +56,7 @@ class Chapter(models.Model):
 
     created_on = models.DateTimeField(auto_now_add=True)
     updated_on = models.DateTimeField(auto_now=True)
-    title = models.CharField(max_length=200)
+    title = models.CharField(max_length=200, null=True, blank=True)
     number = models.IntegerField(default=1)
     text = models.TextField(null=True)
     notes = models.TextField(null=True, blank=True)

@@ -40,9 +40,11 @@ def works_by_type(request, type_id):
 def new_work(request):
 	response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/worktypes')
 	work_types = response.json()
-	if request.user.is_authenticated:
+	if request.user.is_authenticated and request.method != 'POST':
 		return render(request, 'work_form.html', {'work_types': work_types['results'],
 			'work': {}})
+	elif request.user.is_authenticated:
+		return edit_work(request, -1)
 	else:
 		messages.add_message(request, messages.ERROR, 'You must log in to post a new work.')	
 		return redirect('/login')
@@ -115,14 +117,28 @@ def edit_work(request, id):
 		headers = {}
 		headers['X-CSRFToken'] = request.COOKIES['csrftoken']
 		headers['content-type'] = 'application/json'
-		response = requests.put(settings.ALLOWED_HOSTS[0] + '/api/works/' + str(id) +'/', data=work_json, cookies=request.COOKIES, headers=headers)
-		if response.status_code == 200:
-			messages.add_message(request, messages.SUCCESS, 'Work updated.')	
-		elif response.status_code == 403:
-			messages.add_message(request, messages.ERROR, 'You are not authorized to update this work.')	
+		if id > 0:
+			response = requests.put(settings.ALLOWED_HOSTS[0] + '/api/works/' + str(id) +'/', data=work_json, cookies=request.COOKIES, headers=headers)
+			if response.status_code == 200:
+				messages.add_message(request, messages.SUCCESS, 'Work updated.')	
+			elif response.status_code == 403:
+				messages.add_message(request, messages.ERROR, 'You are not authorized to update this work.')	
+			else:
+				messages.add_message(request, messages.ERROR, 'An error has occurred while updating this work. Please contact your administrator.')	
+			return redirect('/works/'+str(id))
 		else:
-			messages.add_message(request, messages.ERROR, 'An error has occurred while updating this work. Please contact your administrator.')	
-		return redirect('/works/'+str(id))
+			response = requests.post(settings.ALLOWED_HOSTS[0] + '/api/works/', data=work_json, cookies=request.COOKIES, headers=headers)
+			if response.status_code == 201:
+				messages.add_message(request, messages.SUCCESS, 'Work created.')	
+				response_json = response.json()
+				new_id = response_json['id']
+				return redirect('/works/'+str(new_id))
+			elif response.status_code == 403:
+				messages.add_message(request, messages.ERROR, 'You are not authorized to create this work.')	
+				return redirect('/works/new')
+			else:
+				messages.add_message(request, messages.ERROR, 'An error has occurred while creating this work. Please contact your administrator.')	
+				return redirect('/works/new')	
 	else:
 		response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/worktypes', cookies=request.COOKIES)
 		work_types = response.json()
@@ -150,7 +166,10 @@ def log_in(request):
 			messages.add_message(request, messages.ERROR, 'Login unsuccessful. Please try again.')
 			return redirect('/login')
 	else:
-		return render(request, 'login.html', {'referrer': request.META['HTTP_REFERER']})
+		if 'HTTP_REFERER' in request.META:
+			return render(request, 'login.html', {'referrer': request.META['HTTP_REFERER']})
+		else:
+			return render(request, 'login.html', {'referrer': '/'})
 
 def register(request):
 	if request.method == 'POST':
