@@ -58,7 +58,7 @@ class Chapter(models.Model):
     updated_on = models.DateTimeField(auto_now=True)
     title = models.CharField(max_length=200, null=True, blank=True)
     number = models.IntegerField(default=1)
-    text = models.TextField(null=True)
+    text = models.TextField(null=True, blank=True)
     notes = models.TextField(null=True, blank=True)
     word_count = models.IntegerField(default=0)
     audio_url = models.CharField(max_length=600, null=True, blank=True)

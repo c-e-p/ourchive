@@ -41,10 +41,23 @@ def new_work(request):
 	response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/worktypes')
 	work_types = response.json()
 	if request.user.is_authenticated and request.method != 'POST':
-		return render(request, 'work_form.html', {'work_types': work_types['results'],
-			'work': {}})
+		headers = {}
+		headers['X-CSRFToken'] = request.COOKIES['csrftoken']
+		headers['content-type'] = 'application/json'
+		response = requests.post(settings.ALLOWED_HOSTS[0] + '/api/works/', data={'title': 'Untitled Work'}, cookies=request.COOKIES, headers=headers)
+		if response.status_code == 201:
+			messages.add_message(request, messages.SUCCESS, 'Work created.')	
+			work = response.json()
+			return render(request, 'work_form.html', {'work_types': work_types['results'],
+			'work': {work}})
+		elif response.status_code == 403:
+			messages.add_message(request, messages.ERROR, 'You are not authorized to create this work.')	
+			return redirect('/works/new')
+		else:
+			messages.add_message(request, messages.ERROR, 'An error has occurred while creating this work. Please contact your administrator.')	
+			return redirect('/works/new')		
 	elif request.user.is_authenticated:
-		return edit_work(request, -1)
+		return edit_work(request, request.POST['work_id'])
 	else:
 		messages.add_message(request, messages.ERROR, 'You must log in to post a new work.')	
 		return redirect('/login')
@@ -57,7 +70,31 @@ def group_tags(tag_types, tags):
 		result[tag['tag_type']].append(tag)
 	return result
 
-def edit_chapter(request, id):
+def new_chapter(request, work_id):
+	if request.user.is_authenticated and request.method != 'POST':
+		headers = {}
+		headers['X-CSRFToken'] = request.COOKIES['csrftoken']
+		headers['content-type'] = 'application/json'
+		request_json = {'title': 'Untitled Chapter', 'work': work_id, 'text': '', 'number': int(request.GET.get('count', 1)) + 1}
+		response = requests.post(settings.ALLOWED_HOSTS[0] + '/api/chapters/', data=json.dumps(request_json), cookies=request.COOKIES, headers=headers)
+		if response.status_code == 201:
+			messages.add_message(request, messages.SUCCESS, 'Chapter created.')	
+			chapter = response.json()
+			return render(request, 'chapter_form.html', {'chapter': chapter})
+		elif response.status_code == 403:
+			messages.add_message(request, messages.ERROR, 'You are not authorized to create this chapter.')	
+			return redirect('/works/'+str(work_id))
+		else:
+			messages.add_message(request, messages.ERROR, 'An error has occurred while creating this chapter. Please contact your administrator.')	
+			print(response.json())
+			return redirect('/works/'+str(work_id))
+	elif request.user.is_authenticated:
+		return edit_chapter(request, work_id, request.POST['chapter_id'])
+	else:
+		messages.add_message(request, messages.ERROR, 'You must log in to post a new work.')	
+		return redirect('/login')
+
+def edit_chapter(request, work_id, id):
 	if request.method == 'POST':
 		if 'files[]' in request.FILES:
 			file_helpers.handle_uploaded_file(request.FILES['files[]'], request.FILES['files[]'].name)
@@ -75,7 +112,7 @@ def edit_chapter(request, id):
 				print(response.status_code)
 				print(response.content)
 				messages.add_message(request, messages.ERROR, 'An error has occurred while updating this chapter. Please contact your administrator.')	
-			return redirect(request.POST.get('work').replace('api/', ''))
+			return redirect('/works/'+str(work_id))
 	else:
 		if request.user.is_authenticated:			
 			response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/chapters/'+str(id))
@@ -111,7 +148,7 @@ def edit_work(request, id):
 			elif 'chapters_' in item:
 				chapter_id = item[9:]
 				chapter_number = request.POST[item]
-				chapters.append({'id': chapter_id, 'number': chapter_number})
+				chapters.append({'id': chapter_id, 'number': chapter_number, 'work': id})
 		work_dict["tags"] = tags
 		comments_permitted = work_dict["comments_permitted"]
 		work_dict["comments_permitted"] = comments_permitted == "All" or comments_permitted == "Registered users only"
@@ -126,26 +163,14 @@ def edit_work(request, id):
 			response = requests.put(settings.ALLOWED_HOSTS[0] + '/api/works/' + str(id) +'/', data=work_json, cookies=request.COOKIES, headers=headers)
 			if response.status_code == 200:
 				for chapter in chapters:
-					requests.put(settings.ALLOWED_HOSTS[0] + '/api/chapters/' + str(chapter['id']) +'/', data=json.dumps(chapter), cookies=request.COOKIES, headers=headers)
+					response = requests.put(settings.ALLOWED_HOSTS[0] + '/api/chapters/' + str(chapter['id']) +'/', data=json.dumps(chapter), cookies=request.COOKIES, headers=headers)
 				messages.add_message(request, messages.SUCCESS, 'Work updated.')	
 			elif response.status_code == 403:
 				messages.add_message(request, messages.ERROR, 'You are not authorized to update this work.')	
 			else:
 				messages.add_message(request, messages.ERROR, 'An error has occurred while updating this work. Please contact your administrator.')	
 			return redirect('/works/'+str(id))
-		else:
-			response = requests.post(settings.ALLOWED_HOSTS[0] + '/api/works/', data=work_json, cookies=request.COOKIES, headers=headers)
-			if response.status_code == 201:
-				messages.add_message(request, messages.SUCCESS, 'Work created.')	
-				response_json = response.json()
-				new_id = response_json['id']
-				return redirect('/works/'+str(new_id))
-			elif response.status_code == 403:
-				messages.add_message(request, messages.ERROR, 'You are not authorized to create this work.')	
-				return redirect('/works/new')
-			else:
-				messages.add_message(request, messages.ERROR, 'An error has occurred while creating this work. Please contact your administrator.')	
-				return redirect('/works/new')	
+			
 	else:
 		response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/worktypes', cookies=request.COOKIES)
 		work_types = response.json()
@@ -160,7 +185,8 @@ def edit_work(request, id):
 			return render(request, 'work_form.html', {'work_types': work_types['results'],
 				'work': work, 
 				'tags': tags,
-				'chapters': chapters['results']})
+				'chapters': chapters['results'],
+				'chapter_count': len(chapters)})
 		else:
 			messages.add_message(request, messages.ERROR, 'You must log in to perform this action.')	
 			return redirect('/login')

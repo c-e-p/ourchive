@@ -34,7 +34,7 @@
         
     </script>
     {% csrf_token %}
-
+    <input type="hidden" name="work_id" value="{{ work.id }}">
     <div class="uk-child-width-1@m uk-child-width-1@s uk-text-left" uk-grid>
         <div class="uk-width-2-3">
             nav back + story title
@@ -178,7 +178,7 @@
                     <input type="hidden" class="chapters_tracker" id="chapters_{{chapter.id}}" name="chapters_{{chapter.id}}" value="{{chapter.number}}">
                 </li>
                 {% endfor %}
-                <a href="#">New Chapter</a>
+                <a href="/works/{{work.id}}/chapters/new?count={{chapter_count}}">New Chapter</a>
             </ul>
 
 
