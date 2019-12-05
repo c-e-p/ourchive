@@ -44,20 +44,21 @@ def new_work(request):
 		headers = {}
 		headers['X-CSRFToken'] = request.COOKIES['csrftoken']
 		headers['content-type'] = 'application/json'
-		response = requests.post(settings.ALLOWED_HOSTS[0] + '/api/works/', data={'title': 'Untitled Work'}, cookies=request.COOKIES, headers=headers)
+		response = requests.post(settings.ALLOWED_HOSTS[0] + '/api/works/', data=json.dumps({'title': 'Untitled Work', 'user': request.user.username}), cookies=request.COOKIES, headers=headers)
 		if response.status_code == 201:
 			messages.add_message(request, messages.SUCCESS, 'Work created.')	
 			work = response.json()
 			return render(request, 'work_form.html', {'work_types': work_types['results'],
-			'work': {work}})
+			'work': work})
 		elif response.status_code == 403:
 			messages.add_message(request, messages.ERROR, 'You are not authorized to create this work.')	
-			return redirect('/works/new')
+			return redirect('/')
 		else:
 			messages.add_message(request, messages.ERROR, 'An error has occurred while creating this work. Please contact your administrator.')	
-			return redirect('/works/new')		
+			print(response.json())
+			return redirect('/')		
 	elif request.user.is_authenticated:
-		return edit_work(request, request.POST['work_id'])
+		return edit_work(request, int(request.POST['work_id']))
 	else:
 		messages.add_message(request, messages.ERROR, 'You must log in to post a new work.')	
 		return redirect('/login')
@@ -159,17 +160,16 @@ def edit_work(request, id):
 		headers = {}
 		headers['X-CSRFToken'] = request.COOKIES['csrftoken']
 		headers['content-type'] = 'application/json'
-		if id > 0:
-			response = requests.put(settings.ALLOWED_HOSTS[0] + '/api/works/' + str(id) +'/', data=work_json, cookies=request.COOKIES, headers=headers)
-			if response.status_code == 200:
-				for chapter in chapters:
-					response = requests.put(settings.ALLOWED_HOSTS[0] + '/api/chapters/' + str(chapter['id']) +'/', data=json.dumps(chapter), cookies=request.COOKIES, headers=headers)
-				messages.add_message(request, messages.SUCCESS, 'Work updated.')	
-			elif response.status_code == 403:
-				messages.add_message(request, messages.ERROR, 'You are not authorized to update this work.')	
-			else:
-				messages.add_message(request, messages.ERROR, 'An error has occurred while updating this work. Please contact your administrator.')	
-			return redirect('/works/'+str(id))
+		response = requests.put(settings.ALLOWED_HOSTS[0] + '/api/works/' + str(id) +'/', data=work_json, cookies=request.COOKIES, headers=headers)
+		if response.status_code == 200:
+			for chapter in chapters:
+				response = requests.put(settings.ALLOWED_HOSTS[0] + '/api/chapters/' + str(chapter['id']) +'/', data=json.dumps(chapter), cookies=request.COOKIES, headers=headers)
+			messages.add_message(request, messages.SUCCESS, 'Work updated.')	
+		elif response.status_code == 403:
+			messages.add_message(request, messages.ERROR, 'You are not authorized to update this work.')	
+		else:
+			messages.add_message(request, messages.ERROR, 'An error has occurred while updating this work. Please contact your administrator.')	
+		return redirect('/works/'+str(id))
 			
 	else:
 		response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/worktypes', cookies=request.COOKIES)
