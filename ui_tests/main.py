@@ -7,7 +7,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 def test_goto_ourchive_index():
     driver_path = ChromeDriverManager().install()
     driver = webdriver.Chrome(driver_path)
-    driver.get("http://host.docker.internal:8000/")
+    driver.get("http://ourchive-dev.stopthatimp.net/")
 
     title = driver.find_element_by_css_selector(css_selector='h1')
     logging.info(title.text)

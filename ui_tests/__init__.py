@@ -9,7 +9,8 @@ from webdriver_manager.chrome import ChromeDriverManager
 from webdriver_manager.firefox import GeckoDriverManager
 
 #baseURL = "http://host.docker.internal:8000/"
-baseURL = 'http://127.0.0.1:8000'
+#baseURL = 'http://127.0.0.1:8000'
+baseURL = 'http://ourchive-dev.stopthatimp.net/'
 
 
 def set_dir():

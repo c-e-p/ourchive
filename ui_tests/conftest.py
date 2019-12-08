@@ -4,7 +4,7 @@ from ui_tests import BrowserType, get_driver
 
 def pytest_addoption(parser):
 	parser.addoption(
-		"--browser", action="store", default="Chrome", help="browser options: CHROME, FireFox"
+		"--browser", action="store", default="Firefox", help="browser options: CHROME, FireFox"
 	)
 
 
@@ -17,7 +17,6 @@ def selenium_driver(request):
 		logging.info(name.casefold())
 		if requestedBrowser.casefold() == name.casefold():
 			driver = get_driver(value)
-
 
 	yield driver
 	

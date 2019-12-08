@@ -16,6 +16,7 @@ selenium = "*"
 webdriver-manager = "*"
 Markdown = "*"
 Django = "*"
+faker = "*"
 
 [requires]
 python_version = "3.7"
