@@ -18,6 +18,7 @@ urlpatterns = [
     path('tagtypes/<int:pk>/', views.TagTypeDetail.as_view(), name='tagtype-detail'),
     path('worktypes/', views.WorkTypeList.as_view(), name='work-type-list'),
     path('worktypes/<int:pk>/', views.WorkTypeDetail.as_view(), name='worktype-detail'),
+    path('worktypes/<int:type_id>/works', views.WorkByTypeList.as_view(), name='work-by-type-list'),
     path('tags/', views.TagList.as_view(), name='tag-list'),
     path('tags/<int:pk>/', views.TagDetail.as_view(), name='tag-detail'),
     path('bookmarks/', views.BookmarkList.as_view(), name='bookmark-list'),

@@ -10,6 +10,15 @@ from . import file_helpers
 import threading
 from django.http import HttpResponse
 
+
+def group_tags(tag_types, tags):
+	result = {}
+	for tag_type in tag_types:
+		result[tag_type['label']] = []
+	for tag in tags:
+		result[tag['tag_type']].append(tag)
+	return result
+
 def index(request):
 	return render(request, 'index.html', {
 	    'heading_message': 'Welcome to Ourchive',
@@ -27,15 +36,28 @@ def search(request):
 
 @require_http_methods(["GET"])
 def works(request):
-	response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/worktypes')
-	work_types = response.json()
-	return render(request, 'works.html', {'work_types': work_types['results']})
+	response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/works/')
+	works = response.json()['results']
+	response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/tagtypes')
+	tag_types = response.json()
+	for work in works:
+		tags = group_tags(tag_types['results'], work['tags']) if 'tags' in work else {}
+		work['tags'] = tags
+	return render(request, 'works.html', {
+		'works': works,
+		'root': settings.ALLOWED_HOSTS[0]})
 
 def works_by_type(request, type_id):
-	response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/worktypes')
-	work_types = response.json()
-	# todo: get works by type
-	return render(request, 'works.html', {'work_types': work_types['results']})
+	response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/worktypes/'+str(type_id) + '/works')
+	works = response.json()['results']
+	response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/tagtypes')
+	tag_types = response.json()
+	for work in works:
+		tags = group_tags(tag_types['results'], work['tags']) if 'tags' in work else {}
+		work['tags'] = tags
+	return render(request, 'works.html', {
+		'works': works,
+		'root': settings.ALLOWED_HOSTS[0]})
 
 def new_work(request):
 	response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/worktypes')
@@ -63,13 +85,7 @@ def new_work(request):
 		messages.add_message(request, messages.ERROR, 'You must log in to post a new work.')	
 		return redirect('/login')
 
-def group_tags(tag_types, tags):
-	result = {}
-	for tag_type in tag_types:
-		result[tag_type['label']] = []
-	for tag in tags:
-		result[tag['tag_type']].append(tag)
-	return result
+
 
 def new_chapter(request, work_id):
 	if request.user.is_authenticated and request.method != 'POST':
