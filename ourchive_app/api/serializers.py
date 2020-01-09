@@ -177,10 +177,11 @@ class WorkSerializer(serializers.HyperlinkedModelSerializer):
     
 
 class BookmarkSerializer(serializers.HyperlinkedModelSerializer):
-    work = serializers.HyperlinkedRelatedField(view_name='work-detail', queryset=Work.objects.all())
+    work = WorkSerializer()
     user = serializers.SlugRelatedField(queryset=User.objects.all(), slug_field='username')
     collection = serializers.HyperlinkedRelatedField(view_name='bookmarkcollection-detail', queryset=BookmarkCollection.objects.all())
-    id = serializers.HyperlinkedIdentityField(view_name='bookmark-detail', read_only=True)
+    bookmark_id = serializers.HyperlinkedIdentityField(view_name='work-detail', read_only=True)
+    id = serializers.ReadOnlyField()
     tags = TagSerializer(many=True, required=False)
     class Meta:
         model = Bookmark

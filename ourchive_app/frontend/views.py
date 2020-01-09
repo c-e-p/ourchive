@@ -274,7 +274,15 @@ def work(request, pk):
 		'previous_chapter': settings.ALLOWED_HOSTS[0] + '/works/'+str(pk)+'?offset='+str(chapter_offset - 1)  if 'previous' in response and response['previous'] else None,})
 
 def bookmarks(request):	
-	return render(request, 'bookmarks.html', {})
+	response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/bookmarks/')
+	bookmarks = response.json()['results']
+	response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/tagtypes')
+	tag_types = response.json()
+	for bookmark in bookmarks:
+		print(bookmark)
+		tags = group_tags(tag_types['results'], bookmark['tags']) if 'tags' in bookmark else {}
+		bookmark['tags'] = tags
+	return render(request, 'bookmarks.html', {'bookmarks': bookmarks})
 
 def bookmark(request, pk):
 	response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/bookmarks/'+str(pk))

@@ -8,8 +8,8 @@
 	        </div>
 	        <div class="uk-text-right uk-width-1-3">
 	            {% if bookmark.user == request.user.username %}
-	            <a href="{{ root }}/bookmarks/{{ id }}/edit"><span uk-icon="icon: file-edit"></span> </a>
-	            <a href="{{ root }}/bookmarks/{{ id }}/delete"><span uk-icon="icon: trash"></span> </a>
+	            <a href="{{ root }}/bookmarks/{{ bookmark.id }}/edit"><span uk-icon="icon: file-edit"></span> </a>
+	            <a href="{{ root }}/bookmarks/{{ bookmark.id }}/delete"><span uk-icon="icon: trash"></span> </a>
 	            {% endif %}
 	        </div>
 	    <div class="uk-width-1">
