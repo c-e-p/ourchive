@@ -11,6 +11,7 @@ urlpatterns = [
     path('works/<int:pk>/', views.work),
     path('bookmarks/', views.bookmarks),
     path('bookmarks/<int:pk>/', views.bookmark),
+    path('bookmarks/<int:pk>/edit', views.edit_bookmark),
     path('login/', views.log_in),
     path('register/', views.register),
     path('logout/', views.log_out),

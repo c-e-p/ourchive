@@ -207,6 +207,64 @@ def edit_work(request, id):
 			messages.add_message(request, messages.ERROR, 'You must log in to perform this action.')	
 			return redirect('/login')
 
+def edit_bookmark(request, pk):
+	if request.method == 'POST':
+		bookmark_dict = request.POST.copy()
+		tags = []
+		tag_types = {}
+		result = requests.get(settings.ALLOWED_HOSTS[0] + '/api/tagtypes', cookies=request.COOKIES).json()['results']
+		for item in result:
+			tag_types[item['label']] = item
+		for item in request.POST:
+			dict_item = request.POST[item].replace('\'', '"')
+			if 'tag_type_id' in request.POST[item]:				
+				json_item = json.loads(dict_item)
+				if not json_item['tag_type']:
+					json_item['tag_type'] = tag_types[json_item['tag_type']]['url']
+				tags.append(json_item)
+				bookmark_dict.pop(item)
+			elif 'tag_type' in request.POST[item]:				
+				json_item = json.loads(dict_item)
+				if not json_item['tag_type']:
+					json_item['tag_type'] = tag_types[json_item['tag_type']]['url']
+				tags.append(json_item)
+				bookmark_dict.pop(item)
+		bookmark_dict["tags"] = tags
+		#comments_permitted = bookmark_dict["comments_permitted"]
+		#bookmark_dict["comments_permitted"] = comments_permitted == "All" or comments_permitted == "Registered users only"
+		#bookmark_dict["anon_comments_permitted"] = comments_permitted == "All"
+		bookmark_dict = bookmark_dict.dict()
+		bookmark_dict["user"] = str(request.user)
+		bookmark_dict["work_id"] = bookmark_dict["work"]
+		bookmark_dict.pop("work")
+		bookmark_json = json.dumps(bookmark_dict)
+		headers = {}
+		headers['X-CSRFToken'] = request.COOKIES['csrftoken']
+		headers['content-type'] = 'application/json'
+		response = requests.put(settings.ALLOWED_HOSTS[0] + '/api/bookmarks/' + str(pk) +'/', data=bookmark_json, cookies=request.COOKIES, headers=headers)
+		if response.status_code == 200:			
+			messages.add_message(request, messages.SUCCESS, 'Bookmark updated.')	
+		elif response.status_code == 403:
+			messages.add_message(request, messages.ERROR, 'You are not authorized to update this bookmark.')	
+		else:
+			print(response.content)
+			messages.add_message(request, messages.ERROR, 'An error has occurred while updating this bookmark. Please contact your administrator.')	
+		return redirect('/bookmarks/'+str(pk))
+			
+	else:
+		response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/tagtypes')
+		tag_types = response.json()
+		if request.user.is_authenticated:
+			response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/bookmarks/'+str(pk))
+			bookmark = response.json()
+			tags = group_tags(tag_types['results'], bookmark['tags'])
+			return render(request, 'bookmark_form.html', {
+				'bookmark': bookmark, 
+				'tags': tags})
+		else:
+			messages.add_message(request, messages.ERROR, 'You must log in to perform this action.')	
+			return redirect('/login')
+
 def log_in(request):
 	if request.method == 'POST':
 		user = authenticate(username=request.POST.get('username'), password=request.POST.get('password'))
@@ -287,9 +345,7 @@ def bookmarks(request):
 def bookmark(request, pk):
 	response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/bookmarks/'+str(pk))
 	bookmark = response.json()
-	response = requests.get(bookmark['work'])
-	work = response.json()
-	return render(request, 'bookmark.html', {'bookmark': bookmark, 'work': work})
+	return render(request, 'bookmark.html', {'bookmark': bookmark, 'work': bookmark['work']})
 
 def upload_file(request):
 	if request.method == 'POST':

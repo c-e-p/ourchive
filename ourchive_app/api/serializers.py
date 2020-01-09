@@ -177,9 +177,10 @@ class WorkSerializer(serializers.HyperlinkedModelSerializer):
     
 
 class BookmarkSerializer(serializers.HyperlinkedModelSerializer):
-    work = WorkSerializer()
+    work = WorkSerializer(required=False)
+    work_id = serializers.PrimaryKeyRelatedField(queryset=Work.objects.all())
     user = serializers.SlugRelatedField(queryset=User.objects.all(), slug_field='username')
-    collection = serializers.HyperlinkedRelatedField(view_name='bookmarkcollection-detail', queryset=BookmarkCollection.objects.all())
+    collection = serializers.HyperlinkedRelatedField(view_name='bookmarkcollection-detail', queryset=BookmarkCollection.objects.all(), required=False)
     bookmark_id = serializers.HyperlinkedIdentityField(view_name='work-detail', read_only=True)
     id = serializers.ReadOnlyField()
     tags = TagSerializer(many=True, required=False)
@@ -189,9 +190,18 @@ class BookmarkSerializer(serializers.HyperlinkedModelSerializer):
     def update(self, bookmark, validated_data):
         if 'tags' in validated_data:
             tags = validated_data.pop('tags')
+            bookmark.tags.clear()
+            required_tag_types = list(TagType.objects.filter(required=True))
+            has_any_required = len(required_tag_types) > 0
             for item in tags:
                 tag_id = item['text']
-                tag_type = item['tag_type_id']
+                tag_type = item['tag_type']
+                if tag_type in required_tag_types:
+                    if tag_id is None or tag_id == '':
+                        # todo: error
+                        return None
+                    else:
+                        required_tag_types.pop()
                 tag, created = Tag.objects.get_or_create(text=tag_id, tag_type=tag_type)
                 bookmark.tags.add(tag)
             bookmark.save()
