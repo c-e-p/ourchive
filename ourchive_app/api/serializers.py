@@ -90,8 +90,11 @@ class ReplySerializer(serializers.HyperlinkedModelSerializer):
         fields = '__all__'
 
 class CommentSerializer(serializers.HyperlinkedModelSerializer):
-    user = serializers.HyperlinkedRelatedField(view_name='user-detail', format='html', read_only=True)
-    replies = ReplySerializer(many=True, required=False)
+    user = serializers.SlugRelatedField(queryset=User.objects.all(), slug_field='username')
+    replies = ReplySerializer(many=True, required=False, read_only=True)
+    id = serializers.ReadOnlyField()
+    chapter = serializers.PrimaryKeyRelatedField(queryset=Chapter.objects.all(), required=False)
+    #bookmark = serializers.PrimaryKeyRelatedField(queryset=Bookmark.objects.all(), required=False)
     class Meta:
         model = Comment
         fields = '__all__'

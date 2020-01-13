@@ -123,6 +123,15 @@ class WorkChapterDetail(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
+class ChapterCommentDetail(generics.ListCreateAPIView):
+    serializer_class = CommentSerializer
+    permission_classes = [IsOwnerOrReadOnly]
+    def get_queryset(self):
+        return Comment.objects.filter(chapter__id=self.kwargs['chapter_id']).order_by('id')
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
 class BookmarkList(generics.ListCreateAPIView):
     serializer_class = BookmarkSerializer
     permission_classes = [IsOwnerOrReadOnly]
@@ -136,6 +145,15 @@ class BookmarkDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Bookmark.objects.get_queryset().order_by('id')
     serializer_class = BookmarkSerializer
     permission_classes = [IsOwnerOrReadOnly]
+
+class BookmarkCommentDetail(generics.ListCreateAPIView):
+    serializer_class = CommentSerializer
+    permission_classes = [IsOwnerOrReadOnly]
+    def get_queryset(self):
+        return Comment.objects.filter(bookmark__id=self.kwargs['bookmark_id']).order_by('id')
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
 
 class BookmarkCollectionList(generics.ListCreateAPIView):
     serializer_class = BookmarkCollectionSerializer

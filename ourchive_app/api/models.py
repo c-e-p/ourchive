@@ -85,7 +85,7 @@ class Chapter(models.Model):
         return '<Chapter: {}>'.format(self.id)
 
     def __str__(self):
-        return self.title
+        return str(self.number) if self.title is None else self.title
     class Meta:
         ordering = ['number']
 
@@ -93,7 +93,7 @@ class Comment(models.Model):
 
     __tablename__ = 'comments'
 
-    text = models.TextField()
+    text = models.TextField(null=True, blank=True)
 
     user = models.ForeignKey(
         User,
@@ -125,6 +125,8 @@ class Comment(models.Model):
 
     def __repr__(self):
         return '<Comment: {}>'.format(self.id)
+    def __str__(self):
+        return self.text
 
 class Tag(models.Model):
 
@@ -214,8 +216,6 @@ class Bookmark(models.Model):
 
     def __str__(self):
         return self.title
-
-
     def __repr__(self):
         return '<Bookmark: {}>'.format(self.id)
 

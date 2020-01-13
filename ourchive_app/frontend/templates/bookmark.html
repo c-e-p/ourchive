@@ -33,10 +33,12 @@
 	    <hr/>
 	    <div class="uk-grid-small uk-child-width-auto" uk-grid>
 	        <div>
-	            <a class="uk-button uk-button-text" href="#">Read more</a>
+	             <button class="uk-button uk-button-text" type="button" uk-toggle="target: #chapter-{{chapter.id}}-comments">{{ comments.count}} Comments</button>    		
 	        </div>
-	        <div>
-	            <a class="uk-button uk-button-text" href="#">5 Comments</a>
+	    </div>
+	    <div class="uk-grid-small uk-child-width-auto" uk-grid>
+	        <div id="chapter-{{chapter.id}}-comments" hidden>
+	        	{% include "comments.html" %}
 	        </div>
 	    </div>
 	</article>

@@ -315,21 +315,24 @@ def work(request, pk):
 	work = response.json()
 	response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/tagtypes')
 	tag_types = response.json()
-	tags = group_tags(tag_types['results'], work['tags']) if 'tags' in work else {}
+	tags = group_tags(tag_types['results'], work['tags']) if 'tags' in work else {}	
 	if chapter_offset == 0:
 		response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/works/'+str(pk)+'/chapters?limit=1')
 	else:
 		response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/works/'+str(pk)+'/chapters?limit=1&offset='+str(chapter_offset))
-	response = response.json()
-	chapter = response['results'][0] if 'results' in response and len(response['results']) > 0 else {}
+	chapter_response = response.json()
+	chapter = chapter_response['results'][0] if 'results' in chapter_response and len(chapter_response['results']) > 0 else {}
+	response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/chapters/'+str(chapter['id'])+'/comments')
+	comments = response.json()
 	return render(request, 'work.html', {'work_types': work_types['results'], 
 		'work': work,
+		'comments': comments,
 		'id': pk,
 		'tags': tags,
 		'root': settings.ALLOWED_HOSTS[0],
 		'chapter': chapter,
-		'next_chapter': settings.ALLOWED_HOSTS[0] + '/works/'+str(pk)+'?offset='+str(chapter_offset + 1) if 'next' in response and response['next'] else None,
-		'previous_chapter': settings.ALLOWED_HOSTS[0] + '/works/'+str(pk)+'?offset='+str(chapter_offset - 1)  if 'previous' in response and response['previous'] else None,})
+		'next_chapter': settings.ALLOWED_HOSTS[0] + '/works/'+str(pk)+'?offset='+str(chapter_offset + 1) if 'next' in chapter_response and chapter_response['next'] else None,
+		'previous_chapter': settings.ALLOWED_HOSTS[0] + '/works/'+str(pk)+'?offset='+str(chapter_offset - 1)  if 'previous' in chapter_response and chapter_response['previous'] else None,})
 
 def bookmarks(request):	
 	response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/bookmarks/')
@@ -345,7 +348,9 @@ def bookmarks(request):
 def bookmark(request, pk):
 	response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/bookmarks/'+str(pk))
 	bookmark = response.json()
-	return render(request, 'bookmark.html', {'bookmark': bookmark, 'work': bookmark['work']})
+	response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/bookmarks/'+str(pk)+'/comments')
+	comments = response.json()
+	return render(request, 'bookmark.html', {'bookmark': bookmark, 'work': bookmark['work'] if 'work' in bookmark else {}, 'comments': comments})
 
 def upload_file(request):
 	if request.method == 'POST':
