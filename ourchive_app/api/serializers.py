@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User, Group
 from rest_framework import serializers
+from rest_framework_recursive.fields import RecursiveField
 from api.models import Work, Tag, Chapter, TagType, WorkType, Bookmark, BookmarkCollection, Comment, Message, NotificationType, Notification, OurchiveSetting
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
@@ -85,6 +86,7 @@ class NotificationSerializer(serializers.HyperlinkedModelSerializer):
 
 class ReplySerializer(serializers.HyperlinkedModelSerializer):
     user = serializers.SlugRelatedField(queryset=User.objects.all(), slug_field='username')
+    replies = RecursiveField(many=True, required=False)
     id = serializers.ReadOnlyField()
     class Meta:
         model = Comment
