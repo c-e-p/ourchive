@@ -322,8 +322,11 @@ def work(request, pk):
 		response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/works/'+str(pk)+'/chapters?limit=1&offset='+str(chapter_offset))
 	chapter_response = response.json()
 	chapter = chapter_response['results'][0] if 'results' in chapter_response and len(chapter_response['results']) > 0 else {}
-	response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/chapters/'+str(chapter['id'])+'/comments')
-	comments = response.json()
+	if 'id' in chapter:
+		response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/chapters/'+str(chapter['id'])+'/comments')
+		comments = response.json()
+	else:
+		comments = []
 	return render(request, 'work.html', {'work_types': work_types['results'], 
 		'work': work,
 		'comments': comments,
@@ -333,6 +336,13 @@ def work(request, pk):
 		'chapter': chapter,
 		'next_chapter': settings.ALLOWED_HOSTS[0] + '/works/'+str(pk)+'?offset='+str(chapter_offset + 1) if 'next' in chapter_response and chapter_response['next'] else None,
 		'previous_chapter': settings.ALLOWED_HOSTS[0] + '/works/'+str(pk)+'?offset='+str(chapter_offset - 1)  if 'previous' in chapter_response and chapter_response['previous'] else None,})
+
+def render_comments(request, chapter_id):
+	next_url = request.GET.get('next', '')
+	offset_url = request.GET.get('offset', '')
+	response = requests.get(next_url+"&offset="+offset_url)
+	comments = response.json()
+	return render(request, 'comments.html', {'comments': comments, 'chapter': {'id': chapter_id}})
 
 def bookmarks(request):	
 	response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/bookmarks/')
