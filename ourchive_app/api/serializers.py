@@ -84,7 +84,8 @@ class NotificationSerializer(serializers.HyperlinkedModelSerializer):
         fields = '__all__'
 
 class ReplySerializer(serializers.HyperlinkedModelSerializer):
-    user = serializers.HyperlinkedRelatedField(view_name='user-detail', format='html', read_only=True)
+    user = serializers.SlugRelatedField(queryset=User.objects.all(), slug_field='username')
+    id = serializers.ReadOnlyField()
     class Meta:
         model = Comment
         fields = '__all__'
@@ -94,6 +95,7 @@ class CommentSerializer(serializers.HyperlinkedModelSerializer):
     replies = ReplySerializer(many=True, required=False, read_only=True)
     id = serializers.ReadOnlyField()
     chapter = serializers.PrimaryKeyRelatedField(queryset=Chapter.objects.all(), required=False)
+    parent_comment = serializers.PrimaryKeyRelatedField(queryset=Comment.objects.all(), required=False)
     #bookmark = serializers.PrimaryKeyRelatedField(queryset=Bookmark.objects.all(), required=False)
     class Meta:
         model = Comment

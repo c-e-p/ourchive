@@ -7,7 +7,7 @@
 			  })
 			  .then((myText) => {
 			  	document.getElementById("loadMoreComments").remove();				 
-				container_block = document.getElementById( 'chapter-'+chapterId+'-comments-grid' );
+				container_block = document.getElementById( 'chapter-'+chapterId+'-comments-list' );
 				container_block.innerHTML += myText;
 			  });
 		}
@@ -40,11 +40,17 @@
     </div>
     <div class="uk-grid-small uk-child-width-auto" uk-grid>
         <div id="chapter-{{chapter.id}}-comments" hidden>
-        	<div class="uk-child-width-1@m uk-child-width-1@s uk-text-left" id="chapter-{{chapter.id}}-comments-grid" uk-grid>
-        		{% include "comments.html" %}     
-        	</div>   	  
-        </div>
-        
+        		<ul class="uk-comment-list" id="chapter-{{chapter.id}}-comments-list">
+        			{% include "comments.html" %}   
+        		</ul>  	  
+        </div>        
     </div>
-     
+     <div id="chapter-{{chapter.id}}-new">
+                    <form action="/works/{{work.id}}/chapters/{{chapter.id}}/comments/new" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" id="chapter" name="chapter" value="{{ chapter.id }}">
+                        <textarea class="uk-textarea" id="text" name="text"></textarea>
+                        <button class="uk-button uk-button-default">Post Comment</button>
+                    </form>
+                </div>
 </div>

@@ -126,7 +126,7 @@ class Comment(models.Model):
     def __repr__(self):
         return '<Comment: {}>'.format(self.id)
     def __str__(self):
-        return self.text
+        return self.text if self.text is not None else str(id)
 
 class Tag(models.Model):
 

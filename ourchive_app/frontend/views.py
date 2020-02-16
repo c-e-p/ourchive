@@ -344,6 +344,25 @@ def render_comments(request, chapter_id):
 	comments = response.json()
 	return render(request, 'comments.html', {'comments': comments, 'chapter': {'id': chapter_id}})
 
+def create_chapter_comment(request, work_id, chapter_id):
+	if request.method == 'POST':
+		comment_dict = request.POST.copy()
+		comment_dict["user"] = str(request.user)
+		comment_json = json.dumps(comment_dict)
+		headers = {}
+		headers['X-CSRFToken'] = request.COOKIES['csrftoken']
+		headers['content-type'] = 'application/json'
+		response = requests.post(settings.ALLOWED_HOSTS[0] + '/api/comments/', data=comment_json, cookies=request.COOKIES, headers=headers)
+		if response.status_code == 200:
+			messages.add_message(request, messages.SUCCESS, 'Comment posted.')	
+		elif response.status_code == 201:
+			messages.add_message(request, messages.SUCCESS, 'Comment posted.')	
+		elif response.status_code == 403:
+			messages.add_message(request, messages.ERROR, 'You are not authorized to post this comment.')	
+		else:
+			messages.add_message(request, messages.ERROR, 'An error has occurred while posting this comment. Please contact your administrator.')	
+		return redirect('/works/'+str(work_id))
+
 def bookmarks(request):	
 	response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/bookmarks/')
 	bookmarks = response.json()['results']
