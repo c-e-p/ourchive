@@ -9,3 +9,4 @@ pytest
 selenium
 webdriver_manager
 pyyaml
+djangorestframework-recursive
