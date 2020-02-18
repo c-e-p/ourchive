@@ -7,10 +7,16 @@
             <img class="uk-comment-avatar" src="images/avatar.jpg" width="80" height="80" alt="">
         </div>
         <div class="uk-width-expand">
+            {% if comment.user is not None %}
             <h4 class="uk-comment-title uk-margin-remove"><a class="uk-link-reset" href="#">{{comment.user}}</a></h4>
+            {% else %}
+            <h4 class="uk-comment-title uk-margin-remove"><a class="uk-link-reset" href="#">Anonymous</a></h4>
+            {% endif %}
             <ul class="uk-comment-meta uk-subnav uk-subnav-divider uk-margin-remove-top">
                 <li><button class="uk-button uk-button-text" type="button" uk-toggle="target: #comment-{{comment.id}}-reply">Reply</button></li>
-                
+                {% if comment.user == request.user.username %}<li><a href="{{ root }}/comments/{{ comment.id }}/edit"><span uk-icon="icon: file-edit"></span> </a></li>
+                <li><a href="{{ root }}/comments/{{ comment.id }}/delete"><span uk-icon="icon: trash"></span> </a></li>
+                {% endif %}
             </ul>
         </div>
     </header>

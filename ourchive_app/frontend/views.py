@@ -353,7 +353,10 @@ def render_comments(request, chapter_id):
 def create_chapter_comment(request, work_id, chapter_id):
 	if request.method == 'POST':
 		comment_dict = request.POST.copy()
-		comment_dict["user"] = str(request.user)
+		if request.user.is_authenticated:
+			comment_dict["user"] = str(request.user)
+		else:
+			comment_dict["user"] = None
 		comment_json = json.dumps(comment_dict)
 		headers = {}
 		headers['X-CSRFToken'] = request.COOKIES['csrftoken']
