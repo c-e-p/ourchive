@@ -93,7 +93,7 @@ DATABASES = {
         'USER': 'ourchive',
         'PASSWORD': 'ourchive',
         'HOST': 'localhost',
-        'PORT': '5433',
+        'PORT': '5432',
     }
 }
 

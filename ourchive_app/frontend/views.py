@@ -92,7 +92,8 @@ def new_chapter(request, work_id):
 		headers = {}
 		headers['X-CSRFToken'] = request.COOKIES['csrftoken']
 		headers['content-type'] = 'application/json'
-		request_json = {'title': 'Untitled Chapter', 'work': work_id, 'text': '', 'number': int(request.GET.get('count', 1)) + 1}
+		count = request.GET.get('count') if request.GET.get('count') is not '' else 0
+		request_json = {'title': 'Untitled Chapter', 'work': work_id, 'text': '', 'number': int(count) + 1}
 		response = requests.post(settings.ALLOWED_HOSTS[0] + '/api/chapters/', data=json.dumps(request_json), cookies=request.COOKIES, headers=headers)
 		if response.status_code == 201:
 			messages.add_message(request, messages.SUCCESS, 'Chapter created.')	
@@ -170,6 +171,7 @@ def edit_work(request, id):
 		comments_permitted = work_dict["comments_permitted"]
 		work_dict["comments_permitted"] = comments_permitted == "All" or comments_permitted == "Registered users only"
 		work_dict["anon_comments_permitted"] = comments_permitted == "All"
+		redirect_toc = work_dict.pop('redirect_toc')
 		work_dict = work_dict.dict()
 		work_dict["user"] = str(request.user)
 		work_json = json.dumps(work_dict)
@@ -185,7 +187,10 @@ def edit_work(request, id):
 			messages.add_message(request, messages.ERROR, 'You are not authorized to update this work.')	
 		else:
 			messages.add_message(request, messages.ERROR, 'An error has occurred while updating this work. Please contact your administrator.')	
-		return redirect('/works/'+str(id))
+		if redirect_toc == 'false':
+			return redirect('/works/'+str(id))
+		else:
+			return redirect('/works/'+str(id)+'/chapters/new?count='+str(len(chapters)))
 			
 	else:
 		response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/worktypes', cookies=request.COOKIES)
@@ -270,8 +275,9 @@ def log_in(request):
 		user = authenticate(username=request.POST.get('username'), password=request.POST.get('password'))
 		if user is not None:
 			login(request, user)
-			messages.add_message(request, messages.SUCCESS, 'Login successful.')		
-			return redirect(request.POST.get('referrer'))
+			messages.add_message(request, messages.SUCCESS, 'Login successful.')	
+			refer = request.POST.get('referrer') if request.POST.get('referrer') is not None and '/login' not in request.POST.get('referrer') else '/'
+			return redirect(refer)
 		else:
 			messages.add_message(request, messages.ERROR, 'Login unsuccessful. Please try again.')
 			return redirect('/login')

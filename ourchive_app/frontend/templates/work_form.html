@@ -2,8 +2,14 @@
 {% block content %}	
 <div class="uk-child-width-1@m uk-child-width-1@s uk-text-left" uk-grid>
     
-<form class="uk-form-horizontal"  method="post" id="workForm">
+<form class="uk-form-horizontal"  method="post" id="workForm" onsubmit="return getCurrentTab()">
     <script>
+
+        function getCurrentTab() {
+            var expanded = document.getElementById('toc_link').getAttribute("aria-expanded");
+            document.getElementById('redirect_toc').value = expanded;
+        }
+        
         function removetag(tag, type) {
             document.getElementById("tags_"+tag+"_"+type).remove();
             document.getElementById("tags_"+tag+"_"+type+"_txt").remove();
@@ -45,10 +51,10 @@
     </div>
     <hr/>
         <ul class="uk-subnav uk-subnav-pill uk-subnav-divider uk-flex uk-flex-right" uk-switcher="animation: uk-animation-fade">
-            <li><a href="#">Edit Work</a></li>
-            <li><a href="#">Table of Contents</a></li>
+            <li><a href="#" id="edit_work_link">Edit Work</a></li>
+            <li><a href="#" id="toc_link">Table of Contents</a></li>
         </ul>   
-    
+    <input type="hidden" id="redirect_toc" name="redirect_toc">
 
     <ul class="uk-switcher uk-margin">
         <li>
@@ -178,7 +184,7 @@
                     <input type="hidden" class="chapters_tracker" id="chapters_{{chapter.id}}" name="chapters_{{chapter.id}}" value="{{chapter.number}}">
                 </li>
                 {% endfor %}
-                <a href="/works/{{work.id}}/chapters/new?count={{chapter_count}}">New Chapter</a>
+                <input class="uk-button uk-button-link" style="width:15em;" type="submit" value="New Chapter"/>
             </ul>
 
 

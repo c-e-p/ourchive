@@ -177,8 +177,7 @@ class WorkSerializer(serializers.HyperlinkedModelSerializer):
     def create(self, validated_data):
         tags = validated_data.pop('tags') if 'tags' in validated_data else []
         work = Work.objects.create(**validated_data)
-        work = self.process_tags(work, validated_data, tags) 
-        chapter = Chapter.objects.create(work_id = work.id, user_id = work.user.id, title='Untitled Chapter')
+        work = self.process_tags(work, validated_data, tags)
         return work
 
     
