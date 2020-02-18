@@ -1,0 +1,35 @@
+<ul>
+{% for comment in comments %}
+<li>
+<hr/>
+<article class="uk-comment">
+    <header class="uk-comment-header uk-grid-medium uk-flex-middle" uk-grid>
+        <div class="uk-width-auto">
+            <img class="uk-comment-avatar" src="images/avatar.jpg" width="80" height="80" alt="">
+        </div>
+        <div class="uk-width-expand">
+            <h4 class="uk-comment-title uk-margin-remove"><a class="uk-link-reset" href="#">{{comment.user}}</a></h4>
+            <ul class="uk-comment-meta uk-subnav uk-subnav-divider uk-margin-remove-top">
+                <li><button class="uk-button uk-button-text" type="button" uk-toggle="target: #comment-{{comment.id}}-reply">Reply</button></li>
+                
+            </ul>
+        </div>
+    </header>
+    <div class="uk-comment-body" uk-grid>
+        <div class="uk-width-1-1"><p>{{comment.text}}</p></div>
+        <div id="comment-{{comment.id}}-reply" class="uk-width-1-1" hidden>
+            <form action="/works/{{work.id}}/chapters/{{chapter.id}}/comments/new" method="post">
+                {% csrf_token %}
+                <input type="hidden" id="parent_comment" name="parent_comment" value="{{ comment.id }}">
+                <textarea class="uk-textarea" id="text" name="text"></textarea>
+                <button class="uk-button uk-button-default">Post Comment</button>
+            </form>
+        </div>        
+    </div>     
+</article> 
+{% if comment.replies %}
+   {% include "replies.html" with comments=comment.replies  %}
+{% endif %}
+</li>
+{% endfor %}
+</ul>

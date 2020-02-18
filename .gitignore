@@ -19,7 +19,6 @@ server/flask_app/uploads/*
 *.log
 drivers
 assets
-*.html
 output
 .vscode
 .idea

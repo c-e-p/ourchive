@@ -1,0 +1,116 @@
+{% extends 'index.html' %}
+{% block content %}	
+<div class="uk-child-width-1@m uk-child-width-1@s uk-text-left" uk-grid>   
+<form class="uk-form-horizontal"  method="post" id="bookmarkForm">
+    <script>
+        function removetag(tag, type) {
+            document.getElementById("tags_"+tag+"_"+type).remove();
+            document.getElementById("tags_"+tag+"_"+type+"_txt").remove();
+        }
+
+        function addtag(tag, type) {
+            alert(document.getElementById(type+"_tags").innerHTML);
+        }
+
+        function tagCheck (e, type) {
+            if (e.keyCode == 188) {
+                var section = document.getElementById(type+"_tags");
+                var final = section.lastChild;
+                final.value = final.value.replace(/,\s*$/, "");
+                section.removeChild(section.lastChild);
+                var wrapper= document.createElement('div');
+                wrapper.innerHTML= '<input type="hidden" id="tags_'+final.value+'_'+type+'" name="tags_'+final.value+'_'+type+'" value="{\'url\': \'\', \'tag_type\': \''+type+'\', \'tag_type_id\': \'\', \'text\': \''+final.value+'\'}">';
+                var div= wrapper.firstChild;
+                section.appendChild(div);
+                wrapper.innerHTML = '<span style="margin-left: 5px;" class="uk-badge" id="tags_'+final.value+'_'+type+'_txt">'+final.value+' <span uk-icon="close" onclick="removetag(\''+final.value+'\', \''+type+'\')" id="tags_'+final.value+'_'+type+'_delete"></span></span>  ';
+                div = wrapper.firstChild;
+                section.appendChild(div);
+                final.value = '';
+                section.appendChild(final);
+                section.lastChild.focus();
+            }
+        }
+        
+    </script>
+    {% csrf_token %}
+    <input type="hidden" name="bookmark_id" value="{{ bookmark.id }}">
+    <div class="uk-child-width-1@m uk-child-width-1@s uk-text-left" uk-grid>
+        <div class="uk-width-2-3">
+            nav back + bookmark title
+        </div>
+        <div class="uk-text-right uk-width-1-3">
+            <input class="uk-button uk-button-default" type="submit" value="Submit"/>
+        </div>
+    </div>
+    <hr/>
+        <ul class="uk-subnav uk-subnav-pill uk-subnav-divider uk-flex uk-flex-right" uk-switcher="animation: uk-animation-fade">
+            <li><a href="#">Edit Bookmark</a></li>
+        </ul>   
+    
+
+    <ul class="uk-switcher uk-margin">
+        <li>
+            <fieldset class="uk-fieldset">
+
+                <div class="uk-margin">
+                    <label class="uk-form-label" for="form-horizontal-text">Title</label>
+                    <div class="uk-form-controls">
+                        <div class="uk-inline">
+                            <input class="uk-input uk-form-width-large" type="text" name="title" value="{{ bookmark.title }}">
+                        </div>
+                    </div>
+                    
+                </div>
+
+                <div class="uk-margin">
+                    <label class="uk-form-label" for="form-horizontal-text">Description</label>
+                    <div class="uk-form-controls">
+                        <div class="uk-inline">
+                            <textarea class="uk-textarea uk-form-width-large" rows="5" placeholder="Description" name="description">{{ bookmark.description }}</textarea>
+                        </div>
+                    </div>
+                    
+                </div>
+
+                <div class="uk-margin">
+                    <label class="uk-form-label" for="form-horizontal-text">Rating</label>
+                    <div class="uk-form-controls">
+                        <div class="uk-inline">
+                            <label><input class="uk-number" type="number" name="rating" value="{{ bookmark.rating }}"> </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="uk-margin">
+                    <label class="uk-form-label" for="form-horizontal-text">Work</label>
+                    <div class="uk-form-controls">
+                        <div class="uk-inline">
+                            <input class="uk-input uk-form-width-large" type="text" name="work" value="{{ bookmark.work.id }}">
+                        </div>
+                    </div>
+                </div>
+
+                
+                {% for type, tag in tags.items %}
+                <div class="uk-margin">
+                    <label class="uk-form-label" for="form-horizontal-text">{{ type }}</label>
+                    <div class="uk-form-controls">                
+                        <div class="uk-inline">
+                            <div id="{{ type }}_tags">
+                            {% for single_tag in tag %}
+                                <input type="hidden" id="tags_{{ single_tag.text }}_{{ type }}" name="tags_{{ single_tag.text }}_{{ type }}" value="{{ single_tag }}">
+                                <span class="uk-badge" id="tags_{{ single_tag.text }}_{{ type }}_txt">{{ single_tag.text }} <span uk-icon="close" onclick="removetag('{{single_tag.text}}', '{{type}}')" id="tags_{{ single_tag.text }}_{{ type }}_delete"></span></span>
+                            {% endfor %}
+                            <input style="margin-left: 5px;" class="uk-input uk-form-width-small uk-form-small uk-form-blank" type="text" id="{{ type }}_new_tag" onkeyup="tagCheck(event, '{{type}}')"></div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </fieldset>
+        </li>
+       
+    </ul>
+    
+</form>
+</div>
+{% endblock %}
