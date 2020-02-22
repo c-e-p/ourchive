@@ -106,7 +106,7 @@ class CommentSerializer(serializers.HyperlinkedModelSerializer):
     def update(self, comment, validated_data):
         if isinstance(validated_data['user'], AnonymousUser):
             validated_data.pop('user')
-        Comment.objects.filter(id=work.id).update(**validated_data)        
+        Comment.objects.filter(id=comment.id).update(**validated_data)        
         return Comment.objects.filter(id=comment.id).first()
 
     def create(self, validated_data):

@@ -15,14 +15,14 @@
             {% endif %}
             <ul class="uk-comment-meta uk-subnav uk-subnav-divider uk-margin-remove-top">
                 <li><button class="uk-button uk-button-text" type="button" uk-toggle="target: #comment-{{comment.id}}-reply">Reply</button></li>
-                {% if comment.user == request.user.username %}<li><a href="{{ root }}/comments/{{ comment.id }}/edit"><span uk-icon="icon: file-edit"></span> </a></li>
+                {% if comment.user == request.user.username %}<li><a href="/works/{{work.id}}/chapters/{{chapter.id}}/comments/{{ comment.id }}/edit"><span uk-icon="icon: file-edit"></span> </a></li>
                 <li><a href="{{ root }}/comments/{{ comment.id }}/delete"><span uk-icon="icon: trash"></span> </a></li>
                 {% endif %}
             </ul>
         </div>
     </header>
     <div class="uk-comment-body" uk-grid>
-        <div class="uk-width-1-1"><p>{{comment.text}}</p></div>
+        <div class="uk-width-1-1">{% autoescape off %}<p>{{comment.text}}</p>{% endautoescape %}</div>
         <div id="comment-{{comment.id}}-reply" class="uk-width-1-1" hidden>
             <form action="/works/{{work.id}}/chapters/{{chapter.id}}/comments/new" method="post">
                 {% csrf_token %}

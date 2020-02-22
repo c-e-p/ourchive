@@ -343,12 +343,12 @@ def work(request, pk):
 		'next_chapter': settings.ALLOWED_HOSTS[0] + '/works/'+str(pk)+'?offset='+str(chapter_offset + 1) if 'next' in chapter_response and chapter_response['next'] else None,
 		'previous_chapter': settings.ALLOWED_HOSTS[0] + '/works/'+str(pk)+'?offset='+str(chapter_offset - 1)  if 'previous' in chapter_response and chapter_response['previous'] else None,})
 
-def render_comments(request, chapter_id):
+def render_comments(request, work_id, chapter_id):
 	next_url = request.GET.get('next', '')
 	offset_url = request.GET.get('offset', '')
 	response = requests.get(next_url+"&offset="+offset_url)
 	comments = response.json()
-	return render(request, 'comments.html', {'comments': comments, 'chapter': {'id': chapter_id}})
+	return render(request, 'comments.html', {'comments': comments, 'chapter': {'id': chapter_id}, 'work': {'id': work_id}})
 
 def create_chapter_comment(request, work_id, chapter_id):
 	if request.method == 'POST':
@@ -371,6 +371,40 @@ def create_chapter_comment(request, work_id, chapter_id):
 		else:
 			messages.add_message(request, messages.ERROR, 'An error has occurred while posting this comment. Please contact your administrator.')	
 		return redirect('/works/'+str(work_id))
+
+def edit_chapter_comment(request, work_id, chapter_id, comment_id):
+	if request.method == 'POST':
+		comment_dict = request.POST.copy()
+		comment_dict["id"] = comment_id
+		if request.user.is_authenticated:
+			comment_dict["user"] = str(request.user)
+		else:
+			comment_dict["user"] = None
+		comment_json = json.dumps(comment_dict)
+		headers = {}
+		headers['X-CSRFToken'] = request.COOKIES['csrftoken']
+		headers['content-type'] = 'application/json'
+		response = requests.put(settings.ALLOWED_HOSTS[0] + '/api/comments/'+str(comment_id)+'/', data=comment_json, cookies=request.COOKIES, headers=headers)
+		if response.status_code == 200:
+			messages.add_message(request, messages.SUCCESS, 'Comment edited.')	
+		elif response.status_code == 201:
+			messages.add_message(request, messages.SUCCESS, 'Comment edited.')	
+		elif response.status_code == 403:
+			messages.add_message(request, messages.ERROR, 'You are not authorized to post this comment.')	
+		else:
+			print(response.content)
+			messages.add_message(request, messages.ERROR, 'An error has occurred while posting this comment. Please contact your administrator.')	
+		return redirect('/works/'+str(work_id))
+	else:
+		if request.user.is_authenticated:
+			response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/comments/'+str(comment_id))
+			comment = response.json()
+			return render(request, 'comment_form.html', {
+				'comment': comment})
+		else:
+			messages.add_message(request, messages.ERROR, 'You must log in to perform this action.')	
+			return redirect('/login')
+
 
 def bookmarks(request):	
 	response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/bookmarks/')
