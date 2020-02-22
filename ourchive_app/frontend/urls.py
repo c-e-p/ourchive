@@ -21,5 +21,6 @@ urlpatterns = [
     path('works/<int:work_id>/chapters/<int:chapter_id>/comments', views.render_comments),
     path('works/<int:work_id>/chapters/<int:chapter_id>/comments/new', views.create_chapter_comment),
     path('works/<int:work_id>/chapters/<int:chapter_id>/comments/<int:comment_id>/edit', views.edit_chapter_comment),
+    path('works/<int:work_id>/chapters/<int:chapter_id>/comments/<int:comment_id>/delete', views.delete_chapter_comment),
     path('upload-test', views.upload_file)
 ]

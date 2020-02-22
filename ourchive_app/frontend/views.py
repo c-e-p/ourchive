@@ -405,6 +405,19 @@ def edit_chapter_comment(request, work_id, chapter_id, comment_id):
 			messages.add_message(request, messages.ERROR, 'You must log in to perform this action.')	
 			return redirect('/login')
 
+def delete_chapter_comment(request, work_id, chapter_id, comment_id):
+	headers = {}
+	headers['X-CSRFToken'] = request.COOKIES['csrftoken']
+	headers['content-type'] = 'application/json'
+	response = requests.delete(settings.ALLOWED_HOSTS[0] + '/api/comments/'+str(comment_id)+'/', cookies=request.COOKIES, headers=headers)
+	if response.status_code == 204:
+		messages.add_message(request, messages.SUCCESS, 'Comment deleted.')	
+	elif response.status_code == 403:
+		messages.add_message(request, messages.ERROR, 'You are not authorized to delete this comment.')	
+	else:
+		messages.add_message(request, messages.ERROR, 'An error has occurred while deleting this comment. Please contact your administrator.')	
+	return redirect('/works/'+str(work_id))
+
 
 def bookmarks(request):	
 	response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/bookmarks/')
