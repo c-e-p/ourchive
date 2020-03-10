@@ -33,14 +33,22 @@
 	    <hr/>
 	    <div class="uk-grid-small uk-child-width-auto" uk-grid>
 	        <div>
-	             <button class="uk-button uk-button-text" type="button" uk-toggle="target: #chapter-{{chapter.id}}-comments">{{ comments.count}} Comments</button>    		
+	             <button class="uk-button uk-button-text" type="button" uk-toggle="target: #bookmark-{{bookmark.id}}-comments">{{ comments.count}} Comments</button>    		
 	        </div>
 	    </div>
 	    <div class="uk-grid-small uk-child-width-auto" uk-grid>
-	        <div id="chapter-{{chapter.id}}-comments" hidden>
-	        	{% include "comments.html" %}
+	        <div id="bookmark-{{bookmark.id}}-comments" hidden>
+	        	{% include "bookmark_comments.html" %}
 	        </div>
 	    </div>
+	    <div id="bookmark-{{bookmark.id}}-new">
+            <form action="/bookmarks/{{bookmark.id}}/comments/new" method="post">
+                {% csrf_token %}
+                <input type="hidden" id="bookmark" name="bookmark" value="{{ bookmark.id }}">
+                <textarea class="uk-textarea" id="text" name="text"></textarea>
+                <button class="uk-button uk-button-default">Post Comment</button>
+            </form>
+        </div>
 	</article>
 	</div>
 {% endblock %}

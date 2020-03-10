@@ -155,6 +155,15 @@ class BookmarkCommentDetail(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
+class BookmarkPrimaryCommentDetail(generics.ListCreateAPIView):
+    serializer_class = BookmarkCommentSerializer
+    permission_classes = [IsOwnerOrReadOnly]
+    def get_queryset(self):
+        return BookmarkComment.objects.get_queryset().order_by('id')
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
 class BookmarkCollectionList(generics.ListCreateAPIView):
     serializer_class = BookmarkCollectionSerializer
     permission_classes = [IsOwnerOrReadOnly]
@@ -171,7 +180,7 @@ class BookmarkCollectionDetail(generics.RetrieveUpdateDestroyAPIView):
 
 class CommentList(generics.ListCreateAPIView):
     serializer_class = ChapterCommentSerializer
-    permission_classes = [IsOwnerOrReadOnly, UserAllowsComments, UserAllowsAnonComments]
+    permission_classes = [IsOwnerOrReadOnly]
     def get_queryset(self):
         return ChapterComment.objects.get_queryset().order_by('id')
 
@@ -181,7 +190,7 @@ class CommentList(generics.ListCreateAPIView):
 class CommentDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = ChapterComment.objects.get_queryset().order_by('id')
     serializer_class = ChapterCommentSerializer
-    permission_classes = [IsOwnerOrReadOnly, UserAllowsComments, UserAllowsAnonComments]
+    permission_classes = [IsOwnerOrReadOnly]
 
 class BookmarkCommentList(generics.ListCreateAPIView):
     serializer_class = BookmarkCommentSerializer
@@ -191,11 +200,6 @@ class BookmarkCommentList(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
-
-class BookmarkCommentDetail(generics.RetrieveUpdateDestroyAPIView):
-    queryset = BookmarkComment.objects.get_queryset().order_by('id')
-    serializer_class = BookmarkCommentSerializer
-    permission_classes = [IsOwnerOrReadOnly]
 
 class MessageList(generics.ListCreateAPIView):
     serializer_class = MessageSerializer

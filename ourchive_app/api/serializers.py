@@ -98,7 +98,6 @@ class ChapterCommentSerializer(serializers.HyperlinkedModelSerializer):
     id = serializers.ReadOnlyField()
     chapter = serializers.PrimaryKeyRelatedField(queryset=Chapter.objects.all(), required=False)
     parent_comment = serializers.PrimaryKeyRelatedField(queryset=ChapterComment.objects.all(), required=False, allow_null=True)
-    #bookmark = serializers.PrimaryKeyRelatedField(queryset=Bookmark.objects.all(), required=False)
     class Meta:
         model = ChapterComment
         fields = '__all__'
@@ -119,9 +118,8 @@ class BookmarkCommentSerializer(serializers.HyperlinkedModelSerializer):
     user = serializers.SlugRelatedField(queryset=User.objects.all(), slug_field='username', required=False, allow_null=True)
     replies = ReplySerializer(many=True, required=False, read_only=True)
     id = serializers.ReadOnlyField()
-    chapter = serializers.PrimaryKeyRelatedField(queryset=Chapter.objects.all(), required=False)
     parent_comment = serializers.PrimaryKeyRelatedField(queryset=BookmarkComment.objects.all(), required=False, allow_null=True)
-    #bookmark = serializers.PrimaryKeyRelatedField(queryset=Bookmark.objects.all(), required=False)
+    bookmark = serializers.PrimaryKeyRelatedField(queryset=Bookmark.objects.all(), required=False)
     class Meta:
         model = BookmarkComment
         fields = '__all__'

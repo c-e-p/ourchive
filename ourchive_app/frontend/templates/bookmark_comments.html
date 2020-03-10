@@ -1,0 +1,49 @@
+{% for comment in comments.results %}
+<li>
+<hr/>
+<article class="uk-comment">
+    <header class="uk-comment-header uk-grid-medium uk-flex-middle" uk-grid>
+        <div class="uk-width-auto">
+            <img class="uk-comment-avatar" src="images/avatar.jpg" width="80" height="80" alt="">
+        </div>
+        <div class="uk-width-expand">
+            {% if comment.user is not None %}
+            <h4 class="uk-comment-title uk-margin-remove"><a class="uk-link-reset" href="#">{{comment.user}}</a></h4>
+            {% else %}
+            <h4 class="uk-comment-title uk-margin-remove"><a class="uk-link-reset" href="#">Anonymous</a></h4>
+            {% endif %}
+            <ul class="uk-comment-meta uk-subnav uk-subnav-divider uk-margin-remove-top">
+                <li><button class="uk-button uk-button-text" type="button" uk-toggle="target: #comment-{{comment.id}}-reply">Reply</button></li>
+                {% if comment.user == request.user.username %}<li><a href="/bookmarks/{{bookmark.id}}/comments/{{ comment.id }}/edit"><span uk-icon="icon: file-edit"></span> </a></li>
+                <li><a href="/bookmarks/{{bookmark.id}}/comments/{{ comment.id }}/delete"><span uk-icon="icon: trash"></span> </a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </header>
+    <div class="uk-comment-body" uk-grid>
+        <div class="uk-width-1-1"><p>{{comment.text|safe }}</div>
+        <div id="comment-{{comment.id}}-reply" class="uk-width-1-1" hidden>
+                    <form action="/bookmarks/{{bookmark.id}}/comments/new" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" id="parent_comment" name="parent_comment" value="{{ comment.id }}">
+                        <textarea class="uk-textarea" id="text" name="text"></textarea>
+                        <button class="uk-button uk-button-default">Post Comment</button>
+                    </form>
+        </div>        
+    </div>    
+</article>
+{% if comment.replies %}
+    {% include "replies.html" with comments=comment.replies  %}
+{% endif %}
+</li>  
+{% endfor %}
+<ul>
+<div class="uk-child-width-1@m uk-child-width-1@s uk-text-center" uk-grid id="loadMoreComments">
+    <div>
+        <ul class="uk-pagination">
+            {% if comments.next is not None %}<li><a onclick="loadMoreComments('{{root}}/bookmarks/{{bookmark.id}}/comments?next={{comments.next}}', '{{bookmark.id}}')">Load More <span class="uk-margin-small-right" uk-pagination-next></span></a></li>{% endif %}
+        </ul>
+    </div>        
+</div>
+</ul>
+

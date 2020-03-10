@@ -350,6 +350,13 @@ def render_comments(request, work_id, chapter_id):
 	comments = response.json()
 	return render(request, 'comments.html', {'comments': comments, 'chapter': {'id': chapter_id}, 'work': {'id': work_id}})
 
+def render_bookmark_comments(request, pk):
+	next_url = request.GET.get('next', '')
+	offset_url = request.GET.get('offset', '')
+	response = requests.get(next_url+"&offset="+offset_url)
+	comments = response.json()
+	return render(request, 'bookmark_comments.html', {'comments': comments, 'bookmark': {'id': pk}})
+
 def create_chapter_comment(request, work_id, chapter_id):
 	if request.method == 'POST':
 		comment_dict = request.POST.copy()
@@ -419,6 +426,76 @@ def delete_chapter_comment(request, work_id, chapter_id, comment_id):
 	return redirect('/works/'+str(work_id))
 
 
+def create_bookmark_comment(request, pk):
+	if request.method == 'POST':
+		comment_dict = request.POST.copy()
+		if request.user.is_authenticated:
+			comment_dict["user"] = str(request.user)
+		else:
+			comment_dict["user"] = None
+		comment_json = json.dumps(comment_dict)
+		headers = {}
+		headers['X-CSRFToken'] = request.COOKIES['csrftoken']
+		headers['content-type'] = 'application/json'
+		response = requests.post(settings.ALLOWED_HOSTS[0] + '/api/bookmarkcomments/', data=comment_json, cookies=request.COOKIES, headers=headers)
+		if response.status_code == 200:
+			messages.add_message(request, messages.SUCCESS, 'Comment posted.')	
+		elif response.status_code == 201:
+			messages.add_message(request, messages.SUCCESS, 'Comment posted.')	
+		elif response.status_code == 403:
+			messages.add_message(request, messages.ERROR, 'You are not authorized to post this comment.')	
+		else:
+			print(response.content)
+			messages.add_message(request, messages.ERROR, 'An error has occurred while posting this comment. Please contact your administrator.')	
+		return redirect('/bookmarks/'+str(pk))
+
+def edit_bookmark_comment(request, pk, comment_id):
+	if request.method == 'POST':
+		comment_dict = request.POST.copy()
+		comment_dict["id"] = comment_id
+		if request.user.is_authenticated:
+			comment_dict["user"] = str(request.user)
+		else:
+			comment_dict["user"] = None
+		comment_json = json.dumps(comment_dict)
+		headers = {}
+		headers['X-CSRFToken'] = request.COOKIES['csrftoken']
+		headers['content-type'] = 'application/json'
+		response = requests.put(settings.ALLOWED_HOSTS[0] + '/api/bookmarkcomments/'+str(comment_id)+'/', data=comment_json, cookies=request.COOKIES, headers=headers)
+		if response.status_code == 200:
+			messages.add_message(request, messages.SUCCESS, 'Comment edited.')	
+		elif response.status_code == 201:
+			messages.add_message(request, messages.SUCCESS, 'Comment edited.')	
+		elif response.status_code == 403:
+			messages.add_message(request, messages.ERROR, 'You are not authorized to post this comment.')	
+		else:
+			print(response.content)
+			messages.add_message(request, messages.ERROR, 'An error has occurred while posting this comment. Please contact your administrator.')	
+		return redirect('/bookmarks/'+str(pk))
+	else:
+		if request.user.is_authenticated:
+			response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/bookmarkcomments/'+str(comment_id))
+			comment = response.json()
+			return render(request, 'comment_form.html', {
+				'comment': comment})
+		else:
+			messages.add_message(request, messages.ERROR, 'You must log in to perform this action.')	
+			return redirect('/login')
+
+def delete_bookmark_comment(request, pk, comment_id):
+	headers = {}
+	headers['X-CSRFToken'] = request.COOKIES['csrftoken']
+	headers['content-type'] = 'application/json'
+	response = requests.delete(settings.ALLOWED_HOSTS[0] + '/api/bookmarkcomments/'+str(comment_id)+'/', cookies=request.COOKIES, headers=headers)
+	if response.status_code == 204:
+		messages.add_message(request, messages.SUCCESS, 'Comment deleted.')	
+	elif response.status_code == 403:
+		messages.add_message(request, messages.ERROR, 'You are not authorized to delete this comment.')	
+	else:
+		messages.add_message(request, messages.ERROR, 'An error has occurred while deleting this comment. Please contact your administrator.')	
+	return redirect('/bookmarks/'+str(pk))
+
+
 def bookmarks(request):	
 	response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/bookmarks/')
 	bookmarks = response.json()['results']
@@ -433,6 +510,7 @@ def bookmark(request, pk):
 	response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/bookmarks/'+str(pk))
 	bookmark = response.json()
 	response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/bookmarks/'+str(pk)+'/comments')
+	print(response.content)
 	comments = response.json()
 	return render(request, 'bookmark.html', {'bookmark': bookmark, 'work': bookmark['work'] if 'work' in bookmark else {}, 'comments': comments})
 
