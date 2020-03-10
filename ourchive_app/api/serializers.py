@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User, Group, AnonymousUser
 from rest_framework import serializers
 from rest_framework_recursive.fields import RecursiveField
-from api.models import Work, Tag, Chapter, TagType, WorkType, Bookmark, BookmarkCollection, Comment, Message, NotificationType, Notification, OurchiveSetting
+from api.models import Work, Tag, Chapter, TagType, WorkType, Bookmark, BookmarkCollection, ChapterComment, BookmarkComment, Message, NotificationType, Notification, OurchiveSetting
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     work_set = serializers.HyperlinkedRelatedField(many=True, view_name='work-detail', read_only=True)
@@ -89,30 +89,53 @@ class ReplySerializer(serializers.HyperlinkedModelSerializer):
     replies = RecursiveField(many=True, required=False)
     id = serializers.ReadOnlyField()
     class Meta:
-        model = Comment
+        model = ChapterComment
         fields = '__all__'
 
-class CommentSerializer(serializers.HyperlinkedModelSerializer):
+class ChapterCommentSerializer(serializers.HyperlinkedModelSerializer):
     user = serializers.SlugRelatedField(queryset=User.objects.all(), slug_field='username', required=False, allow_null=True)
     replies = ReplySerializer(many=True, required=False, read_only=True)
     id = serializers.ReadOnlyField()
     chapter = serializers.PrimaryKeyRelatedField(queryset=Chapter.objects.all(), required=False)
-    parent_comment = serializers.PrimaryKeyRelatedField(queryset=Comment.objects.all(), required=False, allow_null=True)
+    parent_comment = serializers.PrimaryKeyRelatedField(queryset=ChapterComment.objects.all(), required=False, allow_null=True)
     #bookmark = serializers.PrimaryKeyRelatedField(queryset=Bookmark.objects.all(), required=False)
     class Meta:
-        model = Comment
+        model = ChapterComment
         fields = '__all__'
 
     def update(self, comment, validated_data):
         if isinstance(validated_data['user'], AnonymousUser):
             validated_data.pop('user')
-        Comment.objects.filter(id=comment.id).update(**validated_data)        
-        return Comment.objects.filter(id=comment.id).first()
+        ChapterComment.objects.filter(id=comment.id).update(**validated_data)        
+        return ChapterComment.objects.filter(id=comment.id).first()
 
     def create(self, validated_data):
         if isinstance(validated_data['user'], AnonymousUser):
             validated_data.pop('user')
-        comment = Comment.objects.create(**validated_data)
+        comment = ChapterComment.objects.create(**validated_data)
+        return comment
+
+class BookmarkCommentSerializer(serializers.HyperlinkedModelSerializer):
+    user = serializers.SlugRelatedField(queryset=User.objects.all(), slug_field='username', required=False, allow_null=True)
+    replies = ReplySerializer(many=True, required=False, read_only=True)
+    id = serializers.ReadOnlyField()
+    chapter = serializers.PrimaryKeyRelatedField(queryset=Chapter.objects.all(), required=False)
+    parent_comment = serializers.PrimaryKeyRelatedField(queryset=BookmarkComment.objects.all(), required=False, allow_null=True)
+    #bookmark = serializers.PrimaryKeyRelatedField(queryset=Bookmark.objects.all(), required=False)
+    class Meta:
+        model = BookmarkComment
+        fields = '__all__'
+
+    def update(self, comment, validated_data):
+        if isinstance(validated_data['user'], AnonymousUser):
+            validated_data.pop('user')
+        BookmarkComment.objects.filter(id=comment.id).update(**validated_data)        
+        return BookmarkComment.objects.filter(id=comment.id).first()
+
+    def create(self, validated_data):
+        if isinstance(validated_data['user'], AnonymousUser):
+            validated_data.pop('user')
+        comment = BookmarkComment.objects.create(**validated_data)
         return comment
 
 class MessageSerializer(serializers.HyperlinkedModelSerializer):
@@ -127,7 +150,7 @@ class ChapterSerializer(serializers.HyperlinkedModelSerializer):
     work = serializers.PrimaryKeyRelatedField(queryset=Work.objects.all())
     user = serializers.HyperlinkedRelatedField(view_name='user-detail', format='html', read_only=True)
     id = serializers.IntegerField(read_only=True)
-    comments = CommentSerializer(many=True, required=False, read_only=True)
+    comments = ChapterCommentSerializer(many=True, required=False, read_only=True)
     word_count = serializers.IntegerField(read_only=True)
     class Meta:
         model = Chapter

@@ -171,7 +171,7 @@ def edit_work(request, id):
 		comments_permitted = work_dict["comments_permitted"]
 		work_dict["comments_permitted"] = comments_permitted == "All" or comments_permitted == "Registered users only"
 		work_dict["anon_comments_permitted"] = comments_permitted == "All"
-		redirect_toc = work_dict.pop('redirect_toc')
+		redirect_toc = work_dict.pop('redirect_toc')[0]
 		work_dict = work_dict.dict()
 		work_dict["user"] = str(request.user)
 		work_json = json.dumps(work_dict)
@@ -425,7 +425,6 @@ def bookmarks(request):
 	response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/tagtypes')
 	tag_types = response.json()
 	for bookmark in bookmarks:
-		print(bookmark)
 		tags = group_tags(tag_types['results'], bookmark['tags']) if 'tags' in bookmark else {}
 		bookmark['tags'] = tags
 	return render(request, 'bookmarks.html', {'bookmarks': bookmarks})

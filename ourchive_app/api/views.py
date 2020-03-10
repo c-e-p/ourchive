@@ -1,10 +1,10 @@
 from django.shortcuts import render
 from django.contrib.auth.models import User, Group
 from rest_framework import viewsets, generics
-from api.serializers import UserSerializer, GroupSerializer, WorkSerializer, TagSerializer, BookmarkCollectionSerializer, ChapterSerializer, TagTypeSerializer, WorkTypeSerializer, BookmarkSerializer, CommentSerializer, MessageSerializer, NotificationSerializer, NotificationTypeSerializer, OurchiveSettingSerializer
-from api.models import Work, Tag, Chapter, TagType, WorkType, Bookmark, BookmarkCollection, Comment, Message, Notification, NotificationType, OurchiveSetting
+from api.serializers import UserSerializer, GroupSerializer, WorkSerializer, TagSerializer, BookmarkCollectionSerializer, ChapterSerializer, TagTypeSerializer, WorkTypeSerializer, BookmarkSerializer, ChapterCommentSerializer, BookmarkCommentSerializer, MessageSerializer, NotificationSerializer, NotificationTypeSerializer, OurchiveSettingSerializer
+from api.models import Work, Tag, Chapter, TagType, WorkType, Bookmark, BookmarkCollection, ChapterComment, BookmarkComment, Message, Notification, NotificationType, OurchiveSetting
 from rest_framework import generics, permissions
-from api.permissions import IsOwnerOrReadOnly, MessagePermissions, IsOwner, IsAdminOrReadOnly, IsUser, RegistrationPermitted
+from api.permissions import IsOwnerOrReadOnly, UserAllowsComments, UserAllowsAnonComments, MessagePermissions, IsOwner, IsAdminOrReadOnly, IsUser, RegistrationPermitted
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.reverse import reverse
@@ -23,7 +23,7 @@ def api_root(request, format=None):
         'worktypes': reverse('work-type-list', request=request, format=format),
         'bookmarks': reverse('bookmark-list', request=request, format=format),
         'bookmarkcollections': reverse('bookmark-collection-list', request=request, format=format),
-        'comments': reverse('comment-list', request=request, format=format),
+        'chaptercomments': reverse('chapter-comment-list', request=request, format=format),
         'messages': reverse('message-list', request=request, format=format),
         'notifications': reverse('notification-list', request=request, format=format),
         'notificationtypes': reverse('notification-type-list', request=request, format=format),
@@ -124,10 +124,10 @@ class WorkChapterDetail(generics.ListCreateAPIView):
         serializer.save(user=self.request.user)
 
 class ChapterCommentDetail(generics.ListCreateAPIView):
-    serializer_class = CommentSerializer
-    permission_classes = [IsOwnerOrReadOnly]
+    serializer_class = ChapterCommentSerializer
+    permission_classes = [IsOwnerOrReadOnly, UserAllowsComments, UserAllowsAnonComments]
     def get_queryset(self):
-        return Comment.objects.filter(chapter__id=self.kwargs['chapter_id']).order_by('id')
+        return ChapterComment.objects.filter(chapter__id=self.kwargs['pk']).order_by('id')
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
@@ -147,10 +147,10 @@ class BookmarkDetail(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsOwnerOrReadOnly]
 
 class BookmarkCommentDetail(generics.ListCreateAPIView):
-    serializer_class = CommentSerializer
+    serializer_class = BookmarkCommentSerializer
     permission_classes = [IsOwnerOrReadOnly]
     def get_queryset(self):
-        return Comment.objects.filter(bookmark__id=self.kwargs['bookmark_id']).order_by('id')
+        return BookmarkComment.objects.filter(bookmark__id=self.kwargs['pk']).order_by('id')
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
@@ -170,17 +170,31 @@ class BookmarkCollectionDetail(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsOwnerOrReadOnly]
 
 class CommentList(generics.ListCreateAPIView):
-    serializer_class = CommentSerializer
-    permission_classes = [IsOwnerOrReadOnly]
+    serializer_class = ChapterCommentSerializer
+    permission_classes = [IsOwnerOrReadOnly, UserAllowsComments, UserAllowsAnonComments]
     def get_queryset(self):
-        return Comment.objects.get_queryset().order_by('id')
+        return ChapterComment.objects.get_queryset().order_by('id')
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
 class CommentDetail(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Comment.objects.get_queryset().order_by('id')
-    serializer_class = CommentSerializer
+    queryset = ChapterComment.objects.get_queryset().order_by('id')
+    serializer_class = ChapterCommentSerializer
+    permission_classes = [IsOwnerOrReadOnly, UserAllowsComments, UserAllowsAnonComments]
+
+class BookmarkCommentList(generics.ListCreateAPIView):
+    serializer_class = BookmarkCommentSerializer
+    permission_classes = [IsOwnerOrReadOnly]
+    def get_queryset(self):
+        return BookmarkComment.objects.get_queryset().order_by('id')
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+class BookmarkCommentDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = BookmarkComment.objects.get_queryset().order_by('id')
+    serializer_class = BookmarkCommentSerializer
     permission_classes = [IsOwnerOrReadOnly]
 
 class MessageList(generics.ListCreateAPIView):

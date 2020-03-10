@@ -89,9 +89,9 @@ class Chapter(models.Model):
     class Meta:
         ordering = ['number']
 
-class Comment(models.Model):
+class BookmarkComment(models.Model):
 
-    __tablename__ = 'comments'
+    __tablename__ = 'bookmark_comments'
 
     text = models.TextField(null=True, blank=True)
 
@@ -102,7 +102,39 @@ class Comment(models.Model):
     )
 
     parent_comment = models.ForeignKey(
-        'Comment',
+        'BookmarkComment',
+        on_delete=models.CASCADE,
+         related_name='replies',
+         null=True,
+         blank=True
+    )
+
+    bookmark = models.ForeignKey(
+        'Bookmark',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True
+    )
+
+    def __repr__(self):
+        return '<Comment: {}>'.format(self.id)
+    def __str__(self):
+        return self.text if self.text is not None else str(id)
+
+class ChapterComment(models.Model):
+
+    __tablename__ = 'chapter_comments'
+
+    text = models.TextField(null=True, blank=True)
+
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        null=True, blank=True
+    )
+
+    parent_comment = models.ForeignKey(
+        'ChapterComment',
         on_delete=models.CASCADE,
          related_name='replies',
          null=True,
@@ -115,13 +147,6 @@ class Comment(models.Model):
         null=True,
         blank=True,
         related_name='comments'
-    )
-
-    bookmark = models.ForeignKey(
-        'Bookmark',
-        on_delete=models.CASCADE,
-        null=True,
-        blank=True
     )
 
     def __repr__(self):
