@@ -120,7 +120,7 @@ def edit_chapter(request, work_id, id):
 		if 'files[]' in request.FILES:
 			service = FileHelperService.get_service()
 			if service is not None:
-				service.handle_uploaded_file(request.FILES['files[]'], request.FILES['files[]'].name)
+				service.handle_uploaded_file(request.FILES['files[]'], request.FILES['files[]'].name, request.user.username)
 				return HttpResponse(request.FILES['files[]'].name)
 			else:
 				messages.add_message(request, messages.ERROR, 'This instance is trying to use a file processor not supported by file helpers. Please contact your administrator.')	

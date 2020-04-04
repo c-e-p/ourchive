@@ -61,6 +61,8 @@ MEDIA_URL = '/files/'
 
 FILE_PROCESSOR = 'local'
 
+S3_BUCKET = 'ourchive_media'
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
