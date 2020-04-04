@@ -1,5 +1,7 @@
 from django.urls import path, include
 from . import views
+from django.conf.urls.static import static
+from django.conf import settings
 
 urlpatterns = [
 	path('', views.index),
@@ -27,4 +29,4 @@ urlpatterns = [
     path('works/<int:work_id>/chapters/<int:chapter_id>/comments/<int:comment_id>/edit', views.edit_chapter_comment),
     path('works/<int:work_id>/chapters/<int:chapter_id>/comments/<int:comment_id>/delete', views.delete_chapter_comment),
     path('upload-test', views.upload_file)
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

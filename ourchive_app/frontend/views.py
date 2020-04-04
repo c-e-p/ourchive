@@ -6,7 +6,7 @@ from django.contrib.auth import authenticate, logout, login
 from django.contrib import messages
 from django.contrib.auth.models import User
 import json
-from . import file_helpers
+from .file_helpers import FileHelperService
 import threading
 from django.http import HttpResponse
 
@@ -107,7 +107,10 @@ def new_chapter(request, work_id):
 			print(response.json())
 			return redirect('/works/'+str(work_id))
 	elif request.user.is_authenticated:
-		return edit_chapter(request, work_id, request.POST['chapter_id'])
+		if 'chapter_id' in request.POST:
+			return edit_chapter(request, work_id, request.POST['chapter_id'])
+		else:
+			return edit_chapter(request, work_id, None)
 	else:
 		messages.add_message(request, messages.ERROR, 'You must log in to post a new work.')	
 		return redirect('/login')
@@ -115,8 +118,13 @@ def new_chapter(request, work_id):
 def edit_chapter(request, work_id, id):
 	if request.method == 'POST':
 		if 'files[]' in request.FILES:
-			file_helpers.handle_uploaded_file(request.FILES['files[]'], request.FILES['files[]'].name)
-			return HttpResponse(request.FILES['files[]'].name)
+			service = FileHelperService.get_service()
+			if service is not None:
+				service.handle_uploaded_file(request.FILES['files[]'], request.FILES['files[]'].name)
+				return HttpResponse(request.FILES['files[]'].name)
+			else:
+				messages.add_message(request, messages.ERROR, 'This instance is trying to use a file processor not supported by file helpers. Please contact your administrator.')	
+				return HttpResponse('')
 		else:
 			headers = {}
 			headers['X-CSRFToken'] = request.COOKIES['csrftoken']
@@ -127,8 +135,6 @@ def edit_chapter(request, work_id, id):
 			elif response.status_code == 403:
 				messages.add_message(request, messages.ERROR, 'You are not authorized to update this chapter.')	
 			else:
-				print(response.status_code)
-				print(response.content)
 				messages.add_message(request, messages.ERROR, 'An error has occurred while updating this chapter. Please contact your administrator.')	
 			return redirect('/works/'+str(work_id))
 	else:
