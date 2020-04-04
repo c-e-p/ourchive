@@ -38,6 +38,24 @@ class Work(models.Model):
     def __str__(self):
         return self.title
 
+class Fingerguns(models.Model):
+
+    __tablename__ = 'fingerguns'
+
+    uid = models.UUIDField(default=uuid.uuid4, editable=False)
+    count = models.BigIntegerField(default=0)
+
+    user = models.ForeignKey(
+        Work,
+        on_delete=models.CASCADE,
+    )
+
+    def __repr__(self):
+        return '<Fingerguns: {}>'.format(self.count)
+
+    def __str__(self):
+        return self.title
+
 class WorkType(models.Model):
 
     __tablename__ = 'work_types'
