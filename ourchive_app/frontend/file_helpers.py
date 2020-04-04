@@ -3,6 +3,7 @@ import logging
 import boto3
 from botocore.exceptions import ClientError
 import uuid
+import os
 
 class FileHelperService:
 	def get_service():
@@ -15,18 +16,22 @@ class FileHelperService:
 
 class FileCommon:
 	def get_filename(self, original_name):
-		uuid = str(uuid.uuid4())
-		return uuid + '_' + original_name
+		original_name = ''.join(e for e in original_name if e.isalnum())
+		uuid_str = str(uuid.uuid4())
+		return uuid_str + '_' + original_name
 
 class LocalFileHelper:	
 	common = FileCommon()
 
 	def handle_uploaded_file(self, file, name, username):
-		filename = common.get_filename(file)
+		filename = self.common.get_filename(name)
 		content_type = 'image/' if 'image' in file.content_type else 'audio/' if 'audio' in file.content_type else ''
-		with open(settings.MEDIA_ROOT + '/' + content_type + username + "/" + filename, 'wb+') as destination:
+		full_name = settings.MEDIA_ROOT + '/' + content_type + username + "/" + filename
+		os.makedirs(os.path.dirname(full_name), exist_ok=True)
+		with open(full_name, 'wb+') as destination:
 			for chunk in file.chunks():
 				destination.write(chunk)
+		return content_type + username + "/" + filename
 
 	def handle_file_serve(self, prepend, filename):
 		some_file = self.model.objects.get(imported_file=filename)
@@ -36,6 +41,8 @@ class LocalFileHelper:
 		return response
 
 class S3FileHelper:
+	common = FileCommon()
+
 	def handle_uploaded_file(self, file, name, username):
 		"""Upload a file to an S3 bucket
 
@@ -45,9 +52,10 @@ class S3FileHelper:
 		"""
 		# Upload the file
 		s3_client = boto3.client('s3')
+		filename = self.common.get_filename(file.name)
 		try:
-			response = s3_client.upload_fileobj(file, settings.S3_BUCKET, file.name)
+			response = s3_client.upload_fileobj(file, settings.S3_BUCKET, filename)
 		except ClientError as e:
 			logging.error(e)
-			return False
-		return True
+			return filename
+		return None

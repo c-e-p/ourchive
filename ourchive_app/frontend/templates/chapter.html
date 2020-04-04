@@ -29,8 +29,8 @@
 	    <div><span class="uk-text-medium">{{ chapter.notes }}</span></div>
 	</div>
    	<hr/>	
-	{% if chapter.image_url %}<p><img src="{{ MEDIA_URL }}image/{{ chapter.image_url }}" alt="{{ chapter.image_alt_text }}"/></p>{% endif %}
-	{% if chapter.audio_url %}<p><audio src="{{ MEDIA_URL }}audio/{{ chapter.audio_url }}" controls></audio></p>{% endif %}
+	{% if chapter.image_url %}<p><img src="{{ MEDIA_URL }}{{ chapter.image_url }}" alt="{{ chapter.image_alt_text }}"/></p>{% endif %}
+	{% if chapter.audio_url %}<p><audio src="{{ MEDIA_URL }}{{ chapter.audio_url }}" controls></audio></p>{% endif %}
 	{% if chapter.text %}<span class="uk-text-medium">{% autoescape off %}{{ chapter.text }}{% endautoescape %}</span>{% endif %}
 	<hr/>
 	<div class="uk-grid-small uk-child-width-auto" uk-grid>
