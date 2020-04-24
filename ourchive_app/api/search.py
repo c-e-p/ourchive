@@ -35,6 +35,24 @@ class ElasticSearchServiceBuilder:
 class PostgresProvider:
 	def init_provider():
 		print('init provider')
+	def search_works():
+		print('search works')
+	def search_bookmarks():
+		print('search bookmarks')
+	def search_users():
+		print('search users')
+	def filter_results():
+		# word count
+		# audio length
+		# chapter count
+		# specific tags
+		# complete		
+		print('perform filtered/faceted search')
+	def get_facets():
+		# get count by work type
+		# get count by tag type
+		# get count by admin tags
+		print('get available facets')
 
 class PostgresServiceBuilder:
     def __init__(self):

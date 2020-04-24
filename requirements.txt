@@ -11,3 +11,9 @@ webdriver_manager
 pyyaml
 djangorestframework-recursive
 boto3
+wheel
+ebooklib
+pyyaml
+Pillow
+mutagen
+pydub
