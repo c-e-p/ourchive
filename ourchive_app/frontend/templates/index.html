@@ -31,15 +31,23 @@
 	            <li class="uk-active"><a href="/">Home</a></li>
 	            <li><a href="/works">Works</a></li>
 	            <li><a href="/bookmarks">Bookmarks</a></li>
-	            <li><a href="/search">Search</a></li>
+	            <li><a href="/search">Search Results</a></li>
 	        </ul>
-	    </div>
+	    </div>	    
 	    <div class="uk-navbar-right">
-
+	    	<div>
+	            <a class="uk-navbar-toggle" uk-search-icon href="#"></a>
+	            <div class="uk-drop" uk-drop="mode: click; pos: left-center; offset: 0">
+	                <form class="uk-search uk-search-navbar uk-width-1-1" action="/search/" method="post">
+	                	{% csrf_token %}
+	                    <input class="uk-search-input" type="search" placeholder="Search..." autofocus>
+	                </form>
+	            </div>
+	        </div>
 	        <ul class="uk-navbar-nav uk-visible@s">
-	            {% if not request.user.is_authenticated %}<li class="uk-active"><a href="/login">Login</a></li>{% endif %}
-	            {% if not request.user.is_authenticated %}<li class="uk-active"><a href="/register">Register</a></li>{% endif %}
-	            {% if request.user.is_authenticated %}<li class="uk-active"><a href="/logout">Logout</a></li>{% endif %}
+	            {% if not request.user.is_authenticated %}<li class="uk-active"><a href="/login"><span uk-icon="icon: sign-in; ratio:1.25" title="Sign in"></a></li>{% endif %}
+	            {% if not request.user.is_authenticated %}<li class="uk-active"><a href="/register"><span uk-icon="icon: user; ratio:1.25" title="Register"></a></a></li>{% endif %}
+	            {% if request.user.is_authenticated %}<li class="uk-active"><a href="/logout"><span uk-icon="icon: sign-out; ratio:1.25" title="Sign out"></span></a></li>{% endif %}
 	        </ul>
     </div>
 
@@ -50,10 +58,10 @@
 				<li class="uk-active"><a href="/">Home</a></li>
 	            <li><a href="/works">Works</a></li>
 	            <li><a href="/bookmarks">Bookmarks</a></li>
-	            <li><a href="/search">Search</a></li>
-	            {% if not request.user.is_authenticated %}<li class="uk-active"><a href="/login">Login</a></li>{% endif %}
-	            {% if not request.user.is_authenticated %}<li class="uk-active"><a href="/register">Register</a></li>{% endif %}
-	            {% if request.user.is_authenticated %}<li class="uk-active"><a href="/logout">Logout</a></li>{% endif %}
+	            <li><a href="/search">Search Results</a></li>
+	            {% if not request.user.is_authenticated %}<li class="uk-active"><a href="/login"><span uk-icon="icon: sign-in; ratio:1.25" title="Sign in"></a></li>{% endif %}
+	            {% if not request.user.is_authenticated %}<li class="uk-active"><a href="/register"><span uk-icon="icon: user; ratio:1.25" title="Register"></a></a></li>{% endif %}
+	            {% if request.user.is_authenticated %}<li class="uk-active"><a href="/logout"><span uk-icon="icon: sign-out; ratio:1.25" title="Sign out"></span></a></li>{% endif %}
 			</ul>
 		</div>
 	</div>

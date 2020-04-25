@@ -32,7 +32,23 @@ def user_name(request, username):
 	return render(request, 'user.html', {'user': user})
 
 def search(request):
-	return render(request, 'search.html', {})
+	response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/works/')
+	works = response.json()['results']
+	response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/tagtypes')
+	tag_types = response.json()
+	for work in works:
+		tags = group_tags(tag_types['results'], work['tags']) if 'tags' in work else {}
+		work['tags'] = tags
+
+	response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/bookmarks/')
+	bookmarks = response.json()['results']
+	response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/tagtypes')
+	tag_types = response.json()
+	for bookmark in bookmarks:
+		tags = group_tags(tag_types['results'], bookmark['tags']) if 'tags' in bookmark else {}
+		bookmark['tags'] = tags
+	return render(request, 'search_results.html', {'works': works, 'bookmarks': bookmarks,
+		'root': settings.ALLOWED_HOSTS[0]})
 
 @require_http_methods(["GET"])
 def works(request):

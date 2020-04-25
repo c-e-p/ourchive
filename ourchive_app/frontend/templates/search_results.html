@@ -1,0 +1,178 @@
+{% extends 'index.html' %}
+{% block content %}	
+	<div uk-grid>
+		<div class="uk-width-1">
+			<ul class="uk-subnav uk-subnav-pill uk-subnav-divider uk-flex uk-flex-right" uk-switcher="animation: uk-animation-fade;connect: .search-switcher">
+	            <li><a href="#" id="works_tab">Works</a></li>
+	            <li><a href="#" id="bookmarks_tab">Bookmarks</a></li>
+	            <li><a href="#" id="tags_tab">Tags</a></li>
+	            <li><a href="#" id="users_tab">Users</a></li>
+        	</ul>
+		</div>
+		<div class="uk-width-1">		
+		<ul class="uk-switcher uk-margin search-switcher">
+			<li> 
+				<div uk-grid>
+	    		<div class="uk-width-1-4"> 
+		        	<div class="uk-card uk-card-default uk-card-body">
+		        	<dl class="uk-description-list uk-description-list-divider uk-list-striped">
+
+						<dt><span class="uk-text-bold">Work Type</span></dt>
+					    <dd>
+					    	<div class="uk-child-width-1 uk-grid uk-grid-small uk-margin"><label><input class="uk-checkbox" type="checkbox" checked> A</label>
+				            <label><input class="uk-checkbox" type="checkbox"> B</label></div>
+				        </dd>	
+
+				        <dt><span class="uk-text-bold">Word Count: </span></dt>
+					    <dd>					    	
+					    	<div class="uk-child-width-1 uk-grid uk-grid-small uk-margin">
+				            	<label><input class="uk-checkbox" type="checkbox"> Under 20,000</label>
+				            	<label><input class="uk-checkbox" type="checkbox"> 20,000 - 50,000</label>
+				            	<label><input class="uk-checkbox" type="checkbox"> 50,000 - 80,000</label>
+				            	<label><input class="uk-checkbox" type="checkbox"> 80,000 - 100,000</label>
+				            	<label><input class="uk-checkbox" type="checkbox"> 100,000+</label>
+				            	<label>Custom: <input class="uk-input uk-form-width-small uk-form-small" type="text"></label>
+				        	</div>
+				        </dd>	
+			    		<dt><span class="uk-text-bold">Audio length: </span></dt>
+					    <dd>
+					    	<div class="uk-child-width-1 uk-grid uk-grid-small uk-margin">
+				            	<label><input class="uk-checkbox" type="checkbox"> Under 30:00</label>
+				            	<label><input class="uk-checkbox" type="checkbox"> 30:00 - 1:00:00</label>
+				            	<label><input class="uk-checkbox" type="checkbox"> 1:00:00 - 2:00:00</label>
+				            	<label><input class="uk-checkbox" type="checkbox"> 2:00:00 - 3:00:00</label>
+				            	<label><input class="uk-checkbox" type="checkbox"> 3:00:00</label>
+				            	<label>Custom: <input class="uk-input uk-form-width-small uk-form-small" type="text"></label>
+				        	</div>
+				        </dd>
+					        <div class="uk-child-width-1 uk-grid uk-grid-small uk-margin">
+				            	<label><input class="uk-checkbox" type="checkbox"> <span class="uk-text-bold">Complete?</span></label>
+				            </div>				        
+
+				        <dt><span class="uk-text-bold">Tag Group 1</span></dt>
+					    <dd>
+					    	<div class="uk-child-width-1 uk-grid uk-grid-small uk-margin">
+					    		<label><input class="uk-checkbox" type="checkbox" checked> A</label>
+				            	<label><input class="uk-checkbox" type="checkbox"> B</label>
+				            	<label><input class="uk-checkbox" type="checkbox"> C</label>
+				            	<label><input class="uk-checkbox" type="checkbox"> D</label>
+				            	<label><input class="uk-checkbox" type="checkbox"> E</label>
+				            	<label><input class="uk-checkbox" type="checkbox"> F</label>
+				            	<label><input class="uk-checkbox" type="checkbox"> G</label>
+				        	</div>
+				        </dd>	
+
+				        <dt><span class="uk-text-bold">Tag Group 2</span></dt>
+					    <dd>
+					    	<div class="uk-child-width-1 uk-grid uk-grid-small uk-margin">
+					    		<label><input class="uk-checkbox" type="checkbox" checked> A</label>
+				            	<label><input class="uk-checkbox" type="checkbox"> B</label>
+				            	<label><input class="uk-checkbox" type="checkbox"> C</label>
+				            	<label><input class="uk-checkbox" type="checkbox"> D</label>
+				            	<label><input class="uk-checkbox" type="checkbox"> E</label>
+				            	<label><input class="uk-checkbox" type="checkbox"> F</label>
+				            	<label><input class="uk-checkbox" type="checkbox"> G</label>
+				        	</div>
+				        </dd>			        
+					</dl>
+				</div>
+			</div>
+		    <div class="uk-width-3-4">
+		    	<div class="uk-margin">
+			        <div uk-form-custom="target: > * > span:last-child">
+			            <select>
+			                <option value="">Sort by...</option>
+			                <option value="2">Fingerguns</option>
+			                <option value="3">Newest</option>
+			                <option value="4">Oldest</option>
+			            </select>
+			            <span class="uk-link">
+			                <span uk-icon="icon: plus"></span>
+			                <span></span>
+			            </span>
+			        </div>
+			    </div>			
+
+				{% for work in works %} 
+					{% include "work_tile.html" %}     
+			    {% endfor %}
+			</div>
+			</div>
+		</li>
+
+		<li> 
+			<div uk-grid>
+	    		<div class="uk-width-1-4"> 
+		        	<div class="uk-card uk-card-default uk-card-body">
+		        	<dl class="uk-description-list uk-description-list-divider uk-list-striped">
+
+						<dt><span class="uk-text-bold">Bookmarks</span></dt>
+					    <dd>
+					    	<dl class="uk-description-list uk-description-list-divider">
+					    		<dt>Rating: </dt>
+							    <dd>
+							    	
+						            	<label><input class="uk-checkbox" type="checkbox"> 1</label>
+						            	<label><input class="uk-checkbox" type="checkbox"> 2</label>
+						            	<label><input class="uk-checkbox" type="checkbox"> 3</label>
+						            	<label><input class="uk-checkbox" type="checkbox"> 4</label>
+						            	<label><input class="uk-checkbox" type="checkbox"> 5</label>
+						        	
+						        </dd>				            	
+				        	</dl>
+				        	<div class="uk-inline">
+					        	<label><input class="uk-checkbox" type="checkbox"> Additional links?</label>
+					            <label>Theme: <input class="uk-input uk-form-width-small uk-form-small" type="text"></label>
+				        	</div>
+				        </dd>
+			    		
+				        <dt><span class="uk-text-bold">Tag Group 1</span></dt>
+					    <dd>
+					    	<div class="uk-child-width-1 uk-grid uk-grid-small uk-margin">
+					    		<label><input class="uk-checkbox" type="checkbox" checked> A</label>
+				            	<label><input class="uk-checkbox" type="checkbox"> B</label>
+				            	<label><input class="uk-checkbox" type="checkbox"> C</label>
+				            	<label><input class="uk-checkbox" type="checkbox"> D</label>
+				            	<label><input class="uk-checkbox" type="checkbox"> E</label>
+				            	<label><input class="uk-checkbox" type="checkbox"> F</label>
+				            	<label><input class="uk-checkbox" type="checkbox"> G</label>
+				        	</div>
+				        </dd>	
+
+				        <dt><span class="uk-text-bold">Tag Group 2</span></dt>
+					    <dd>
+					    	<div class="uk-child-width-1 uk-grid uk-grid-small uk-margin">
+					    		<label><input class="uk-checkbox" type="checkbox" checked> A</label>
+				            	<label><input class="uk-checkbox" type="checkbox"> B</label>
+				            	<label><input class="uk-checkbox" type="checkbox"> C</label>
+				            	<label><input class="uk-checkbox" type="checkbox"> D</label>
+				            	<label><input class="uk-checkbox" type="checkbox"> E</label>
+				            	<label><input class="uk-checkbox" type="checkbox"> F</label>
+				            	<label><input class="uk-checkbox" type="checkbox"> G</label>
+				        	</div>
+				        </dd>			        
+					</dl>
+				</div>
+			</div>
+			<div class="uk-width-3-4">
+				<div uk-form-custom="target: > * > span:last-child">
+		            <select>
+		                <option value="">Sort by...</option>
+		                <option value="2">Fingerguns</option>
+		                <option value="3">Newest</option>
+		                <option value="4">Oldest</option>
+		            </select>
+		            <span class="uk-link">
+		                <span uk-icon="icon: plus"></span>
+		                <span></span>
+		            </span>
+		        </div>
+		        {% for bookmark in bookmarks %} 
+					{% include "bookmark_tile.html" %}     
+			    {% endfor %}
+			</div>     
+		</li>
+	</ul>
+</div>
+</div>
+{% endblock %}

@@ -1,35 +1,8 @@
 {% extends 'index.html' %}
 {% block content %}	
-<div class="uk-child-width-1-2@s uk-grid-match" uk-grid>
+<div class="uk-child-width-1@s uk-grid-match" uk-grid>
 	{% for work in works %} 
-	<div>
-		<div class="uk-card uk-card-default">
-		    <div class="uk-card-header">
-		        <div class="uk-grid-small uk-flex-middle" uk-grid>
-		            <div class="uk-width-auto">
-		                <img class="uk-border-circle" width="40" height="40" alt="{{work.cover_alt_text}}" src="{{work.cover_url}}">
-		            </div>
-		            <div class="uk-width-expand">
-		                <a href="/works/{{work.id}}"><h3 class="uk-card-title uk-margin-remove-bottom">{{work.title}}</h3></a>
-		                <p class="uk-text-meta uk-margin-remove-top">{{ work.user }}</p>
-		            </div>
-		        </div>
-		    </div>
-		    <div class="uk-card-body">
-		        <p>{{ work.summary }}</p>
-			        {% for type, tag in work.tags.items %} 
-				        <dt>{{ type }}</dt>
-				        <dd>
-				        <span uk-icon="icon: tag"></span> {% for single_tag in tag %}<a href="{{single_tag.url}}" style="padding-left:5px;">{{ single_tag.text }}</a> {% endfor %}
-				        </dd>
-				    {% endfor %}
-		    </div>
-		    <div class="uk-card-footer">
-		        <a href="/works/{{work.id}}" class="uk-button uk-button-text">Read more</a>
-		    </div>
-
-		</div>  
-		</div>      
+		{% include "work_tile.html" %}     
     {% endfor %}
 </div>
 {% endblock %}
