@@ -16,5 +16,18 @@ class OurchiveSearch:
 	def do_search(self, **kwargs):
 		print('generic search')
 
+	def term_search(self, **kwargs):
+		# check object being searched (default all), then:
+		# multi match query on work
+		# multi match query on bookmark
+		# match query on user
+		# match query on tags
+		print('term search')
+
 	def facet_filter(self, **kwargs):
+		# check object being searched (default all), then:
+		# facet filter on work
+		# facet filter on bookmark
+		# facet filter on user
+		# facet filter on tags
 		print('facet filter')
