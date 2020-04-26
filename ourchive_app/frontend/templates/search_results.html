@@ -172,6 +172,86 @@
 			    {% endfor %}
 			</div>     
 		</li>
+
+		<li> 
+			<div uk-grid>
+	    		<div class="uk-width-1-4"> 
+		        	<div class="uk-card uk-card-default uk-card-body">
+		        	<dl class="uk-description-list uk-description-list-divider uk-list-striped">			    		
+				        <dt><span class="uk-text-bold">Tag Group 1</span></dt>
+					    <dd>
+					    	<div class="uk-child-width-1 uk-grid uk-grid-small uk-margin">
+					    		<label><input class="uk-checkbox" type="checkbox" checked> A</label>
+				            	<label><input class="uk-checkbox" type="checkbox"> B</label>
+				            	<label><input class="uk-checkbox" type="checkbox"> C</label>
+				            	<label><input class="uk-checkbox" type="checkbox"> D</label>
+				            	<label><input class="uk-checkbox" type="checkbox"> E</label>
+				            	<label><input class="uk-checkbox" type="checkbox"> F</label>
+				            	<label><input class="uk-checkbox" type="checkbox"> G</label>
+				        	</div>
+				        </dd>	
+
+				        <dt><span class="uk-text-bold">Tag Group 2</span></dt>
+					    <dd>
+					    	<div class="uk-child-width-1 uk-grid uk-grid-small uk-margin">
+					    		<label><input class="uk-checkbox" type="checkbox" checked> A</label>
+				            	<label><input class="uk-checkbox" type="checkbox"> B</label>
+				            	<label><input class="uk-checkbox" type="checkbox"> C</label>
+				            	<label><input class="uk-checkbox" type="checkbox"> D</label>
+				            	<label><input class="uk-checkbox" type="checkbox"> E</label>
+				            	<label><input class="uk-checkbox" type="checkbox"> F</label>
+				            	<label><input class="uk-checkbox" type="checkbox"> G</label>
+				        	</div>
+				        </dd>			        
+					</dl>
+				</div>
+			</div>
+			<div class="uk-width-3-4">
+				<div uk-form-custom="target: > * > span:last-child">
+		            <select>
+		                <option value="">Sort by...</option>
+		                <option value="2">Work count</option>
+		                <option value="3">Bookmark count</option>
+		                <option value="4">Newest</option>
+		                <option value="5">Oldest</option>
+		            </select>
+		            <span class="uk-link">
+		                <span uk-icon="icon: plus"></span>
+		                <span></span>
+		            </span>
+		        </div>
+		        <dl class="uk-description-list uk-description-list-divider uk-list-striped">
+		        {% for type, tag in tags.items %} 
+			        <dt>{{ type }}</dt>
+			        <dd>
+			        <span uk-icon="icon: tag"></span> {% for single_tag in tag %}<a href="{{single_tag.url}}" style="padding-left:5px;">{{ single_tag.text }}</a> {% endfor %}
+			        </dd>
+			    {% endfor %}
+				</dl>
+			</div>     
+		</li>
+
+		<li> 
+			<div uk-grid>
+			<div class="uk-width-1">
+				<div uk-form-custom="target: > * > span:last-child">
+		            <select>
+		                <option value="">Sort by...</option>
+		                <option value="2">Alphabetical</option>
+		                <option value="3">Newest</option>
+		                <option value="4">Oldest</option>
+		            </select>
+		            <span class="uk-link">
+		                <span uk-icon="icon: plus"></span>
+		                <span></span>
+		            </span>
+		        </div>
+		        {% for user in users %} 
+					<p> <a href="{{ root }}/username/{{ user.username }}">{{ user.username }}</a> </p>
+			    {% endfor %}
+			</div>     
+		</li>
+
 	</ul>
 </div>
 </div>

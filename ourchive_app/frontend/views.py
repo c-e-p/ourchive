@@ -47,7 +47,15 @@ def search(request):
 	for bookmark in bookmarks:
 		tags = group_tags(tag_types['results'], bookmark['tags']) if 'tags' in bookmark else {}
 		bookmark['tags'] = tags
+
+	response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/tags/')
+	tags = group_tags(tag_types['results'], response.json()['results'])
+
+	response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/users/')
+	users = response.json()['results']
+
 	return render(request, 'search_results.html', {'works': works, 'bookmarks': bookmarks,
+		'tags': tags, 'users': users,
 		'root': settings.ALLOWED_HOSTS[0]})
 
 @require_http_methods(["GET"])
