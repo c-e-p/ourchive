@@ -5,9 +5,10 @@ from api.models import Work, Tag, Chapter, TagType, WorkType, Bookmark, Bookmark
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     work_set = serializers.HyperlinkedRelatedField(many=True, view_name='work-detail', read_only=True)
+    bookmark_set = serializers.HyperlinkedRelatedField(many=True, view_name='bookmark-detail', read_only=True)
     class Meta:
         model = User
-        fields = ('id', 'url', 'username', 'password', 'email', 'groups', 'work_set')
+        fields = ('id', 'url', 'username', 'password', 'email', 'groups', 'work_set', 'bookmark_set')
         extra_kwargs = {'password': {'write_only': True}}
     def create(self, validated_data):
         user = User.objects.create(
