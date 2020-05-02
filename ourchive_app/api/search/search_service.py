@@ -14,20 +14,14 @@ class OurchiveSearch:
 		searcher = search.factory.create(settings.SEARCH_BACKEND, **config)
 
 	def do_search(self, **kwargs):
-		print('generic search')
+		results = {}
+		if ('work') in kwargs:
+			results['work'] = searcher.search_works(kwargs['work'])
+		if ('bookmark') in kwargs:
+			results['bookmark'] = searcher.search_bookmarks(kwargs['bookmark'])
+		if ('tag') in kwargs:
+			results['tag'] = searcher.search_tags(kwargs['tag'])
+		if ('user') in kwargs:
+			results['user'] = searcher.search_users(kwargs['user'])
+		return results
 
-	def term_search(self, **kwargs):
-		# check object being searched (default all), then:
-		# multi match query on work
-		# multi match query on bookmark
-		# match query on user
-		# match query on tags
-		print('term search')
-
-	def facet_filter(self, **kwargs):
-		# check object being searched (default all), then:
-		# facet filter on work
-		# facet filter on bookmark
-		# facet filter on user
-		# facet filter on tags
-		print('facet filter')

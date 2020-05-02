@@ -119,6 +119,9 @@ class BookmarkComment(models.Model):
         null=True, blank=True
     )
 
+    created_on = models.DateTimeField(auto_now_add=True)
+    updated_on = models.DateTimeField(auto_now=True)
+
     parent_comment = models.ForeignKey(
         'BookmarkComment',
         on_delete=models.CASCADE,
@@ -150,6 +153,9 @@ class ChapterComment(models.Model):
         on_delete=models.CASCADE,
         null=True, blank=True
     )
+
+    created_on = models.DateTimeField(auto_now_add=True)
+    updated_on = models.DateTimeField(auto_now=True)
 
     parent_comment = models.ForeignKey(
         'ChapterComment',
