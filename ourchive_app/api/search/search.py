@@ -2,15 +2,31 @@ from api.models import Work, Tag, Chapter, TagType, WorkType, Bookmark, Comment,
 import object_factory
 
 class ElasticSearchProvider:
+	from elasticsearch import Elasticsearch
+	from elasticsearch_dsl import Search, Q
 	def init_provider():
 		print('init provider')
 	def search_works(self, **kwargs):
-		# word count
-		# audio length
-		# chapter count
-		# specific tags
-		# complete		
-		print('search works')
+		q = Q("multi_match", query=kwargs['filter']['term'], fields=['title', 'summary', 'chapter__title', 'chapters__summary', 'tags__text'])
+		filters = kwargs['filter']
+
+		client = Elasticsearch()
+
+		s = Search(using=client, index="work")
+		if 'complete' in filters:
+			s = s.filter("term", is_complete=True)
+		if 'audio_length' in filters:
+			s = s.filter("range", "chapters__audio_length": {
+                        "gt": filters['audio_length']
+                    })
+		if 'image_formats' in filters:
+			s = s.filter("terms", chapters__image_format=filters['image_formats'])
+		if 'image_formats' in filters:
+			s = s.filter("terms", tags__text_format=filters['tags'])
+		s = s.query(q)
+		response = s.execute()
+		return response
+
 	def search_bookmarks(self, **kwargs):
 		print('search bookmarks')
 	def search_users(self, **kwargs):
