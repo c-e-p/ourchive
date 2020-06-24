@@ -59,7 +59,7 @@ class Fingerguns(models.Model):
 class WorkType(models.Model):
 
     __tablename__ = 'work_types'
-
+    uid = models.UUIDField(default=uuid.uuid4, editable=False)
     type_name = models.CharField(max_length=200)
 
     def __repr__(self):
@@ -71,7 +71,7 @@ class WorkType(models.Model):
 class Chapter(models.Model):
 
     __tablename__ = 'chapters'
-
+    uid = models.UUIDField(default=uuid.uuid4, editable=False)
     created_on = models.DateTimeField(auto_now_add=True)
     updated_on = models.DateTimeField(auto_now=True)
     title = models.CharField(max_length=200, null=True, blank=True)
@@ -110,7 +110,7 @@ class Chapter(models.Model):
 class BookmarkComment(models.Model):
 
     __tablename__ = 'bookmark_comments'
-
+    uid = models.UUIDField(default=uuid.uuid4, editable=False)
     text = models.TextField(null=True, blank=True)
 
     user = models.ForeignKey(
@@ -145,7 +145,7 @@ class BookmarkComment(models.Model):
 class ChapterComment(models.Model):
 
     __tablename__ = 'chapter_comments'
-
+    uid = models.UUIDField(default=uuid.uuid4, editable=False)
     text = models.TextField(null=True, blank=True)
 
     user = models.ForeignKey(
@@ -181,7 +181,7 @@ class ChapterComment(models.Model):
 class Tag(models.Model):
 
     __tablename__ = 'tags'
-
+    uid = models.UUIDField(default=uuid.uuid4, editable=False)
     text = models.CharField(max_length=120)
     
     tag_type = models.ForeignKey(
@@ -211,7 +211,7 @@ class TagType(models.Model):
 class BookmarkCollection(models.Model):
 
     __tablename__ = 'bookmark_collection'
-
+    uid = models.UUIDField(default=uuid.uuid4, editable=False)
     title = models.CharField(max_length=200)
     is_complete = models.BooleanField(default=False)
     cover_url = models.CharField(max_length=600, null=True, blank=True)
@@ -241,7 +241,7 @@ class BookmarkCollection(models.Model):
 class Bookmark(models.Model):
 
     __tablename__ = 'bookmarks'
-
+    uid = models.UUIDField(default=uuid.uuid4, editable=False)
     title = models.CharField(max_length=200)
     rating = models.IntegerField()
     description = models.TextField(null=True, blank=True)
@@ -272,7 +272,7 @@ class Bookmark(models.Model):
 class BookmarkLink(models.Model):
 
     __tablename__ = 'bookmark_links'
-
+    uid = models.UUIDField(default=uuid.uuid4, editable=False)
     link = models.CharField(max_length=200)
     text = models.CharField(max_length=200)
 
@@ -290,7 +290,7 @@ class BookmarkLink(models.Model):
 class Message(models.Model):
 
     __tablename__ = 'messages'
-
+    uid = models.UUIDField(default=uuid.uuid4, editable=False)
     subject = models.CharField(max_length=200)
     content = models.TextField()
     read = models.BooleanField(default=False)
@@ -318,7 +318,7 @@ class Message(models.Model):
 class Notification(models.Model):
 
     __tablename__ = 'notifications'
-
+    uid = models.UUIDField(default=uuid.uuid4, editable=False)
     content = models.CharField(max_length=200)
     created_on = models.DateTimeField(auto_now_add=True)
 
@@ -334,7 +334,7 @@ class Notification(models.Model):
 
 class NotificationType(models.Model):
     __tablename__ = 'notification_types'
-
+    uid = models.UUIDField(default=uuid.uuid4, editable=False)
     type_label = models.CharField(max_length=200)
     send_email = models.BooleanField(default=False)
 
@@ -348,7 +348,7 @@ class NotificationType(models.Model):
 class OurchiveSetting(models.Model):
 
     __tablename__ = 'ourchive_settings'
-
+    uid = models.UUIDField(default=uuid.uuid4, editable=False)
     
     name = models.CharField(max_length=200)
     value = models.CharField(max_length=200)

@@ -21,6 +21,12 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
 
         return user
 
+class SearchResultsSerializer(serializers.Serializer):
+    work = serializers.DictField()
+    bookmark = serializers.DictField()
+    tag = serializers.DictField()
+    user = serializers.DictField()
+
 class GroupSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Group

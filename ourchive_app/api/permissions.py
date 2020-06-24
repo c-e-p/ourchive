@@ -2,6 +2,9 @@ from rest_framework import permissions
 from api.models import OurchiveSetting, Chapter
 from django.contrib.auth.models import AnonymousUser
 
+class Absolutely(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        return True
 
 class IsOwnerOrReadOnly(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):

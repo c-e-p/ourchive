@@ -1,5 +1,7 @@
-from api.models import Work, Tag, Chapter, TagType, WorkType, Bookmark, Comment, Message, NotificationType, Notification, OurchiveSetting
-import object_factory
+from api.models import Work, Tag, Chapter, TagType, WorkType, Bookmark, BookmarkComment, ChapterComment, Message, NotificationType, Notification, OurchiveSetting
+from api import object_factory
+from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector
+import json
 
 class ElasticSearchProvider:
 	from elasticsearch import Elasticsearch
@@ -16,7 +18,7 @@ class ElasticSearchProvider:
 		if 'complete' in filters:
 			s = s.filter("term", is_complete=True)
 		if 'audio_length' in filters:
-			s = s.filter("range", "chapters__audio_length": {
+			s = s.filter("range", chapters__audio_length={
                         "gt": filters['audio_length']
                     })
 		if 'image_formats' in filters:
@@ -49,23 +51,34 @@ class ElasticSearchServiceBuilder:
         return self._instance
 
 class PostgresProvider:
-	from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector
+	
 	def init_provider():
 		print('init provider')
 	def search_works(self, **kwargs):
 		filters = kwargs['filter']
-		work_filters = {
-			'is_complete__exact': filters['complete'],
-			'chapters__audio_length__gte': filters['audio_length'],
-			'chapters__image_format__in': filters['image_formats'],
-			'tags__text__in': filters['tags']
-			}
+		work_filters = {}
+		if 'complete' in filters:
+			work_filters['is_complete__exact'] = filters['complete']
+		if 'audio_length' in filters:
+			work_filters['chapters__audio_length__gte'] = filters['audio_length']
+		if 'image_formats' in filters:
+			work_filters['chapters__image_format__in'] = filters['image_formats']
+		if 'tags' in filters:
+			work_filters['tags__text__in'] = filters['tags']
+			
 		# todo word count	
-		vector = SearchVector('title', weight='A') + SearchVector('summary', weight='B') + SearchVector('chapters__title', weight='B') \
-		+ SearchVector('chapters__text', weight'D') + SearchVector('tags__text', weight='A') + SearchVector('chapters__summary', weight='C')
+		vector = SearchVector('title', weight='A') + SearchVector('summary', weight='B') + SearchVector('chapters__title', weight='B') + SearchVector('chapters__text', weight='D') + SearchVector('tags__text', weight='A') + SearchVector('chapters__summary', weight='C')
 		query = SearchQuery(kwargs['term'])
-		result = Work.objects.filter(**work_filters).annotate(rank=SearchRank(vector, query)).filter(rank__gte=0.3).order_by('rank')
-		return result
+		resultset = Work.objects.filter(**work_filters).annotate(rank=SearchRank(vector, query)).filter(rank__gte=0.2).order_by('rank')
+		result_json = []
+		for result in resultset:
+			result_dict = result.__dict__
+			result_dict.pop('_state', None)
+			result_dict.pop('uid', None)
+			result_dict.pop('created_on', None)
+			result_dict.pop('updated_on', None)
+			result_json.append(result_dict)
+		return result_json
 	def search_bookmarks(self, **kwargs):
 		filters = kwargs['filter']
 		bookmark_filters = {

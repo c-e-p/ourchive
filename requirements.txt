@@ -17,3 +17,5 @@ pyyaml
 Pillow
 mutagen
 pydub
+elasticsearch
+elasticsearch_dsl

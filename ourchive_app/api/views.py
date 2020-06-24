@@ -1,14 +1,16 @@
 from django.shortcuts import render
 from django.contrib.auth.models import User, Group
 from rest_framework import viewsets, generics
-from api.serializers import UserSerializer, GroupSerializer, WorkSerializer, TagSerializer, BookmarkCollectionSerializer, ChapterSerializer, TagTypeSerializer, WorkTypeSerializer, BookmarkSerializer, ChapterCommentSerializer, BookmarkCommentSerializer, MessageSerializer, NotificationSerializer, NotificationTypeSerializer, OurchiveSettingSerializer
+from api.serializers import UserSerializer, GroupSerializer, WorkSerializer, TagSerializer, BookmarkCollectionSerializer, ChapterSerializer, TagTypeSerializer, WorkTypeSerializer, BookmarkSerializer, ChapterCommentSerializer, BookmarkCommentSerializer, MessageSerializer, NotificationSerializer, NotificationTypeSerializer, OurchiveSettingSerializer, SearchResultsSerializer
 from api.models import Work, Tag, Chapter, TagType, WorkType, Bookmark, BookmarkCollection, ChapterComment, BookmarkComment, Message, Notification, NotificationType, OurchiveSetting
 from rest_framework import generics, permissions
-from api.permissions import IsOwnerOrReadOnly, UserAllowsComments, UserAllowsAnonComments, MessagePermissions, IsOwner, IsAdminOrReadOnly, IsUser, RegistrationPermitted
+from api.permissions import Absolutely, IsOwnerOrReadOnly, UserAllowsComments, UserAllowsAnonComments, MessagePermissions, IsOwner, IsAdminOrReadOnly, IsUser, RegistrationPermitted
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.reverse import reverse
 from rest_framework.views import APIView
+from rest_framework.parsers import JSONParser
+from .search.search_service import OurchiveSearch
 
 
 @api_view(['GET'])
@@ -23,12 +25,28 @@ def api_root(request, format=None):
         'worktypes': reverse('work-type-list', request=request, format=format),
         'bookmarks': reverse('bookmark-list', request=request, format=format),
         'bookmarkcollections': reverse('bookmark-collection-list', request=request, format=format),
-        'chaptercomments': reverse('chapter-comment-list', request=request, format=format),
         'messages': reverse('message-list', request=request, format=format),
         'notifications': reverse('notification-list', request=request, format=format),
         'notificationtypes': reverse('notification-type-list', request=request, format=format),
         'settings': reverse('ourchive-setting-list', request=request, format=format),
+        'searchresults': reverse('search-list', request=request, format=format),
     })
+
+class SearchList(APIView):
+    parser_classes = [JSONParser]
+    permission_classes = [Absolutely]
+
+    def post(self, request, format=None):
+        searcher = OurchiveSearch()
+        results = searcher.do_search(**request.data)
+        return Response({'results': results})
+
+    def get(self, request, format=None):
+        return Response({'errorMessage': 'This is not the endpoint you are looking for.'})
+
+    def get_queryset(self):
+        searcher = OurchiveSearch()
+        return searcher.do_search(**self.kwargs)
 
 class UserList(generics.ListCreateAPIView):
     queryset = User.objects.get_queryset().order_by('id')

@@ -63,6 +63,8 @@ FILE_PROCESSOR = 'local'
 
 S3_BUCKET = 'ourchive_media'
 
+SEARCH_BACKEND = 'POSTGRES'
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',

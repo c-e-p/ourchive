@@ -44,6 +44,7 @@ urlpatterns = [
         name='user-detail'),
     path('users/<str:username>/', views.UserNameDetail.as_view(),
         name='user-detail'),
+    path('search/', views.SearchList.as_view(), name='search-list'),
 ]
 
 
