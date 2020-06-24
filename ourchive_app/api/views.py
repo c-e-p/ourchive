@@ -42,7 +42,7 @@ class SearchList(APIView):
         return Response({'results': results})
 
     def get(self, request, format=None):
-        return Response({'errorMessage': 'This is not the endpoint you are looking for.'})
+        return Response({'work': {'filter': {'complete': "", 'image_format': "", 'tags': ""}, 'term': ""}, 'bookmark': {'filter': {}, 'term': ""}, 'tag': {'filter': {}, 'term': ""}, 'user': {'filter': {}, 'term': ""}})
 
     def get_queryset(self):
         searcher = OurchiveSearch()
