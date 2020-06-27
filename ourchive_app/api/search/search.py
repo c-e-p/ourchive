@@ -120,3 +120,4 @@ class PostgresServiceBuilder:
 factory = object_factory.ObjectFactory()
 factory.register_builder('ELASTICSEARCH', ElasticSearchServiceBuilder())
 factory.register_builder('POSTGRES', PostgresServiceBuilder())
+factory.register_builder('Default', PostgresServiceBuilder())

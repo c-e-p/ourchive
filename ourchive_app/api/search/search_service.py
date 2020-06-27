@@ -1,10 +1,12 @@
 from . import search
 from django.conf import settings
+from api.models import OurchiveSetting
 
 class OurchiveSearch:
 	def __init__(self):
 		config = {}
-		self.searcher = search.factory.create(settings.SEARCH_BACKEND, **config)
+		search_backend = OurchiveSetting.objects.get(name='Search Provider')
+		self.searcher = search.factory.create(search_backend, **config)
 
 	def do_search(self, **kwargs):
 		results = {}
