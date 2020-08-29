@@ -42,7 +42,7 @@ class SearchList(APIView):
         return Response({'results': results})
 
     def get(self, request, format=None):
-        return Response({'work': {'filter': {'complete': "", 'image_format': "", 'tags': ""}, 'term': ""}, 'bookmark': {'filter': {}, 'term': ""}, 'tag': {'filter': {}, 'term': ""}, 'user': {'filter': {}, 'term': ""}})
+        return Response({'work': {'filter': {'complete': "", 'image_format': "", 'tags': ""}, 'term': ""}, 'bookmark': {'filter': {'complete': "", 'ratings': "", 'tags': ""}, 'term': ""}, 'tag': {'filter': {"tag_types": []}, 'term': ""}, 'user': {'filter': {}, 'term': ""}})
 
     def get_queryset(self):
         searcher = OurchiveSearch()
