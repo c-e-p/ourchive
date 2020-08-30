@@ -10,13 +10,13 @@ class OurchiveSearch:
 
 	def do_search(self, **kwargs):
 		results = {}
-		if ('work') in kwargs:
-			results['work'] = self.searcher.search_works(**kwargs['work'])
-		if ('bookmark') in kwargs:
-			results['bookmark'] = self.searcher.search_bookmarks(**kwargs['bookmark'])
-		if ('tag') in kwargs:
-			results['tag'] = self.searcher.search_tags(**kwargs['tag'])
-		if ('user') in kwargs:
-			results['user'] = self.searcher.search_users(**kwargs['user'])
+		if ('work_search') in kwargs:
+			results['work'] = self.searcher.search_works(**kwargs['work_search'])
+		if ('bookmark_search') in kwargs:
+			results['bookmark'] = self.searcher.search_bookmarks(**kwargs['bookmark_search'])
+		if ('tag_search') in kwargs:
+			results['tag'] = self.searcher.search_tags(**kwargs['tag_search'])
+		if ('user_search') in kwargs:
+			results['user'] = self.searcher.search_users(**kwargs['user_search'])
 		return results
 

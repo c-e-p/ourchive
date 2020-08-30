@@ -11,6 +11,7 @@ from rest_framework.reverse import reverse
 from rest_framework.views import APIView
 from rest_framework.parsers import JSONParser
 from .search.search_service import OurchiveSearch
+from .search.search_obj import GlobalSearch
 
 
 @api_view(['GET'])
@@ -42,7 +43,7 @@ class SearchList(APIView):
         return Response({'results': results})
 
     def get(self, request, format=None):
-        return Response({'work': {'filter': {'complete': "", 'image_format': "", 'tags': ""}, 'term': ""}, 'bookmark': {'filter': {'complete': "", 'ratings': "", 'tags': ""}, 'term': ""}, 'tag': {'filter': {"tag_types": []}, 'term': ""}, 'user': {'filter': {}, 'term': ""}})
+        return Response(GlobalSearch().to_dict())
 
     def get_queryset(self):
         searcher = OurchiveSearch()

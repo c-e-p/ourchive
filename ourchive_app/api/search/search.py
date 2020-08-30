@@ -5,6 +5,7 @@ import json
 from psycopg2.extensions import adapt
 import re
 from django.db.models import Q
+from .search_obj import WorkSearch
 
 class ElasticSearchProvider:
 	from elasticsearch import Elasticsearch
@@ -93,28 +94,68 @@ class PostgresProvider:
 	def init_provider():
 		print('init provider')
 	def search_works(self, **kwargs):
-		filters = kwargs['filter']
-		work_filters = {}
-		if 'complete' in filters and filters['complete'] != "":
-			work_filters['is_complete__exact'] = filters['complete']
-		if 'audio_length' in filters and filters['audio_length'] != "":
-			work_filters['chapters__audio_length__gte'] = filters['audio_length']
-		if 'image_formats' in filters and filters['image_formats'] != "":
-			work_filters['chapters__image_format__in'] = filters['image_formats']
-		if 'tags' in filters and filters['tags'] != "":
-			work_filters['tags__text__in'] = filters['tags']
+		work_search = WorkSearch()
+		work_search.from_dict(kwargs)
+		work_filters = None
+		if len(work_search.filter.complete) > 0:
+			or_query = None
+			for status in work_search.filter.complete:
+				q = Q(**{"is_complete__exact": status})
+				if or_query is None:
+					or_query = q
+				else:
+					or_query = or_query | q
+			work_filters = or_query
+		if len(work_search.filter.audio_length) > 0:
+			or_query = None
+			for audio_length in work_search.filter.audio_length:
+				q = Q(**{"chapters__audio_length__gte": audio_length})
+				if or_query is None:
+					or_query = q
+				else:
+					or_query = or_query | q
+			if work_filters is None:
+				work_filters = or_query
+			else:
+				work_filters = work_filters & or_query
+		if len(work_search.filter.image_formats) > 0:
+			or_query = None
+			for image_format in work_search.filter.image_formats:
+				q = Q(**{"chapters__image_format__icontains": image_format})
+				if or_query is None:
+					or_query = q
+				else:
+					or_query = or_query | q
+			if work_filters is None:
+				work_filters = or_query
+			else:
+				work_filters = work_filters & or_query
+		if len(work_search.filter.tags) > 0:
+			or_query = None
+			for tag in work_search.filter.tags:
+				q = Q(**{"tags__text__icontains": tag})
+				if or_query is None:
+					or_query = q
+				else:
+					or_query = or_query | q
+			if work_filters is None:
+				work_filters = or_query
+			else:
+				work_filters = work_filters & or_query
 		# todo word count	
-
-		query = self.get_query(kwargs['term'], ['title', 'summary',])
-		resultset = Work.objects.filter(**work_filters).filter(query)
+		query = self.get_query(work_search.term, ['title', 'summary',])
+		resultset = None
+		if work_filters is not None and query is not None:
+			resultset = Work.objects.filter(work_filters).filter(query)
+		elif work_filters is not None:
+			resultset = Work.objects.filter(work_filters)
+		else:
+			resultset = Work.objects.filter(query)
 		result_json = []
 		for result in resultset:
 			result_dict = result.__dict__
-			print(result_dict)
-			result_dict.pop('_state', None)
-			result_dict.pop('uid', None)
-			result_dict.pop('created_on', None)
-			result_dict.pop('updated_on', None)
+			for field in work_search.reserved_fields:
+				result_dict.pop(field, None)
 			result_json.append(result_dict)
 		return result_json
 	def search_bookmarks(self, **kwargs):
