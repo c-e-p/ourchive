@@ -39,11 +39,6 @@ class ElasticSearchProvider:
 		print('search users')
 	def search_tags(self, **kwargs):
 		print('search users')
-	def get_facets():
-		# get count by work type
-		# get count by tag type
-		# get count by admin tags
-		print('get available facets')
 
 class ElasticSearchServiceBuilder:
     def __init__(self):
@@ -159,7 +154,7 @@ class PostgresProvider:
 				result_dict.pop(field, None)
 			result_json.append(result_dict)
 		return result_json
-		
+
 	def search_users(self, **kwargs):
 		user_search = UserSearch()
 		user_search.from_dict(kwargs)
@@ -195,12 +190,6 @@ class PostgresProvider:
 				result_dict.pop(field, None)
 			result_json.append(result_dict)
 		return result_json
-
-	def get_facets():
-		# get count by work type
-		# get count by tag type
-		# get count by admin tags
-		print('get available facets')
 
 class PostgresServiceBuilder:
     def __init__(self):
