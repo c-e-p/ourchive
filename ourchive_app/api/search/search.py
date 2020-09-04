@@ -5,7 +5,7 @@ import json
 from psycopg2.extensions import adapt
 import re
 from django.db.models import Q
-from .search_obj import WorkSearch
+from .search_obj import WorkSearch, BookmarkSearch, TagSearch, UserSearch
 
 class ElasticSearchProvider:
 	from elasticsearch import Elasticsearch
@@ -90,60 +90,36 @@ class PostgresProvider:
 	        else:
 	            query = query & or_query
 	    return query
+
+	def build_filter_query(self, filter_array, filter_text, existing_query):
+		if len(filter_array) > 0:
+			or_query = None
+			for array_item in filter_array:
+				q = Q(**{filter_text: array_item})
+				if or_query is None:
+					or_query = q
+				else:
+					or_query = or_query | q
+			if existing_query is None:
+				existing_query = or_query
+			else:
+				existing_query = existing_query & or_query
+		return existing_query
 	
 	def init_provider():
 		print('init provider')
+
 	def search_works(self, **kwargs):
 		work_search = WorkSearch()
 		work_search.from_dict(kwargs)
 		work_filters = None
-		if len(work_search.filter.complete) > 0:
-			or_query = None
-			for status in work_search.filter.complete:
-				q = Q(**{"is_complete__exact": status})
-				if or_query is None:
-					or_query = q
-				else:
-					or_query = or_query | q
-			work_filters = or_query
-		if len(work_search.filter.audio_length) > 0:
-			or_query = None
-			for audio_length in work_search.filter.audio_length:
-				q = Q(**{"chapters__audio_length__gte": audio_length})
-				if or_query is None:
-					or_query = q
-				else:
-					or_query = or_query | q
-			if work_filters is None:
-				work_filters = or_query
-			else:
-				work_filters = work_filters & or_query
-		if len(work_search.filter.image_formats) > 0:
-			or_query = None
-			for image_format in work_search.filter.image_formats:
-				q = Q(**{"chapters__image_format__icontains": image_format})
-				if or_query is None:
-					or_query = q
-				else:
-					or_query = or_query | q
-			if work_filters is None:
-				work_filters = or_query
-			else:
-				work_filters = work_filters & or_query
-		if len(work_search.filter.tags) > 0:
-			or_query = None
-			for tag in work_search.filter.tags:
-				q = Q(**{"tags__text__icontains": tag})
-				if or_query is None:
-					or_query = q
-				else:
-					or_query = or_query | q
-			if work_filters is None:
-				work_filters = or_query
-			else:
-				work_filters = work_filters & or_query
+		work_filters = self.build_filter_query(work_search.filter.complete, work_search.filter.complete_filter, work_filters)
+		work_filters = self.build_filter_query(work_search.filter.audio_length_gte, work_search.filter.audio_filter_gte, work_filters)
+		work_filters = self.build_filter_query(work_search.filter.audio_length_lte, work_search.filter.audio_filter_lte, work_filters)
+		work_filters = self.build_filter_query(work_search.filter.image_formats, work_search.filter.image_filter, work_filters)
+		work_filters = self.build_filter_query(work_search.filter.tags, work_search.filter.tag_filter, work_filters)
 		# todo word count	
-		query = self.get_query(work_search.term, ['title', 'summary',])
+		query = self.get_query(work_search.term, work_search.term_search_fields)
 		resultset = None
 		if work_filters is not None and query is not None:
 			resultset = Work.objects.filter(work_filters).filter(query)
@@ -158,71 +134,68 @@ class PostgresProvider:
 				result_dict.pop(field, None)
 			result_json.append(result_dict)
 		return result_json
-	def search_bookmarks(self, **kwargs):
-		filters = kwargs['filter']
-		bookmark_filters = {}
-		if 'complete' in filters and filters['complete'] != "":
-			bookmark_filters['is_complete__exact'] = filters['complete']
-		if 'ratings' in filters and filters['ratings'] != "":
-			bookmark_filters['bookmarks__rating__in'] = filters['ratings']
-		if 'tags' in filters and filters['tags'] != "":
-			bookmark_filters['tags__text__in'] = filters['tags']
 
-		# todo word count	
-		vector = SearchVector('title', weight='A') + SearchVector('description', weight='A') + SearchVector('rating', weight='A')
-		query = SearchQuery(kwargs['term'])
-		resultset = Bookmark.objects.filter(**bookmark_filters).annotate(rank=SearchRank(vector, query)).filter(rank__gte=0.3).order_by('rank')
+	def search_bookmarks(self, **kwargs):
+		bookmark_search = BookmarkSearch()
+		bookmark_search.from_dict(kwargs)
+		bookmark_filters = None
+		bookmark_filters = self.build_filter_query(bookmark_search.filter.complete, bookmark_search.filter.complete_filter, bookmark_filters)
+		bookmark_filters = self.build_filter_query(bookmark_search.filter.rating_gte, bookmark_search.filter.rating_filter_gte, bookmark_filters)
+		bookmark_filters = self.build_filter_query(bookmark_search.filter.rating_lte, bookmark_search.filter.rating_filter_lte, bookmark_filters)
+		bookmark_filters = self.build_filter_query(bookmark_search.filter.tags, bookmark_search.filter.tag_filter, bookmark_filters)
+
+		query = self.get_query(bookmark_search.term, bookmark_search.term_search_fields)
+		resultset = None
+		if bookmark_filters is not None and query is not None:
+			resultset = Bookmark.objects.filter(bookmark_filters).filter(query)
+		elif bookmark_filters is not None:
+			resultset = Bookmark.objects.filter(bookmark_filters)
+		else:
+			resultset = Bookmark.objects.filter(query)
 		result_json = []
 		for result in resultset:
 			result_dict = result.__dict__
-			result_dict.pop('_state', None)
-			result_dict.pop('uid', None)
-			result_dict.pop('created_on', None)
-			result_dict.pop('updated_on', None)
+			for field in bookmark_search.reserved_fields:
+				result_dict.pop(field, None)
 			result_json.append(result_dict)
 		return result_json
+		
 	def search_users(self, **kwargs):
-		filters = kwargs['filter']
-		vector = SearchVector('username', weight='A')
-		query = SearchQuery(kwargs['term'])
-		resultset = User.objects.filter(is_active=True).annotate(rank=SearchRank(vector, query)).filter(rank__gte=0.3).order_by('rank')
+		user_search = UserSearch()
+		user_search.from_dict(kwargs)
+		query = self.get_query(user_search.term, user_search.term_search_fields)
+		resultset = User.objects.filter(is_active=True).filter(query)
 		result_json = []
 		for result in resultset:
 			result_dict = result.__dict__
-			result_dict.pop('_state', None)
-			result_dict.pop('uid', None)
-			result_dict.pop('created_on', None)
-			result_dict.pop('updated_on', None)
-			result_dict.pop('password', None)
-			result_dict.pop('is_superuser', None)
-			result_dict.pop('first_name', None)
-			result_dict.pop('last_name', None)
-			result_dict.pop('is_staff', None)
-			result_dict.pop('email', None)
-			result_dict.pop('date_joined', None)
-			result_dict.pop('last_login', None)
-			result_dict.pop('is_active', None)
+			for field in user_search.reserved_fields:
+				result_dict.pop(field, None)
 			result_json.append(result_dict)
 		return result_json
+
 	def search_tags(self, **kwargs):
-		filters = kwargs['filter']
-		tag_filters = {}
-		if 'tag_types' in filters and filters['tag_types'] != []:
-			tag_filters['tag_type__label__in'] = filters['tag_types']
-		if kwargs['term'] != "":
-			tag_filters['text__icontains'] = kwargs['term']
-		vector = SearchVector('tag_type__label', weight='B') + SearchVector('text', weight='A')
-		query = SearchQuery(kwargs['term'])
-		resultset = Tag.objects.filter(**tag_filters).annotate(rank=SearchRank(vector, query)).order_by('-rank')
+		tag_search = TagSearch()
+		tag_search.from_dict(kwargs)
+		tag_filters = None
+		tag_filters = self.build_filter_query(tag_search.filter.tag_type, tag_search.filter.tag_type_filter, tag_filters)
+		tag_filters = self.build_filter_query(tag_search.filter.text, tag_search.filter.text_filter, tag_filters)
+		
+		query = self.get_query(tag_search.term, tag_search.term_search_fields)
+		resultset = None
+		if tag_filters is not None and query is not None:
+			resultset = Tag.objects.filter(tag_filters).filter(query)
+		elif tag_filters is not None:
+			resultset = Tag.objects.filter(tag_filters)
+		else:
+			resultset = Tag.objects.filter(query)
 		result_json = []
 		for result in resultset:
 			result_dict = result.__dict__
-			result_dict.pop('_state', None)
-			result_dict.pop('uid', None)
-			result_dict.pop('created_on', None)
-			result_dict.pop('updated_on', None)
+			for field in tag_search.reserved_fields:
+				result_dict.pop(field, None)
 			result_json.append(result_dict)
 		return result_json
+
 	def get_facets():
 		# get count by work type
 		# get count by tag type
