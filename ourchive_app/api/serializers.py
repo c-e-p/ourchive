@@ -163,16 +163,24 @@ class ChapterSerializer(serializers.HyperlinkedModelSerializer):
         many = True
         partial=True
 
+    def update_word_count(self, chapter):
+        word_count = 0
+        for work_chapter in chapter.work.chapters.all():
+            word_count += work_chapter.word_count
+        Work.objects.filter(id=chapter.work.id).update(**{'word_count': word_count})
+
     def update(self, chapter, validated_data):
         if 'text' in validated_data:
             validated_data['word_count'] = 0 if not validated_data['text'] else len(validated_data['text'].split())
         chapter = Chapter.objects.filter(id=chapter.id)
-        chapter.update(**validated_data)        
+        chapter.update(**validated_data) 
+        self.update_word_count(chapter.first())       
         return chapter.first()
 
     def create(self, validated_data):
         validated_data['word_count'] = 0 if not ('text' in validated_data and validated_data['text']) else len(validated_data['text'].split())
         chapter = Chapter.objects.create(**validated_data)
+        self.update_word_count(chapter.first())
         return chapter
 
 

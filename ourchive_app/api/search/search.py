@@ -113,6 +113,8 @@ class PostgresProvider:
 		work_filters = self.build_filter_query(work_search.filter.audio_length_lte, work_search.filter.audio_filter_lte, work_filters)
 		work_filters = self.build_filter_query(work_search.filter.image_formats, work_search.filter.image_filter, work_filters)
 		work_filters = self.build_filter_query(work_search.filter.tags, work_search.filter.tag_filter, work_filters)
+		work_filters = self.build_filter_query(work_search.filter.word_count_gte, work_search.filter.word_count_gte_filter, work_filters)
+		work_filters = self.build_filter_query(work_search.filter.word_count_lte, work_search.filter.word_count_lte_filter, work_filters)
 		# todo word count	
 		query = self.get_query(work_search.term, work_search.term_search_fields)
 		resultset = None
@@ -120,7 +122,7 @@ class PostgresProvider:
 			resultset = Work.objects.filter(work_filters).filter(query)
 		elif work_filters is not None:
 			resultset = Work.objects.filter(work_filters)
-		else:
+		elif query is not None:
 			resultset = Work.objects.filter(query)
 		result_json = []
 		for result in resultset:

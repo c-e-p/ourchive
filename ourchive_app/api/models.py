@@ -22,6 +22,8 @@ class Work(models.Model):
     updated_on = models.DateTimeField(auto_now=True)
     anon_comments_permitted = models.BooleanField(default=True)
     comments_permitted = models.BooleanField(default=True)
+    word_count = models.IntegerField(default=0)
+    audio_length = models.IntegerField(default=0)
 
     user = models.ForeignKey(
         User,
@@ -81,7 +83,7 @@ class Chapter(models.Model):
     word_count = models.IntegerField(default=0)
     audio_url = models.CharField(max_length=600, null=True, blank=True)
     audio_description = models.CharField(max_length=600, null=True, blank=True)
-    audio_length = models.BigIntegerField(null=True, blank=True)
+    audio_length = models.BigIntegerField(null=True, blank=True, default=0)
     image_url = models.CharField(max_length=600, null=True, blank=True)
     image_alt_text = models.CharField(max_length=600, null=True, blank=True)
     image_format = models.CharField(max_length=100, null=True, blank=True)
