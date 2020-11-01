@@ -9,6 +9,7 @@ import json
 from .file_helpers import FileHelperService
 import threading
 from django.http import HttpResponse
+from .search_models import SearchObject
 
 
 def group_tags(tag_types, tags):
@@ -32,30 +33,33 @@ def user_name(request, username):
 	return render(request, 'user.html', {'user': user})
 
 def search(request):
-	response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/works/')
-	works = response.json()['results']
-	response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/tagtypes')
-	tag_types = response.json()
-	for work in works:
-		tags = group_tags(tag_types['results'], work['tags']) if 'tags' in work else {}
-		work['tags'] = tags
+	tag_types = requests.get(settings.ALLOWED_HOSTS[0] + '/api/tagtypes')
+	tag_types_json = tag_types.json()
 
-	response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/bookmarks/')
-	bookmarks = response.json()['results']
-	response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/tagtypes')
-	tag_types = response.json()
+	term = request.GET['term']
+	request_builder = SearchObject()
+	request_object = request_builder.with_term(term)
+	headers = {}
+	headers['X-CSRFToken'] = request.COOKIES['csrftoken']
+	headers['content-type'] = 'application/json'
+	response = requests.post(settings.ALLOWED_HOSTS[0] + '/api/search/', data=json.dumps(request_object), cookies=request.COOKIES, headers=headers)
+	response_json = response.json()
+	works = response_json['results']['work']
+	for work in works:
+		tags = group_tags(tag_types_json['results'], work['tags']) if 'tags' in work else {}
+		work['tags'] = tags
+	bookmarks = response_json['results']['bookmark']
 	for bookmark in bookmarks:
-		tags = group_tags(tag_types['results'], bookmark['tags']) if 'tags' in bookmark else {}
+		tags = group_tags(tag_types_json['results'], bookmark['tags']) if 'tags' in bookmark else {}
 		bookmark['tags'] = tags
 
-	response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/tags/')
-	tags = group_tags(tag_types['results'], response.json()['results'])
+	tags = group_tags(tag_types_json['results'], response_json['results']['tag'])
+	tag_count = len(response_json['results']['tag'])
 
-	response = requests.get(settings.ALLOWED_HOSTS[0] + '/api/users/')
-	users = response.json()['results']
+	users = response_json['results']['user']
 
 	return render(request, 'search_results.html', {'works': works, 'bookmarks': bookmarks,
-		'tags': tags, 'users': users,
+		'tags': tags, 'users': users, 'tag_count': tag_count,
 		'root': settings.ALLOWED_HOSTS[0]})
 
 @require_http_methods(["GET"])

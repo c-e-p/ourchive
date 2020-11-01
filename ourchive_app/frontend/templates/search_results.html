@@ -3,10 +3,10 @@
 	<div uk-grid>
 		<div class="uk-width-1">
 			<ul class="uk-subnav uk-subnav-pill uk-subnav-divider uk-flex uk-flex-right" uk-switcher="animation: uk-animation-fade;connect: .search-switcher">
-	            <li><a href="#" id="works_tab">Works</a></li>
-	            <li><a href="#" id="bookmarks_tab">Bookmarks</a></li>
-	            <li><a href="#" id="tags_tab">Tags</a></li>
-	            <li><a href="#" id="users_tab">Users</a></li>
+	            <li><a href="#" id="works_tab">Works ({{ works|length }})</a></li>
+	            <li><a href="#" id="bookmarks_tab">Bookmarks ({{ bookmarks|length }})</a></li>
+	            <li><a href="#" id="tags_tab">Tags ({{ tag_count }})</a></li>
+	            <li><a href="#" id="users_tab">Users ({{ users|length }})</a></li>
         	</ul>
 		</div>
 		<div class="uk-width-1">		

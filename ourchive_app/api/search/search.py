@@ -126,9 +126,20 @@ class PostgresProvider:
 			resultset = Work.objects.filter(query)
 		result_json = []
 		for result in resultset:
+			username = result.user.username
+			tags = []
+			for tag in result.tags.all():
+				tag_dict = {}
+				tag_dict["tag_type"] = tag.tag_type.label
+				tag_dict["text"] = tag.text
+				tags.append(tag_dict)
+			work_type = None if result.work_type is None else result.work_type.type_name
 			result_dict = result.__dict__
 			for field in work_search.reserved_fields:
 				result_dict.pop(field, None)
+			result_dict["user"] = username
+			result_dict["work_type"] = work_type
+			result_dict["tags"] = tags
 			result_json.append(result_dict)
 		return result_json
 
@@ -151,7 +162,16 @@ class PostgresProvider:
 			resultset = Bookmark.objects.filter(query)
 		result_json = []
 		for result in resultset:
+			username = result.user.username
+			tags = []
+			for tag in result.tags.all():
+				tag_dict = {}
+				tag_dict["tag_type"] = tag.tag_type.label
+				tag_dict["text"] = tag.text
+				tags.append(tag_dict)
 			result_dict = result.__dict__
+			result_dict["tags"] = tags
+			result_dict["user"] = username			
 			for field in bookmark_search.reserved_fields:
 				result_dict.pop(field, None)
 			result_json.append(result_dict)
@@ -187,9 +207,11 @@ class PostgresProvider:
 			resultset = Tag.objects.filter(query)
 		result_json = []
 		for result in resultset:
+			tag_type = result.tag_type.label
 			result_dict = result.__dict__
 			for field in tag_search.reserved_fields:
 				result_dict.pop(field, None)
+			result_dict['tag_type'] = tag_type
 			result_json.append(result_dict)
 		return result_json
 
