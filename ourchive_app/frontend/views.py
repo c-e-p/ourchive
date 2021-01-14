@@ -23,7 +23,8 @@ def group_tags(tag_types, tags):
 def index(request):
 	return render(request, 'index.html', {
 	    'heading_message': 'Welcome to Ourchive',
-	    'long_message': 'Ourchive is a configurable, extensible, multimedia archive, meant to serve as a modern alternative to PHP-based archives. You can search for existing works, create your own, or create curated collections of works you\'ve enjoyed. Have fun with it!'
+	    'long_message': 'Ourchive is a configurable, extensible, multimedia archive, meant to serve as a modern alternative to PHP-based archives. You can search for existing works, create your own, or create curated collections of works you\'ve enjoyed. Have fun with it!',
+		'root': settings.ALLOWED_HOSTS[0]
 	})
 
 def user_name(request, username):
@@ -36,7 +37,10 @@ def search(request):
 	tag_types = requests.get(settings.ALLOWED_HOSTS[0] + '/api/tagtypes')
 	tag_types_json = tag_types.json()
 
-	term = request.GET['term']
+	if 'term' in request.GET:
+		term = request.GET['term']
+	else:
+		term = request.POST['term']
 	request_builder = SearchObject()
 	request_object = request_builder.with_term(term)
 	headers = {}

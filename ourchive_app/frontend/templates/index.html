@@ -31,7 +31,6 @@
 	            <li class="uk-active"><a href="/">Home</a></li>
 	            <li><a href="/works">Works</a></li>
 	            <li><a href="/bookmarks">Bookmarks</a></li>
-	            <li><a href="/search">Search Results</a></li>
 	        </ul>
 	    </div>	    
 	    <div class="uk-navbar-right">
@@ -40,7 +39,7 @@
 	            <div class="uk-drop" uk-drop="mode: click; pos: left-center; offset: 0">
 	                <form class="uk-search uk-search-navbar uk-width-1-1" action="/search/" method="post">
 	                	{% csrf_token %}
-	                    <input class="uk-search-input" type="search" placeholder="Search..." autofocus>
+	                    <input class="uk-search-input" type="search" placeholder="Search..." autofocus name="term" value="{{ term }}">
 	                </form>
 	            </div>
 	        </div>
@@ -75,9 +74,10 @@
 				  		<span>{{ long_message }}</span>
 				    </div>
 				    <div>
-						<form class="uk-search uk-search-large">
-							<a href="" uk-search-icon></a>
-							<input class="uk-search-input" type="search" placeholder="Search...">
+						<form class="uk-search uk-search-large" method="post" action="search/">
+							{% csrf_token %}
+							<a href="#" uk-search-icon></a>
+							<input class="uk-search-input" type="search" name="term" placeholder="Search..." value="{{ term }}">
 						</form>
 				    </div>
 				</div>			  
